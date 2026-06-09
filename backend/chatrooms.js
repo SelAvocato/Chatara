@@ -1,0 +1,52 @@
+const pool = require('./db')
+const express = require('express')
+const router = express.Router()
+const chatroomTbl = 'chatroom_tbl'
+const participantTbl = 'participant_tbl'
+const userTbl = 'user_tbl'
+
+router.get('/:id', async (req, res) => {
+    const id = req.params.id
+    if (!id) return res.status(400).json({ message: "Error: Missing Id" })
+    console.log(id)
+    try {
+        const query = `SELECT c.id, c.name FROM ${chatroomTbl} c inner join ${participantTbl} p ON c.id = p.chatroom_id WHERE p.user_id = ? `
+        console.log('queried')
+        const [rows] = await pool.execute(query, [id])
+        console.log(rows[0])
+        if (!rows[0]) return res.json({ message: "You have no messages" })
+        console.log(rows)
+        return res.json({ chatrooms: rows, status: 'ok' })
+    } catch (e) {
+        return res.status(500).json({ message: "Something went wrong" })
+    }
+})
+
+router.post('/create', async (req, res) => {
+    const { chatroomName, username, userId } = req.body
+    if (!chatroomName || !username) return res.status(400).json({ message: "Chatroom and Participant name must not be empty" })
+    try {
+        const findUserQuery = `SELECT * FROM ${userTbl} WHERE username=?`
+        console.log('username:', username)
+        const [row] = await pool.execute(findUserQuery, [username])
+        console.log('row', row)
+        if (row.length < 1) return res.status(400).json({ message: "User doesn't exist" })
+        const participantId = row[0].id
+        console.log('userId:', participantId)
+
+        const chatroomQuery = `INSERT INTO ${chatroomTbl}(name) value (?)`
+        const [newChatroom] = await pool.execute(chatroomQuery, [chatroomName])
+        const chatroomId = newChatroom.insertId
+        console.log('chatroomId:', chatroomId)
+
+        const participantQuery = `INSERT INTO ${participantTbl}(chatroom_id, user_id) values (?, ?),(?, ?)`
+        await pool.execute(participantQuery, [chatroomId, participantId, chatroomId, userId])
+
+        res.json({ message: "Chatroom successfully created", status: 'ok' })
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({ message: "Something went wrong" })
+    }
+})
+
+module.exports = router

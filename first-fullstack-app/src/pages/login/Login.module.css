@@ -1,0 +1,64 @@
+.loginPage {
+    max-height: 100%;
+    max-width: 100%;
+
+    margin-top: 1rem;
+    padding: 1rem;
+
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.form p {
+    font-size: 14px;
+}
+
+.form input {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.form div {
+    display: flex;
+    gap: 5px;
+}
+
+.actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.actions input {
+    padding: 5px 10px;
+    font-weight: 500;
+    border: none;
+    border-radius: 3px;
+    margin-block: .4rem 1rem;
+    cursor: pointer;
+}
+
+.submitBtn {
+    background-color: rgba(102, 102, 206, 0.63);
+    color: rgb(37, 36, 53);
+}
+
+.cancelBtn {
+    background-color: rgba(128, 128, 128, 0.274);
+    color: rgb(92, 52, 52);
+}
+
+.error {
+    margin-top: -15px;
+    margin-left: auto;
+    color: red;
+    font-size: 13px;
+}

@@ -1,0 +1,28 @@
+:root{
+    --primary-color: #9FA1FF;
+    --accent-color: #B5BAFF;
+    --secondary-color: #AEE2FF;
+    --background-color: #D9F9DF;
+    --text-color: #0E4950;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body,
+html {
+    font-family: "Inter";
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--background-color);
+}
+
+*,
+*::before,
+*::after {
+    font-family: 'Inter', sans-serif;
+}
