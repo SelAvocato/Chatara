@@ -10,7 +10,13 @@
     width: 100vw;
 }
 
-.formContainer form{
+.formContainer form {
     display: flex;
     flex-direction: column;
+}
+
+.closeBtnStyle {
+    position: absolute;
+    top: 0;
+    right: 0;
 }

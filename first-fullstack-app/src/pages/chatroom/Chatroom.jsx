@@ -28,7 +28,6 @@ export default function Chatroom() {
             }
         }
 
-
         getChatrooms()
     }, [user.id])
 
@@ -38,7 +37,7 @@ export default function Chatroom() {
         setCurrentChatroomId(chatroomId)
         try {
             const res = await apiClient.get(`/messages/${chatroomId}`)
-            if (!res.status) return setStartChat(res.message)
+            if (res.status !== 'ok') return setStartChat(res.message)
             return setChatMessages(res.row)
         } catch (e) {
             console.error(e)
@@ -82,13 +81,13 @@ export default function Chatroom() {
             <div className={chat}>
                 <div className={chatMessagesStyle}>
                     {
-                        chatMessages
+                        chatMessages.length > 0
                             ? chatMessages.map(chatMessage =>
                                 <div className={`${chatBubble} ${chatMessage.sender_id === user.id ? sent : received}`} key={chatMessage.id} >
                                     <p>{chatMessage.message_text}</p>
                                 </div>
                             )
-                            : startChat
+                            : <p style={{ fontSize: "50px", textAlign: "center" }}>{startChat}</p>
                     }
                 </div>
                 {

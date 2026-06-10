@@ -9,7 +9,8 @@ router.get('/:id', async (req, res) => {
     try {
         const query = `SELECT * FROM ${messageTbl} WHERE chatroom_id = ?`
         const [row] = await pool.query(query, [id])
-        if (!row) return res.json({ message: "Start chatting" })
+        if (row.length < 1) return res.json({ message: "Start chatting" })
+        console.log(row)
         return res.json({ row: row, status: 'ok' })
     } catch (e) {
         console.error(e)

@@ -8,7 +8,7 @@ export default function Sidebar() {
     const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
     const { user, logout } = useAuth()
-    const { formContainer } = style
+    const { formContainer, closeBtnStyle } = style
 
     const navigate = useNavigate()
 
@@ -46,6 +46,7 @@ export default function Sidebar() {
                 {
                     isCreatingChatroom
                         ? <div className={formContainer}>
+                            <button className={closeBtnStyle} onClick={() => setIsCreatingChatroom(false)}>x</button>
                             <form onSubmit={handleSubmit}>
                                 <input name='chatroomName' type="text" placeholder='Chatroom Name' />
                                 <input name='username' type="text" placeholder='Participant Name' />

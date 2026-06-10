@@ -27,17 +27,14 @@ router.post('/create', async (req, res) => {
     if (!chatroomName || !username) return res.status(400).json({ message: "Chatroom and Participant name must not be empty" })
     try {
         const findUserQuery = `SELECT * FROM ${userTbl} WHERE username=?`
-        console.log('username:', username)
         const [row] = await pool.execute(findUserQuery, [username])
-        console.log('row', row)
         if (row.length < 1) return res.status(400).json({ message: "User doesn't exist" })
         const participantId = row[0].id
-        console.log('userId:', participantId)
+        if (participantId === userId) return res.status(400).json({ message: "You can't make a chatroom by yourself" })
 
         const chatroomQuery = `INSERT INTO ${chatroomTbl}(name) value (?)`
         const [newChatroom] = await pool.execute(chatroomQuery, [chatroomName])
         const chatroomId = newChatroom.insertId
-        console.log('chatroomId:', chatroomId)
 
         const participantQuery = `INSERT INTO ${participantTbl}(chatroom_id, user_id) values (?, ?),(?, ?)`
         await pool.execute(participantQuery, [chatroomId, participantId, chatroomId, userId])
