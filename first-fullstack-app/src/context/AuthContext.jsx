@@ -18,12 +18,6 @@ export function AuthProvider({ children }) {
         console.log(newUser)
         const res = await apiClient.post('/signup', newUser)
 
-        // const res = await fetch(`http://localhost:3000/signup`, {
-        //     method: 'POST',
-        //     headers: { 'Content-type': 'application/json' },
-        //     body: JSON.stringify({ username, password })
-        // })
-
         return res
     }
 

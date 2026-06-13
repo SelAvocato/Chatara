@@ -39,7 +39,7 @@ router.post('/create', async (req, res) => {
         const participantQuery = `INSERT INTO ${participantTbl}(chatroom_id, user_id) values (?, ?),(?, ?)`
         await pool.execute(participantQuery, [chatroomId, participantId, chatroomId, userId])
 
-        res.json({ message: "Chatroom successfully created", status: 'ok' })
+        return res.json({ message: "Chatroom successfully created", status: 'ok' })
     } catch (e) {
         console.log(e)
         return res.status(500).json({ message: "Something went wrong" })
