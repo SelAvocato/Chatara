@@ -1,0 +1,10 @@
+.actionStyle {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+}
+
+.actionStyle div {
+    margin-block: 10px;
+    margin-left: auto;
+}

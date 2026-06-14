@@ -18,7 +18,11 @@ export default function Login() {
         const entries = Object.fromEntries(formData.entries())
 
         try {
-            await login(entries)
+            const res = await login(entries)
+            if (res) {
+                setStatusMessage(res)
+                return setIsInvalid(true)
+            }
             const message = 'Logged in successfully'
             setStatusMessage(message)
             setIsInvalid(false)

@@ -12,6 +12,6 @@ export const apiClient = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
-        return res.json()
+        return await res.json()
     }
 }

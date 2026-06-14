@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { apiClient } from "../../services/api"
 import { useAuth } from "../../hooks/useAuth"
+import ChatMessageActions from './ChatMessageActions/ChatMessageActions'
 import style from "./Chatroom.module.css"
 
 export default function Chatroom() {
@@ -9,16 +10,14 @@ export default function Chatroom() {
     const userRef = useRef(null)
     const [message, setMessage] = useState('')
     const [startChat, setStartChat] = useState('')
-    const [messageInput, setMessageInput] = useState('')
     const [chatrooms, setChatrooms] = useState([])
     const [chatMessages, setChatMessages] = useState([])
     const [currentChatroomId, setCurrentChatroomId] = useState(null)
-    const [errorMessage, setErrorMessage] = useState(null)
     const [hasOpenChat, setHasOpenChat] = useState(false)
     const [isTyping, setIsTyping] = useState(false)
     const [userTyping, setUserTyping] = useState(null)
     const { user } = useAuth()
-    const { main, chatroomsList, chatRoomStyle, chatMessagesStyle, chat, chatBubble, sent, received, actionStyle } = style
+    const { main, chatroomsList, chatRoomStyle, chatMessagesStyle, chat, chatBubble, sent, received, chatParent } = style
 
     useEffect(() => {
         userRef.current = user.username
@@ -79,19 +78,8 @@ export default function Chatroom() {
 
     useEffect(() => {
         focusEndChat()
-    }, [chatMessages])
+    }, [chatMessages, isTyping])
 
-    useEffect(() => {
-        if (!messageInput) return
-
-        console.log(messageInput)
-        ws.current?.send(JSON.stringify({ type: 'typing', username: userRef.current }))
-
-        setTimeout(() => {
-            ws.current?.send(JSON.stringify({ type: 'stoppedTyping', username: userRef.current }))
-        }, 3000)
-
-    }, [messageInput])
 
     async function onOpenChat(chatroomId) {
         setHasOpenChat(true)
@@ -111,26 +99,6 @@ export default function Chatroom() {
         }
     }
 
-    async function handleMessageSubmit(e) {
-        e.preventDefault()
-
-        const data = {
-            type: 'chat',
-            chatroomId: currentChatroomId,
-            senderId: user.id,
-            messageText: messageInput
-        }
-
-        try {
-            const res = await apiClient.post('/messages/send', (data))
-            if (res.status !== 'ok') return setErrorMessage(res.message)
-            setErrorMessage(null)
-            setMessageInput('')
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
     return (
         <div className={main}>
             <div className={chatroomsList}>
@@ -144,35 +112,35 @@ export default function Chatroom() {
                         : message
                 }
             </div>
-            <div className={chat}>
-                <div className={chatMessagesStyle}>
+            <div className={chatParent}>
+                <div className={chat}>
+                    <div className={chatMessagesStyle}>
+                        {
+                            chatMessages.length > 0
+                                ? chatMessages.map(chatMessage =>
+                                    <div className={`${chatBubble} ${chatMessage.sender_id === user.id ? sent : received}`} key={chatMessage.id} >
+                                        <p>{chatMessage.message_text}</p>
+                                    </div>
+                                )
+                                : <p style={{ fontSize: "50px", textAlign: "center" }}>{startChat}</p>
+                        }
+                    </div>
                     {
-                        chatMessages.length > 0
-                            ? chatMessages.map(chatMessage =>
-                                <div className={`${chatBubble} ${chatMessage.sender_id === user.id ? sent : received}`} key={chatMessage.id} >
-                                    <p>{chatMessage.message_text}</p>
-                                </div>
-                            )
-                            : <p style={{ fontSize: "50px", textAlign: "center" }}>{startChat}</p>
+                        isTyping ? <p>{userTyping} is typing</p> : null
                     }
+                    <div ref={lastMessageRef} />
                 </div>
-                {
-                    isTyping ? <p>{userTyping} is typing</p> : null
-                }
-                <div ref={lastMessageRef} />
-                {
-                    hasOpenChat ?
-                        <form className={actionStyle} onSubmit={handleMessageSubmit}>
-                            <div>
-                                <input onChange={(e) => setMessageInput(e.target.value)} value={messageInput} type="text" placeholder="Message" />
-                                <input type="submit" value={`Submit`} />
-                            </div>
-                        </form> :
-                        null
-                }
-                {
-                    errorMessage ? errorMessage : null
-                }
+                <div>
+                    {
+                        hasOpenChat ?
+                            <ChatMessageActions currentChatroomId={currentChatroomId}
+                                ws={ws}
+                                userRef={userRef} /> :
+                            null
+                    }
+
+                </div>
+
             </div>
         </div >
     )
