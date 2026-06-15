@@ -1,0 +1,33 @@
+.chatHeaderStyle{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: 9px;
+    background-color: #77a7ad8c;
+}
+
+.chatHeaderProfileStyle{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.chatHeaderProfileStyle img{
+    width: 50px;
+}
+.chatHeaderProfileStyle p{
+    font-size: 22px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.6px;
+}
+
+.chatHeaderActionStyle{
+    display: flex;
+    gap: 1rem;
+}
+
+.chatHeaderActionStyle img{
+    width: 30px;
+    height: auto;
+}

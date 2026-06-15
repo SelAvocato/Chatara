@@ -8,3 +8,27 @@
     margin-block: 10px;
     margin-left: auto;
 }
+.messageAndSubmitStyle{
+    display: flex;
+    gap: 0.5rem;
+}
+.textInputStyle{
+    font-size: 18px;
+    outline: none;
+    padding: 3px 5px;
+}
+
+.submitStyle{
+    height: 100%;
+    padding: 3px 7px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+.submitStyle img{
+    width: 20px;
+}

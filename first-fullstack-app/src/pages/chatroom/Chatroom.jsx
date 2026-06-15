@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { apiClient } from "../../services/api"
 import { useAuth } from "../../hooks/useAuth"
+import ChatHeader from "./components/ChatHeader"
 import ChatMessageActions from './ChatMessageActions/ChatMessageActions'
 import style from "./Chatroom.module.css"
 import addCircle from '/icons/add_circle.svg'
@@ -21,13 +22,13 @@ export default function Chatroom() {
     const [isTyping, setIsTyping] = useState(false)
     const [userTyping, setUserTyping] = useState(null)
     const { user } = useAuth()
-    const { main, chatroomsStyle, chatroomsListStyle, chatroomsHeaderStyle, chatroomNameStyle, chatroomLatestMessageStyle, formContainer, closeBtnStyle, chatRoomStyle, chatMessagesStyle, chat, chatBubble, sent, received, chatParent } = style
+    const { main, chatroomsStyle, chatroomsListStyle, startChatStyle, imgContainerStyle, chatroomsHeaderStyle, chatroomNameStyle, chatBodyStyle, chatroomLatestMessageStyle, formContainer, closeBtnStyle, chatRoomStyle, chatMessagesStyle, chat, chatBubble, sent, received, chatParent } = style
 
     useEffect(() => {
         userRef.current = user.username
         async function getChatrooms() {
             try {
-                const res = await apiClient.get(`/chatrooms/${user.id}`)
+                const res = await apiClient.get(`/chatrooms/${user?.id}`)
                 if (res.status !== 'ok') {
                     setMessage(res.message)
                 }
@@ -51,25 +52,38 @@ export default function Chatroom() {
         }
 
         ws.current.onmessage = (event) => {
-            const parsed = JSON.parse(event.data)
-            console.log('parsed data: ', parsed)
+            try {
+                const parsed = JSON.parse(event.data)
+                console.log('parsed data: ', parsed)
 
-            switch (parsed.type) {
-                case 'chat':
-                    setChatMessages(prev => [...prev, parsed])
-                    console.log('parsed chats', parsed)
-                    break
-                case 'typing':
-                    setUserTyping(parsed.username)
-                    setIsTyping(true)
-                    console.log('is typing')
-                    break
-                case 'stoppedTyping':
-                    setUserTyping(null)
-                    setIsTyping(false)
-                    console.log('stopped typing')
-                    break
+                switch (parsed.type) {
+                    case 'chat':
+                        setChatMessages(prev => [...prev, parsed])
+                        console.log('parsed chats', parsed)
+                        break
+                    case 'typing':
+                        setUserTyping(parsed.username)
+                        setIsTyping(true)
+                        console.log('is typing')
+                        break
+                    case 'stoppedTyping':
+                        setUserTyping(null)
+                        setIsTyping(false)
+                        console.log('stopped typing')
+                        break
+                }
             }
+            catch (e) {
+                console.log(e.message)
+            }
+        }
+
+        ws.current.onerror = () => {
+            console.log('Something went wrong')
+        }
+
+        ws.current.onclose = () => {
+            console.log('Goodbye')
         }
 
         return () => ws.current.close()
@@ -123,7 +137,11 @@ export default function Chatroom() {
                 userId: user.id
             }))
             console.log('sent join ws')
-            if (res.status !== 'ok') return setStartChat(res.message)
+            if (res.status === 'empty') {
+                setChatMessages([])
+                return setStartChat(res.message)
+            }
+            console.log('done')
             return setChatMessages(res.row)
         } catch (e) {
             console.error(e)
@@ -136,11 +154,13 @@ export default function Chatroom() {
             <div className={chatroomsStyle}>
                 <div className={chatroomsHeaderStyle}>
                     <h2>Chatrooms</h2>
-                    <img onClick={() => setIsCreatingChatroom(true)} src={addCircle} alt="Add Circle" />
+                    <div className={imgContainerStyle}>
+                        <img onClick={() => setIsCreatingChatroom(true)} src={addCircle} alt="Add Circle" />
+                    </div>
                 </div>
                 <div className={chatroomsListStyle}>
                     {
-                        chatrooms
+                        chatrooms && chatrooms.length > 0
                             ? chatrooms.map((chatroom) =>
                                 <div className={chatRoomStyle} key={chatroom.id} onClick={() => onOpenChat(chatroom.id)}>
                                     <img src={pfp} alt="Profile picture" />
@@ -172,36 +192,34 @@ export default function Chatroom() {
                         : null
                 }
             </div>
-            <div className={chatParent}>
-                <div className={chat}>
-                    <div className={chatMessagesStyle}>
-                        {
-                            chatMessages.length > 0
-                                ? chatMessages.map(chatMessage =>
-                                    <div className={`${chatBubble} ${chatMessage.sender_id === user.id ? sent : received}`} key={chatMessage.id} >
-                                        <p>{chatMessage.message_text}</p>
-                                    </div>
-                                )
-                                : <p style={{ fontSize: "50px", textAlign: "center" }}>{startChat}</p>
-                        }
+            {
+                hasOpenChat
+                    ?
+                    <div className={chatParent}>
+                        <ChatHeader />
+                        <div className={chatBodyStyle}>
+                            <div className={chat}>
+                                <div className={chatMessagesStyle}>
+                                    {
+                                        chatMessages.length > 0
+                                            ? chatMessages.map(chatMessage =>
+                                                <div className={`${chatBubble} ${chatMessage.sender_id === user?.id ? sent : received}`} key={chatMessage.id} >
+                                                    <p>{chatMessage.message_text}</p>
+                                                </div>
+                                            )
+                                            : <p className={startChatStyle}>{startChat}</p>
+                                    }
+                                </div>
+                                {
+                                    isTyping ? <p>{userTyping} is typing</p> : null
+                                }
+                                <div ref={lastMessageRef} />
+                            </div>
+                            <ChatMessageActions currentChatroomId={currentChatroomId} ws={ws} userRef={userRef} />
+                        </div>
                     </div>
-                    {
-                        isTyping ? <p>{userTyping} is typing</p> : null
-                    }
-                    <div ref={lastMessageRef} />
-                </div>
-                <div>
-                    {
-                        hasOpenChat ?
-                            <ChatMessageActions currentChatroomId={currentChatroomId}
-                                ws={ws}
-                                userRef={userRef} /> :
-                            null
-                    }
-
-                </div>
-
-            </div>
+                    : null
+            }
         </div >
     )
 }

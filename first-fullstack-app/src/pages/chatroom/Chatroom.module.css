@@ -1,6 +1,7 @@
 .main {
     display: flex;
     height: 100%;
+    width: 100%;
     gap: 10px;
 }
 
@@ -10,7 +11,7 @@
     place-items: center;
     gap: 1rem;
     max-height: 100%;
-    width: 300px;
+    min-width: 300px;
     border: black solid 1px;
     border-radius: 10px;
     padding: 15px 10px;
@@ -23,23 +24,40 @@
     align-items: center;
     gap: 1rem;
     max-height: 100%;
+    scrollbar-width: thin;
+    overflow: auto;
     background-color: var(--background-color);
 }
 
 .chatroomsHeaderStyle {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
+}
+
+.imgContainerStyle {
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.imgContainerStyle:hover {
+    background-color: #9fe2ec;
+}
+
+.imgContainerStyle img {
+    width: 25px;
 }
 
 .chatRoomStyle {
     display: flex;
-    gap: 5px;
+    gap: 10px;
     cursor: pointer;
     padding: 1rem;
-    border: 1px solid black;
-    border-radius: 5px;
-    background-color: var(--secondary-color);
+    border: 1px solid rgba(53, 135, 190, 0.13);
+    border-radius: 15px;
+    background-color: #D9D9D9;
     color: var(--text-color);
     width: 100%;
     text-align: center;
@@ -51,7 +69,7 @@
 }
 
 .chatRoomStyle:hover {
-    background-color: #99d4db;
+    background-color: #d4cfcfc2;
 }
 
 .chatroomNameStyle {
@@ -59,24 +77,34 @@
     font-weight: 600;
 }
 
-.chatroomLatestMessageStyle{
+.chatroomLatestMessageStyle {
     font-weight: 500;
-}
-
-.chatMessagesStyle {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: auto;
 }
 
 .chatParent {
     display: flex;
     flex-direction: column;
     width: 100%;
-    border: black solid 1px;
+    height: 100%;
     border-radius: 10px;
+    background-image: url("./chat-backgrounds.svg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: bottom;
+    overflow: hidden;
+}
+
+.chatBodyStyle {
+    display: flex;
+    flex-direction: column;
     padding: 10px;
+    overflow: hidden;
+    margin-top: auto;
+}
+
+.startChatStyle{
+    font-size: 50px;
+    text-align: center;
 }
 
 .chat {
@@ -84,9 +112,17 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-height: 100vh;
+    max-height: 100%;
     overflow: auto;
     padding: 5px;
+    scrollbar-gutter: stable;
+}
+
+.chatMessagesStyle {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 10px;
 }
 
 .chat::-webkit-scrollbar {
@@ -104,9 +140,10 @@
 
 .chatBubble {
     display: flex;
-    padding: 1rem;
-    border: 1px solid black;
-    border-radius: 5px;
+    padding: 10px 20px;
+    background-color: #D9D9D9;
+    border-radius: 60px;
+    font-size: 18px;
 }
 
 .chatBubble.sent {

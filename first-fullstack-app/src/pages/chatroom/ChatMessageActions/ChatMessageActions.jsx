@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import style from './ChatMessageActions.module.css'
 import { useAuth } from '../../../hooks/useAuth'
 import { apiClient } from '../../../services/api'
+import submitIcon from './submit-icon.svg'
 
 export default function ChatMessageActions({ currentChatroomId, ws, userRef }) {
     const [errorMessage, setErrorMessage] = useState(null)
@@ -9,7 +10,7 @@ export default function ChatMessageActions({ currentChatroomId, ws, userRef }) {
     const [messageInput, setMessageInput] = useState('')
     const timeoutIdRef = useRef(null)
     const { user } = useAuth()
-    const { actionStyle } = style
+    const { actionStyle, messageAndSubmitStyle, textInputStyle, submitStyle, extraActionsStyle } = style
 
     function handleMessageChange(e) {
         setMessageInput(e.target.value)
@@ -43,7 +44,6 @@ export default function ChatMessageActions({ currentChatroomId, ws, userRef }) {
 
     async function handleMessageSubmit(e) {
         e.preventDefault()
-
         const data = {
             type: 'chat',
             chatroomId: currentChatroomId,
@@ -64,9 +64,14 @@ export default function ChatMessageActions({ currentChatroomId, ws, userRef }) {
 
     return (
         <form className={actionStyle} onSubmit={handleMessageSubmit}>
-            <div>
-                <input onChange={handleMessageChange} value={messageInput} type="text" placeholder="Message" />
-                <input type="submit" value={`>`} />
+            <div className={extraActionsStyle}>
+
+            </div>
+            <div className={messageAndSubmitStyle}>
+                <input className={textInputStyle} onChange={handleMessageChange} value={messageInput} type="text" placeholder="Message" />
+                <button onClick={handleMessageSubmit} className={submitStyle}>
+                    <img src={submitIcon} alt="Submit Icon" />
+                </button>
             </div>
             {
                 errorMessage ? errorMessage : null
