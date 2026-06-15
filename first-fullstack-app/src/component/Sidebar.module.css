@@ -1,22 +1,33 @@
-.formContainer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.137);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-}
-
-.formContainer form {
+.sidebarStyle {
     display: flex;
     flex-direction: column;
+    place-items: center;
+    justify-content: space-between;
+    padding: 15px 4px;
 }
 
-.closeBtnStyle {
-    position: absolute;
-    top: 0;
-    right: 0;
+.messagesIconStyle {
+    width: 32px;
+    height: auto;
+}
+
+.messagesIconStyle img {
+    width: 100%;
+    height: auto;
+}
+
+.nameAndLogoutStyle {
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    gap: 5px;
+}
+
+.userStyle {
+    font-weight: 500;
+}
+
+.logoutStyle button {
+    padding: 3px 5px;
+    font-weight: 500;
 }

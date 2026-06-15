@@ -28,12 +28,17 @@ export default function ChatMessageActions({ currentChatroomId, ws, userRef }) {
     }
 
     useEffect(() => {
-        function exitRoom() {
-            ws.current?.send(JSON.stringify({ type: 'stoppedTyping', username: userRef.current }))
+        const currentWS = ws.current
+        const currentUserRef = userRef.current
+        return () => {
+            currentWS?.send(JSON.stringify({ type: 'stoppedTyping', username: currentUserRef }))
             setIsDebounced(false)
             setMessageInput('')
+
+            if (timeoutIdRef.current) {
+                clearTimeout(timeoutIdRef.current)
+            }
         }
-        exitRoom()
     }, [currentChatroomId, ws, userRef])
 
     async function handleMessageSubmit(e) {
@@ -48,6 +53,7 @@ export default function ChatMessageActions({ currentChatroomId, ws, userRef }) {
 
         try {
             const res = await apiClient.post('/messages/send', (data))
+            console.log('response: ', res)
             if (res.status !== 'ok') return setErrorMessage(res.message)
             setErrorMessage(null)
             setMessageInput('')

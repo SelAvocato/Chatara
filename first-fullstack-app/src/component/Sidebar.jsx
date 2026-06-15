@@ -1,14 +1,11 @@
-import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useNavigate } from 'react-router'
-import { apiClient } from '../services/api'
 import style from './Sidebar.module.css'
+import messagesIcon from '/icons/messages-icon.svg'
 
 export default function Sidebar() {
-    const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
-    const [errorMessage, setErrorMessage] = useState(null)
     const { user, logout } = useAuth()
-    const { formContainer, closeBtnStyle } = style
+    const { sidebarStyle, userStyle, messagesIconStyle, logoutStyle, nameAndLogoutStyle } = style
 
     const navigate = useNavigate()
 
@@ -17,55 +14,19 @@ export default function Sidebar() {
         navigate('/')
     }
 
-    async function handleSubmit(e) {
-        e.preventDefault()
-
-        const formData = new FormData(e.currentTarget)
-        const entries = Object.fromEntries(formData.entries())
-        const data = {
-            chatroomName: entries.chatroomName,
-            username: entries.username,
-            userId: user.id
-        }
-
-        try {
-            const res = await apiClient.post('/chatrooms/create', data)
-            if (res.status !== 'ok') return setErrorMessage(res.message)
-            setIsCreatingChatroom(false)
-        } catch (e) {
-            console.error(e)
-            return setErrorMessage('Something went wrong')
-        }
-
-    }
-
     return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
-            <div>
-                <button onClick={() => setIsCreatingChatroom(true)}>Add Chatroom</button>
-                {
-                    isCreatingChatroom
-                        ? <div className={formContainer}>
-                            <button className={closeBtnStyle} onClick={() => setIsCreatingChatroom(false)}>x</button>
-                            <form onSubmit={handleSubmit}>
-                                <input name='chatroomName' type="text" placeholder='Chatroom Name' />
-                                <input name='username' type="text" placeholder='Participant Name' />
-                                <input type="submit" />
-                                {
-                                    errorMessage
-                                        ? errorMessage
-                                        : null
-                                }
-                            </form>
-                        </div>
-                        : null
-                }
+        <div className={sidebarStyle}>
+            <div className={messagesIconStyle}>
+                <img src={messagesIcon} alt="Messages Icon" />
             </div>
-            <div className="userStyle">
-                {user.username}
-            </div>
-            <div onClick={onLogout}>
-                <button>Logout</button>
+
+            <div className={nameAndLogoutStyle}>
+                <div className={userStyle}>
+                    {user.username}
+                </div>
+                <div onClick={onLogout} className={logoutStyle}>
+                    <button>Logout</button>
+                </div>
             </div>
         </div>
     )
