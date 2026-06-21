@@ -4,35 +4,35 @@ import { useAuth } from '../../../hooks/useAuth'
 import { apiClient } from '../../../services/api'
 import submitIcon from './submit-icon.svg'
 
-export default function ChatMessageActions({ currentChatroomId, ws, userRef }) {
+export default function ChatMessageActions({ currentChatroomId, ws }) {
     const [errorMessage, setErrorMessage] = useState(null)
     const [isDebounced, setIsDebounced] = useState(false)
     const [messageInput, setMessageInput] = useState('')
     const timeoutIdRef = useRef(null)
     const { user } = useAuth()
     const { actionStyle, messageAndSubmitStyle, textInputStyle, submitStyle, extraActionsStyle } = style
+    const username = user.username
 
     function handleMessageChange(e) {
         setMessageInput(e.target.value)
 
         if (e.target.value && !isDebounced) {
             setIsDebounced(true)
-            ws.current?.send(JSON.stringify({ type: 'typing', username: userRef.current }))
+            ws.current?.send(JSON.stringify({ type: 'typing', username: username }))
         }
 
         clearTimeout(timeoutIdRef.current)
 
         timeoutIdRef.current = setTimeout(() => {
-            ws.current?.send(JSON.stringify({ type: 'stoppedTyping', username: userRef.current }))
+            ws.current?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
             setIsDebounced(false)
         }, 1000)
     }
 
     useEffect(() => {
         const currentWS = ws.current
-        const currentUserRef = userRef.current
         return () => {
-            currentWS?.send(JSON.stringify({ type: 'stoppedTyping', username: currentUserRef }))
+            currentWS?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
             setIsDebounced(false)
             setMessageInput('')
 
@@ -40,7 +40,7 @@ export default function ChatMessageActions({ currentChatroomId, ws, userRef }) {
                 clearTimeout(timeoutIdRef.current)
             }
         }
-    }, [currentChatroomId, ws, userRef])
+    }, [currentChatroomId, ws, username])
 
     async function handleMessageSubmit(e) {
         e.preventDefault()

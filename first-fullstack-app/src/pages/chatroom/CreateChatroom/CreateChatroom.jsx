@@ -1,0 +1,48 @@
+import { useState } from "react"
+import { apiClient } from "../../../services/api"
+import { useAuth } from "../../../hooks/useAuth"
+import style from "./CreateChatroom.module.css"
+
+export default function CreateChatroom({ setIsCreatingChatroom }) {
+    const { user } = useAuth()
+    const [errorMessage, setErrorMessage] = useState(null)
+    const { formContainer, closeBtnStyle } = style
+
+
+    async function handleSubmit(e) {
+        e.preventDefault()
+
+        const formData = new FormData(e.currentTarget)
+        const entries = Object.fromEntries(formData.entries())
+        const data = {
+            chatroomName: entries.chatroomName,
+            username: entries.username,
+            userId: user.id
+        }
+
+        try {
+            const res = await apiClient.post('/chatrooms/create', data)
+            if (res.status !== 'ok') return setErrorMessage(res.message)
+            setIsCreatingChatroom(false)
+        } catch (e) {
+            console.error(e)
+            return setErrorMessage('Something went wrong')
+        }
+
+    }
+    return (
+        <div className={formContainer}>
+            <button className={closeBtnStyle} onClick={() => setIsCreatingChatroom(false)}>x</button>
+            <form onSubmit={handleSubmit}>
+                <input name='chatroomName' type="text" placeholder='Chatroom Name' />
+                <input name='username' type="text" placeholder='Participant Name' />
+                <input type="submit" />
+                {
+                    errorMessage
+                        ? errorMessage
+                        : null
+                }
+            </form>
+        </div>
+    )
+}

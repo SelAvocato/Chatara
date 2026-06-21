@@ -1,0 +1,58 @@
+.userTypingStyle {
+    display: flex;
+    flex-direction: column;
+}
+
+.typingAnimationStyle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    height: 35px;
+    width: 70px;
+    padding: 3px;
+    background-color: #D9D9D9;
+    border-radius: 25px;
+}
+
+.circle {
+    margin-top: 5px;
+    width: 12px;
+    height: 12px;
+    background-color: #b4b4b4;
+    border-radius: 50%;
+}
+
+.circle:first-child {
+    animation-name: typingIndicatorAnimation;
+    animation-duration: 1500ms;
+    animation-iteration-count: infinite;
+}
+
+.circle:nth-child(2) {
+    animation-name: typingIndicatorAnimation;
+    animation-duration: 1500ms;
+    animation-iteration-count: infinite;
+    animation-delay: 150ms;
+}
+
+.circle:nth-child(3) {
+    animation-name: typingIndicatorAnimation;
+    animation-duration: 1500ms;
+    animation-iteration-count: infinite;
+    animation-delay: 300ms;
+}
+
+.typingTextStyle {
+    font-size: 14px;
+}
+
+@keyframes typingIndicatorAnimation {
+    20% {
+        transform: translateY(-10px);
+    }
+
+    40% {
+        transform: translateY(0px);
+    }
+}

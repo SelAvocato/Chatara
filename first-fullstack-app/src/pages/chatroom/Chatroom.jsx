@@ -1,31 +1,28 @@
 import { useState, useEffect, useRef } from "react"
 import { apiClient } from "../../services/api"
 import { useAuth } from "../../hooks/useAuth"
-import ChatHeader from "./components/ChatHeader"
-import ChatMessageActions from './ChatMessageActions/ChatMessageActions'
+import ChatParent from "./ChatParent/ChatParent"
 import style from "./Chatroom.module.css"
 import addCircle from '/icons/add_circle.svg'
 import pfp from '/icons/pfp.svg'
+import CreateChatroom from "./CreateChatroom/CreateChatroom"
 
 export default function Chatroom() {
-    const lastMessageRef = useRef(null)
     const ws = useRef(null)
-    const userRef = useRef(null)
+    const [currentChatroomId, setCurrentChatroomId] = useState(null)
+    const [userTyping, setUserTyping] = useState(null)
     const [message, setMessage] = useState('')
     const [startChat, setStartChat] = useState('')
-    const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
-    const [errorMessage, setErrorMessage] = useState(null)
     const [chatrooms, setChatrooms] = useState([])
     const [chatMessages, setChatMessages] = useState([])
-    const [currentChatroomId, setCurrentChatroomId] = useState(null)
+    const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
     const [hasOpenChat, setHasOpenChat] = useState(false)
     const [isTyping, setIsTyping] = useState(false)
-    const [userTyping, setUserTyping] = useState(null)
+
     const { user } = useAuth()
-    const { main, chatroomsStyle, chatroomsListStyle, startChatStyle, imgContainerStyle, chatroomsHeaderStyle, chatroomNameStyle, chatBodyStyle, chatroomLatestMessageStyle, formContainer, closeBtnStyle, chatRoomStyle, chatMessagesStyle, chat, chatBubble, sent, received, chatParent } = style
+    const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle, chatroomNameStyle, chatroomLatestMessageStyle, chatRoomStyle } = style
 
     useEffect(() => {
-        userRef.current = user.username
         async function getChatrooms() {
             try {
                 const res = await apiClient.get(`/chatrooms/${user?.id}`)
@@ -90,46 +87,10 @@ export default function Chatroom() {
 
     }, [])
 
-    useEffect(() => {
-        console.log(chatMessages)
-    }, [chatMessages])
-
-    function focusEndChat() {
-        lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
-
-    useEffect(() => {
-        focusEndChat()
-    }, [chatMessages, isTyping])
-
-
-    async function handleSubmit(e) {
-        e.preventDefault()
-
-        const formData = new FormData(e.currentTarget)
-        const entries = Object.fromEntries(formData.entries())
-        const data = {
-            chatroomName: entries.chatroomName,
-            username: entries.username,
-            userId: user.id
-        }
-
-        try {
-            const res = await apiClient.post('/chatrooms/create', data)
-            if (res.status !== 'ok') return setErrorMessage(res.message)
-            setIsCreatingChatroom(false)
-        } catch (e) {
-            console.error(e)
-            return setErrorMessage('Something went wrong')
-        }
-
-    }
     async function onOpenChat(chatroomId) {
-        console.log('function run')
         setHasOpenChat(true)
         setCurrentChatroomId(chatroomId)
         try {
-            console.log('function run')
             const res = await apiClient.get(`/messages/${chatroomId}`)
             ws.current.send(JSON.stringify({
                 type: "join",
@@ -141,7 +102,6 @@ export default function Chatroom() {
                 setChatMessages([])
                 return setStartChat(res.message)
             }
-            console.log('done')
             return setChatMessages(res.row)
         } catch (e) {
             console.error(e)
@@ -176,48 +136,14 @@ export default function Chatroom() {
 
                 {
                     isCreatingChatroom
-                        ? <div className={formContainer}>
-                            <button className={closeBtnStyle} onClick={() => setIsCreatingChatroom(false)}>x</button>
-                            <form onSubmit={handleSubmit}>
-                                <input name='chatroomName' type="text" placeholder='Chatroom Name' />
-                                <input name='username' type="text" placeholder='Participant Name' />
-                                <input type="submit" />
-                                {
-                                    errorMessage
-                                        ? errorMessage
-                                        : null
-                                }
-                            </form>
-                        </div>
+                        ? < CreateChatroom setIsCreatingChatroom={setIsCreatingChatroom} />
                         : null
                 }
             </div>
             {
                 hasOpenChat
                     ?
-                    <div className={chatParent}>
-                        <ChatHeader />
-                        <div className={chatBodyStyle}>
-                            <div className={chat}>
-                                <div className={chatMessagesStyle}>
-                                    {
-                                        chatMessages.length > 0
-                                            ? chatMessages.map(chatMessage =>
-                                                <div className={`${chatBubble} ${chatMessage.sender_id === user?.id ? sent : received}`} key={chatMessage.id} >
-                                                    <p>{chatMessage.message_text}</p>
-                                                </div>
-                                            )
-                                            : <p className={startChatStyle}>{startChat}</p>
-                                    }
-                                </div>
-                                {
-                                    isTyping ? <p>{userTyping} is typing</p> : null
-                                }
-                                <div ref={lastMessageRef} />
-                            </div>
-                            <ChatMessageActions currentChatroomId={currentChatroomId} ws={ws} userRef={userRef} />
-                        </div>
-                    </div>
+                    <ChatParent chatMessages={chatMessages} isTyping={isTyping} startChat={startChat} currentChatroomId={currentChatroomId} userTyping={userTyping} />
                     : null
             }
         </div >
