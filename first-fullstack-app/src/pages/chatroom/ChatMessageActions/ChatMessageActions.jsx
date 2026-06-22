@@ -3,13 +3,15 @@ import style from './ChatMessageActions.module.css'
 import { useAuth } from '../../../hooks/useAuth'
 import { apiClient } from '../../../services/api'
 import submitIcon from './submit-icon.svg'
+import { useWebsocket } from '../../../hooks/useWebsocket'
 
-export default function ChatMessageActions({ currentChatroomId, ws }) {
+export default function ChatMessageActions() {
     const [errorMessage, setErrorMessage] = useState(null)
     const [isDebounced, setIsDebounced] = useState(false)
     const [messageInput, setMessageInput] = useState('')
     const timeoutIdRef = useRef(null)
     const { user } = useAuth()
+    const { wsRef, currentChatroomId } = useWebsocket()
     const { actionStyle, messageAndSubmitStyle, textInputStyle, submitStyle, extraActionsStyle } = style
     const username = user.username
 
@@ -18,19 +20,19 @@ export default function ChatMessageActions({ currentChatroomId, ws }) {
 
         if (e.target.value && !isDebounced) {
             setIsDebounced(true)
-            ws.current?.send(JSON.stringify({ type: 'typing', username: username }))
+            wsRef.current?.send(JSON.stringify({ type: 'typing', username: username }))
         }
 
         clearTimeout(timeoutIdRef.current)
 
         timeoutIdRef.current = setTimeout(() => {
-            ws.current?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
+            wsRef.current?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
             setIsDebounced(false)
         }, 1000)
     }
 
     useEffect(() => {
-        const currentWS = ws.current
+        const currentWS = wsRef.current
         return () => {
             currentWS?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
             setIsDebounced(false)
@@ -40,7 +42,7 @@ export default function ChatMessageActions({ currentChatroomId, ws }) {
                 clearTimeout(timeoutIdRef.current)
             }
         }
-    }, [currentChatroomId, ws, username])
+    }, [currentChatroomId, wsRef, username])
 
     async function handleMessageSubmit(e) {
         e.preventDefault()

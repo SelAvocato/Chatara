@@ -4,6 +4,7 @@ import Login from './pages/login/Login.jsx'
 import Signup from './pages/signup/Signup.jsx'
 import Layout from './layout/Layout.jsx'
 import Chatroom from './pages/chatroom/Chatroom.jsx'
+import { WebSocketProvider } from './context/WebSocketContext.jsx'
 
 export default function App() {
   return (
@@ -12,7 +13,11 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route element={<Layout />}>
-              <Route path='/' element={<Chatroom />} />
+              <Route path='/' element={
+                <WebSocketProvider>
+                  <Chatroom />
+                </WebSocketProvider>}
+              />
             </Route>
 
             <Route path='/*' element={<h1 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>404 NOT FOUND</h1>} />
