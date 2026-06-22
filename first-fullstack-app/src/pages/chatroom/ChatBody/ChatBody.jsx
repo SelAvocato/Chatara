@@ -2,14 +2,13 @@ import { useEffect, useRef } from 'react'
 import TypingIndicator from '../TypingIndicator/TypingIndicator'
 import ChatMessageActions from '../ChatMessageActions/ChatMessageActions'
 import { useWebsocket } from '../../../hooks/useWebsocket'
-import { useAuth } from '../../../hooks/useAuth'
 import style from './ChatBody.module.css'
+import ChatBubble from '../ChatBubble/ChatBubble'
 
 export default function ChatBody() {
     const { startChat, chatMessages, isTyping, userTyping } = useWebsocket()
-    const { user } = useAuth()
     const lastMessageRef = useRef(null)
-    const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat, chatBubble, sent, received } = style
+    const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat } = style
 
 
     function focusEndChat() {
@@ -25,10 +24,10 @@ export default function ChatBody() {
             <div className={chat}>
                 <div className={chatMessagesStyle}>
                     {
-                        chatMessages.length > 0
+                        chatMessages && chatMessages.length > 0
                             ? chatMessages.map(chatMessage =>
-                                <div className={`${chatBubble} ${chatMessage.sender_id === user?.id ? sent : received}`} key={chatMessage.id} >
-                                    <p>{chatMessage.message_text}</p>
+                                <div key={chatMessage.message_id} >
+                                    <ChatBubble chatMessage={chatMessage} />
                                 </div>
                             )
                             : <p className={startChatStyle}>{startChat}</p>

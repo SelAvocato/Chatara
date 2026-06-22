@@ -5,13 +5,14 @@ const { WebSocket } = require('ws')
 const websocketService = require('./services/websocket.js')
 
 const messageTbl = 'message_tbl'
+const userTbl = 'user_tbl'
 
 module.exports = function (wss) {
     router.get('/:id', async (req, res) => {
         const id = req.params.id
 
         try {
-            const query = `SELECT * FROM ${messageTbl} WHERE chatroom_id = ?`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ?`
             const [row] = await pool.query(query, [id])
             if (row.length < 1) return res.json({ status: 'empty', message: "Start chatting" })
             return res.json({ row: row, status: 'ok' })
@@ -22,8 +23,8 @@ module.exports = function (wss) {
     })
 
     router.post('/send', async (req, res) => {
-        const { chatroomId, senderId, messageText } = req.body
-        if (!chatroomId || !senderId || !messageText) return res.status(400).json({ message: "Message must not be empty" })
+        const { chatroomId, senderId, senderName, messageText } = req.body
+        if (!chatroomId || !senderId || !senderName || !messageText) return res.status(400).json({ message: "Message must not be empty" })
 
         try {
             const query = `INSERT INTO ${messageTbl}(chatroom_id, sender_id, message_text) value (?, ?, ?)`
@@ -34,6 +35,7 @@ module.exports = function (wss) {
                 type: "chat",
                 chatroom_id: chatroomId,
                 sender_id: senderId,
+                sender_name: senderName,
                 message_text: messageText,
                 id: row.insertId,
                 sent_at: new Date()

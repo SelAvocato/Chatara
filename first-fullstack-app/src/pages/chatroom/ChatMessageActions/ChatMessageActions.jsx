@@ -6,13 +6,14 @@ import submitIcon from './submit-icon.svg'
 import { useWebsocket } from '../../../hooks/useWebsocket'
 
 export default function ChatMessageActions() {
+    const timeoutIdRef = useRef(null)
     const [errorMessage, setErrorMessage] = useState(null)
     const [isDebounced, setIsDebounced] = useState(false)
     const [messageInput, setMessageInput] = useState('')
-    const timeoutIdRef = useRef(null)
+
     const { user } = useAuth()
     const { wsRef, currentChatroomId } = useWebsocket()
-    const { actionStyle, messageAndSubmitStyle, textInputStyle, submitStyle, extraActionsStyle } = style
+    const { actionStyle, messageAndSubmitStyle, textInputStyle, submitStyle } = style
     const username = user.username
 
     function handleMessageChange(e) {
@@ -50,6 +51,7 @@ export default function ChatMessageActions() {
             type: 'chat',
             chatroomId: currentChatroomId,
             senderId: user.id,
+            senderName: username,
             messageText: messageInput
         }
 
@@ -66,9 +68,6 @@ export default function ChatMessageActions() {
 
     return (
         <form className={actionStyle} onSubmit={handleMessageSubmit}>
-            <div className={extraActionsStyle}>
-
-            </div>
             <div className={messageAndSubmitStyle}>
                 <input className={textInputStyle} onChange={handleMessageChange} value={messageInput} type="text" placeholder="Message" />
                 <button onClick={handleMessageSubmit} className={submitStyle}>

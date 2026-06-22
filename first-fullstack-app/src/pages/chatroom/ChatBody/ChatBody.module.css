@@ -41,19 +41,3 @@
 .chat::-webkit-scrollbar-thumb:hover {
     background-color: rgba(53, 5, 141, 0.575);
 }
-
-.chatBubble {
-    display: flex;
-    padding: 10px 20px;
-    background-color: #D9D9D9;
-    border-radius: 60px;
-    font-size: 18px;
-}
-
-.chatBubble.sent {
-    margin-left: auto;
-}
-
-.chatBubble.received {
-    margin-right: auto;
-}

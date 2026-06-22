@@ -74,6 +74,7 @@ export function WebSocketProvider({ children }) {
                 setChatMessages([])
                 return setStartChat(res.message)
             }
+            console.log(res.row)
             return setChatMessages(res.row)
         } catch (e) {
             console.error(e)
