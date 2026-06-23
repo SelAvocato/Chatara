@@ -1,0 +1,30 @@
+.chatRoomStyle {
+    display: flex;
+    gap: 10px;
+    cursor: pointer;
+    padding: 1rem;
+    border: 1px solid rgba(53, 135, 190, 0.13);
+    border-radius: 15px;
+    background-color: #D9D9D9;
+    color: var(--text-color);
+    width: 100%;
+    text-align: center;
+    transition: 0.25s ease;
+}
+
+.chatRoomStyle div {
+    text-align: left;
+}
+
+.chatRoomStyle:hover {
+    background-color: #d4cfcfc2;
+}
+
+.chatroomNameStyle {
+    color: black;
+    font-weight: 600;
+}
+
+.chatroomLatestMessageStyle {
+    font-weight: 500;
+}

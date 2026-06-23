@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react"
 import { apiClient } from "../../services/api"
 import { useAuth } from "../../hooks/useAuth"
-import { useWebsocket } from "../../hooks/useWebsocket"
 import ChatParent from "./ChatParent/ChatParent"
 import style from "./Chatroom.module.css"
 import addCircle from '/icons/add_circle.svg'
-import pfp from '/icons/pfp.svg'
 import CreateChatroom from "./CreateChatroom/CreateChatroom"
+import ChatroomList from "./ChatroomList/ChatroomList"
 
 export default function Chatroom() {
     const [message, setMessage] = useState('')
@@ -15,8 +14,7 @@ export default function Chatroom() {
     const [hasOpenChat, setHasOpenChat] = useState(false)
 
     const { user } = useAuth()
-    const { openChat, currentChatroomId } = useWebsocket()
-    const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle, chatroomNameStyle, chatroomLatestMessageStyle, chatRoomStyle } = style
+    const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
 
     useEffect(() => {
         async function getChatrooms() {
@@ -36,12 +34,6 @@ export default function Chatroom() {
         getChatrooms()
     }, [user])
 
-    async function onOpenChat(chatroomId) {
-        if (chatroomId === currentChatroomId) return
-        setHasOpenChat(true)
-        openChat(chatroomId)
-    }
-
     return (
         <div className={main}>
             <div className={chatroomsStyle}>
@@ -55,30 +47,15 @@ export default function Chatroom() {
                     {
                         chatrooms && chatrooms.length > 0
                             ? chatrooms.map((chatroom) =>
-                                <div className={chatRoomStyle} key={chatroom.id} onClick={() => onOpenChat(chatroom.id)}>
-                                    <img src={pfp} alt="Profile picture" />
-                                    <div>
-                                        <p className={chatroomNameStyle}>{chatroom.name}</p>
-                                        <p className={chatroomLatestMessageStyle}>latest message</p>
-                                    </div>
-                                </div>
+                                <ChatroomList key={chatroom.id} chatroom={chatroom} setHasOpenChat={setHasOpenChat} />
                             )
                             : message
                     }
                 </div>
 
-                {
-                    isCreatingChatroom
-                        ? < CreateChatroom setIsCreatingChatroom={setIsCreatingChatroom} />
-                        : null
-                }
+                {isCreatingChatroom && < CreateChatroom setIsCreatingChatroom={setIsCreatingChatroom} />}
             </div>
-            {
-                hasOpenChat
-                    ?
-                    <ChatParent />
-                    : null
-            }
+            {hasOpenChat && < ChatParent />}
         </div >
     )
 }
