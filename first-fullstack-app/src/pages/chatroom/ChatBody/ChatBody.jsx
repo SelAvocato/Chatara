@@ -9,15 +9,13 @@ export default function ChatBody() {
     const lastMessageRef = useRef(null)
     const { startChat, chatMessages, isTyping, userTyping } = useWebsocket()
     const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat } = style
-    console.log('start chat', startChat)
+
     function focusEndChat() {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
     }
 
     useEffect(() => {
         focusEndChat()
-        console.log('new chat messages', chatMessages)
-        console.log('new chatmessages id', chatMessages[0])
     }, [chatMessages, isTyping])
 
     return (
@@ -34,8 +32,8 @@ export default function ChatBody() {
                     {
                         isTyping && <TypingIndicator userTyping={userTyping} />
                     }
+                    <div ref={lastMessageRef} />
                 </div>
-                <div ref={lastMessageRef} />
             </div>
             <ChatMessageActions />
         </div>
