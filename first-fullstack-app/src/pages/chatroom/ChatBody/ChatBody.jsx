@@ -6,17 +6,18 @@ import style from './ChatBody.module.css'
 import ChatBubble from '../ChatBubble/ChatBubble'
 
 export default function ChatBody() {
-    const { startChat, chatMessages, isTyping, userTyping } = useWebsocket()
     const lastMessageRef = useRef(null)
+    const { startChat, chatMessages, isTyping, userTyping } = useWebsocket()
     const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat } = style
-
-
+    console.log('start chat', startChat)
     function focusEndChat() {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
     }
 
     useEffect(() => {
         focusEndChat()
+        console.log('new chat messages', chatMessages)
+        console.log('new chatmessages id', chatMessages[0])
     }, [chatMessages, isTyping])
 
     return (
@@ -26,14 +27,12 @@ export default function ChatBody() {
                     {
                         chatMessages && chatMessages.length > 0
                             ? chatMessages.map(chatMessage =>
-                                <div key={chatMessage.message_id} >
-                                    <ChatBubble chatMessage={chatMessage} />
-                                </div>
+                                <ChatBubble key={chatMessage.message_id} chatMessage={chatMessage} />
                             )
                             : <p className={startChatStyle}>{startChat}</p>
                     }
                     {
-                        isTyping ? <TypingIndicator userTyping={userTyping} /> : null
+                        isTyping && <TypingIndicator userTyping={userTyping} />
                     }
                 </div>
                 <div ref={lastMessageRef} />

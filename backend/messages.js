@@ -13,12 +13,28 @@ module.exports = function (wss) {
 
         try {
             const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ?`
-            const [row] = await pool.query(query, [id])
+            const [row] = await pool.execute(query, [id])
             if (row.length < 1) return res.json({ status: 'empty', message: "Start chatting" })
             return res.json({ row: row, status: 'ok' })
         } catch (e) {
             console.error(e)
             return res.status(500).json({ message: "Something went wrong" })
+        }
+    })
+
+    router.get('/latest/:id', async (req, res) => {
+        const id = req.params.id
+        if (!id) return res.status(400).json({ message: 'Error: Id must be provided' })
+
+        try {
+            const query = `SELECT message_text from ${messageTbl} WHERE chatroom_id = ? ORDER BY id DESC LIMIT 1`
+            const [rows] = await pool.execute(query, [id])
+            const row = await rows[0]
+            console.log(row)
+            return res.status(200).json({ status: 'ok', data: row })
+        } catch (e) {
+            res.json({ message: "Error: Something went wrong" })
+            console.log(e)
         }
     })
 
@@ -37,7 +53,7 @@ module.exports = function (wss) {
                 sender_id: senderId,
                 sender_name: senderName,
                 message_text: messageText,
-                id: row.insertId,
+                message_id: row.insertId,
                 sent_at: new Date()
             }
 

@@ -7,6 +7,7 @@ const WebSocketContext = createContext(null)
 export function WebSocketProvider({ children }) {
     const wsRef = useRef(null)
     const [isTyping, setIsTyping] = useState(false)
+    const [latestMessageWs, setLatestMessageWs] = useState(null)
     const [userTyping, setUserTyping] = useState(null)
     const [currentChatroomId, setCurrentChatroomId] = useState(null)
     const [startChat, setStartChat] = useState('')
@@ -29,6 +30,7 @@ export function WebSocketProvider({ children }) {
                 switch (parsed.type) {
                     case 'chat':
                         setChatMessages(prev => [...prev, parsed])
+                        setLatestMessageWs(parsed.message_text)
                         console.log('parsed chats', parsed)
                         break
                     case 'typing':
@@ -82,7 +84,7 @@ export function WebSocketProvider({ children }) {
         }
     }
 
-    return <WebSocketContext value={{ wsRef, openChat, currentChatroomId, startChat, chatMessages, isTyping, userTyping }} >
+    return <WebSocketContext value={{ wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping }} >
         {children}
     </WebSocketContext>
 }
