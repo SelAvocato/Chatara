@@ -14,8 +14,6 @@ export default function ChatroomList({ chatroom, setHasOpenChat }) {
         async function fetchLatestMessage() {
             const data = await apiClient.get(`/messages/latest/${chatroom.id}`)
             setLatestMessage(data.data.message_text)
-            console.log('data', data)
-            console.log('latest message', data.data.message_text || 'none')
         }
         fetchLatestMessage()
     }, [chatroom.id])

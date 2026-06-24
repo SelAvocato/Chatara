@@ -12,7 +12,7 @@ module.exports = function (wss) {
         const id = req.params.id
 
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ?`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? ORDER BY message_id ASC`
             const [row] = await pool.execute(query, [id])
             if (row.length < 1) return res.json({ status: 'empty', message: "Start chatting" })
             return res.json({ row: row, status: 'ok' })

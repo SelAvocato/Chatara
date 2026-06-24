@@ -18,14 +18,16 @@ export default function ChatBody() {
         focusEndChat()
     }, [chatMessages, isTyping])
 
+
+
     return (
         <div className={chatBodyStyle}>
             <div className={chat}>
                 <div className={chatMessagesStyle}>
                     {
                         chatMessages && chatMessages.length > 0
-                            ? chatMessages.map(chatMessage =>
-                                <ChatBubble key={chatMessage.message_id} chatMessage={chatMessage} />
+                            ? chatMessages.map((chatMessage, i) =>
+                                <ChatBubble key={chatMessage.message_id} chatMessage={chatMessage} prevChatMessage={chatMessages[i-1]} nextChatMessage={chatMessages[i + 1]} />
                             )
                             : <p className={startChatStyle}>{startChat}</p>
                     }
