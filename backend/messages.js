@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router()
 const pool = require('./db')
-const { WebSocket } = require('ws')
 const websocketService = require('./services/websocket.js')
 
 const messageTbl = 'message_tbl'
@@ -29,7 +28,7 @@ module.exports = function (wss) {
         try {
             const query = `SELECT message_text from ${messageTbl} WHERE chatroom_id = ? ORDER BY id DESC LIMIT 1`
             const [rows] = await pool.execute(query, [id])
-            const row = await rows[0]
+            const row = rows[0]
             console.log(row)
             return res.status(200).json({ status: 'ok', data: row })
         } catch (e) {

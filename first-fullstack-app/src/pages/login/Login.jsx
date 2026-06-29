@@ -62,8 +62,9 @@ export default function Login() {
                         <input className={cancelBtn} type="reset" value={"Cancel"} />
                     </div>
                 </form>
-                <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "14px", color: "black" }}>Wala pang acc and bebe ko na yan? <br />
-                    <span style={{ color: "blue", cursor: "pointer" }}><Link to='/signup'>Signup</Link></span></p>
+                <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "14px", color: "black" }}>Don't have an account?
+                    <span style={{ color: "blue", cursor: "pointer" }}><Link to='/signup' style={{ textDecoration: 'none' }}> Signup</Link></span>
+                </p>
             </div>
 
         </div >

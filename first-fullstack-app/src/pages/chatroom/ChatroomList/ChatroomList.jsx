@@ -13,7 +13,7 @@ export default function ChatroomList({ chatroom, setHasOpenChat }) {
     useEffect(() => {
         async function fetchLatestMessage() {
             const data = await apiClient.get(`/messages/latest/${chatroom.id}`)
-            setLatestMessage(data.data.message_text)
+            setLatestMessage(data.data?.message_text || null)
         }
         fetchLatestMessage()
     }, [chatroom.id])

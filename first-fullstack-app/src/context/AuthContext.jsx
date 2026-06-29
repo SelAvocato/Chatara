@@ -6,7 +6,7 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null)
     async function login(entries) {
-        const data = await apiClient.post('/login', entries)
+        const data = await apiClient.post('/auth/login', entries)
         if (data.status !== 'ok') return data.message
         localStorage.setItem('user', JSON.stringify(data.user))
         setUser(data.user)
@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
     async function signup(username, password) {
         const newUser = { username: username, password: password }
         console.log(newUser)
-        const res = await apiClient.post('/signup', newUser)
+        const res = await apiClient.post('/auth/signup', newUser)
 
         return res
     }

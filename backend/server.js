@@ -17,14 +17,12 @@ const httpServer = new http.createServer(app)
 const wss = new WebSocketServer({ server: httpServer })
 
 const usersRouter = require('./users')
-const loginRouter = require('./login')
-const signupRouter = require('./signup')
+const authRouter = require('./services/auth.js')
 const chatroomsRouter = require('./chatrooms')
 const messagesRouter = require('./messages')(wss)
 
-app.use('/login', loginRouter)
 app.use('/users', usersRouter)
-app.use('/signup', signupRouter)
+app.use('/auth', authRouter)
 app.use('/chatrooms', chatroomsRouter)
 app.use('/messages', messagesRouter)
 

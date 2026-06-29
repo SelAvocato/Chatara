@@ -1,4 +1,3 @@
-const mysql = require('mysql2/promise')
 const express = require('express')
 const pool = require('./db')
 const router = express.Router()

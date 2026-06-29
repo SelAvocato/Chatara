@@ -10,8 +10,7 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
 
     const fromSameSender = () => {
         if (nextChatMessage && nextChatMessage.sender_id !== user.id && nextChatMessage.sender_id === chatMessage.sender_id) {
-            const isRecent = checkIfRecent(true)
-            return isRecent
+            return checkIfRecent(true)
         }
         return false
     }
