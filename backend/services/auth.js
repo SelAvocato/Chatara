@@ -2,8 +2,14 @@ const mysql = require('mysql2/promise')
 const express = require('express')
 const pool = require('../db')
 const router = express.Router()
-const { generateAccessToken, generateRefreshToken } = require('../utils/generateTokens.js')
+const { generateAccessToken, generateRefreshToken, hashToken } = require('../utils/generateTokens.js')
 const bcrypt = require('bcrypt')
+const refreshTokenOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000
+}
 
 router.post('/login', async (req, res) => {
     const { username, password } = req.body
@@ -12,14 +18,28 @@ router.post('/login', async (req, res) => {
         const query = `SELECT * FROM user_tbl WHERE username = ? LIMIT 1 `
         const [rows] = await pool.execute(query, [username])
         const user = rows[0]
-        console.log('incoming error for:', user)
         if (!user) return res.status(401).json({ message: "User no longer exist" })
         console.log('user', user)
+
         const isValid = await bcrypt.compare(password, user.hashed_password)
         if (!isValid) return res.status(401).json({ message: 'Invalid username or password' })
-        console.log('valid')
-        return res.status(200).json({ user: user, status: 'ok' })
+
+        const { hashed_password, ...userWithoutPass } = user
+        console.log('new user', userWithoutPass)
+
+        const accessToken = generateAccessToken(userWithoutPass)
+        const refreshToken = generateRefreshToken(userWithoutPass)
+
+        res.cookie('refreshToken', refreshToken, refreshTokenOptions)
+
+        const hashRefreshToken = hashToken(refreshToken)
+
+        const updateQuery = `UPDATE user_tbl SET hashed_refresh_token = ? WHERE id = ?`
+        await pool.execute(updateQuery, [hashRefreshToken, user.id])
+
+        return res.status(200).json({ accessToken, user: userWithoutPass, status: 'ok' })
     } catch (e) {
+        console.log(e)
         return res.status(500).json({ message: e.message })
     }
 })
