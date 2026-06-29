@@ -22,7 +22,7 @@ export default function Sidebar() {
 
             <div className={nameAndLogoutStyle}>
                 <div className={userStyle}>
-                    {user.username}
+                    {user && user.username}
                 </div>
                 <div onClick={onLogout} className={logoutStyle}>
                     <button>Logout</button>

@@ -1,4 +1,5 @@
 require('dotenv/config')
+const cookieParser = require('cookie-parser')
 const express = require('express')
 const cors = require('cors')
 const app = express()
@@ -7,6 +8,7 @@ const http = require('http')
 const { WebSocketServer, WebSocket } = require('ws')
 const websocketService = require('./services/websocket.js')
 
+app.use(cookieParser())
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true

@@ -6,7 +6,6 @@ websocketService = {
             try {
                 const parsed = JSON.parse(data.toString())
 
-                console.log(parsed)
                 switch (parsed.type) {
                     case 'join':
                         socket.currentRoom = parsed.chatroomId
@@ -14,7 +13,6 @@ websocketService = {
                         console.log(socket.id, ' joined ', socket.currentRoom)
                         break
                     case 'typing':
-                        console.log(parsed.username, ' is typing')
                         for (const client of wss.clients) {
                             if (client.currentRoom === socket.currentRoom && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
                                 client.send(JSON.stringify({ type: 'typing', username: parsed.username }))

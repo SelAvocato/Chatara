@@ -8,16 +8,13 @@ const userTbl = 'user_tbl'
 router.get('/:id', async (req, res) => {
     const id = req.params.id
     if (!id) return res.status(400).json({ message: "Error: Missing Id" })
-    console.log(id)
     try {
         const query = `SELECT c.id, c.name FROM ${chatroomTbl} c inner join ${participantTbl} p ON c.id = p.chatroom_id WHERE p.user_id = ? `
-        console.log('queried')
         const [rows] = await pool.execute(query, [id])
-        console.log(rows[0])
         if (!rows[0]) return res.json({ message: "You have no messages" })
-        console.log(rows)
         return res.json({ chatrooms: rows, status: 'ok' })
     } catch (e) {
+        console.log(e)
         return res.status(500).json({ message: "Something went wrong" })
     }
 })

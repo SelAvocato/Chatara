@@ -29,7 +29,6 @@ module.exports = function (wss) {
             const query = `SELECT message_text from ${messageTbl} WHERE chatroom_id = ? ORDER BY id DESC LIMIT 1`
             const [rows] = await pool.execute(query, [id])
             const row = rows[0]
-            console.log(row)
             return res.status(200).json({ status: 'ok', data: row })
         } catch (e) {
             res.json({ message: "Error: Something went wrong" })

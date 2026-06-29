@@ -2,6 +2,7 @@ const mysql = require('mysql2/promise')
 const express = require('express')
 const pool = require('../db')
 const router = express.Router()
+const jwt = require('jsonwebtoken')
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../utils/generateTokens.js')
 const bcrypt = require('bcrypt')
 const refreshTokenOptions = {
@@ -19,13 +20,11 @@ router.post('/login', async (req, res) => {
         const [rows] = await pool.execute(query, [username])
         const user = rows[0]
         if (!user) return res.status(401).json({ message: "User no longer exist" })
-        console.log('user', user)
 
         const isValid = await bcrypt.compare(password, user.hashed_password)
         if (!isValid) return res.status(401).json({ message: 'Invalid username or password' })
 
         const { hashed_password, ...userWithoutPass } = user
-        console.log('new user', userWithoutPass)
 
         const accessToken = generateAccessToken(userWithoutPass)
         const refreshToken = generateRefreshToken(userWithoutPass)
@@ -46,7 +45,6 @@ router.post('/login', async (req, res) => {
 
 router.post('/signup', async (req, res) => {
     const { username, password } = req.body
-    console.log(username, password)
     if (!username || !password) return res.status(400).json({ message: 'Invalid username or password' })
 
     try {
@@ -61,6 +59,45 @@ router.post('/signup', async (req, res) => {
         }
 
         console.error(e)
+        return res.status(500).json({ message: 'Something went wrong' })
+    }
+})
+
+router.post('/refresh', async (req, res) => {
+    const refreshToken = req.cookies.refreshToken
+    console.log('refresh token', refreshToken)
+    if (!refreshToken) return res.status(401).json({ message: 'Refresh token does not exist' })
+
+    try {
+        const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
+
+        const selectQuery = `SELECT id, username, hashed_refresh_token from user_tbl where id = ?`
+        const [rows] = await pool.execute(selectQuery, [payload.sub])
+        const user = rows[0]
+        const { hashed_refresh_token, ...userWithoutHashedRefreshToken } = user
+        if (!user) return res.status(401).json({ message: 'User does not exist' })
+
+        const hashedRefreshToken = hashToken(refreshToken)
+        if (hashedRefreshToken !== user.hashed_refresh_token) {
+            res.clearCookie('refreshToken')
+            const nullUpdateQuery = `UPDATE user_tbl SET hashed_refresh_token = NULL WHERE id = ?`
+            await pool.execute(nullUpdateQuery, [payload.sub])
+            return res.status(401).json({ message: 'Session expired. Please re-login' })
+        }
+
+        const newAccessToken = generateAccessToken(userWithoutHashedRefreshToken)
+        const newRefreshToken = generateRefreshToken(userWithoutHashedRefreshToken)
+        const newHashedRefreshToken = hashToken(newRefreshToken)
+
+        const updateQuery = `UPDATE user_tbl SET hashed_refresh_token = ? WHERE id = ?`
+        await pool.execute(updateQuery, [newHashedRefreshToken, payload.sub])
+
+
+        res.cookie('refreshToken', newRefreshToken, refreshTokenOptions)
+        console.log('all worked')
+        return res.status(200).json({ accessToken: newAccessToken, user: userWithoutHashedRefreshToken, status: 'ok' })
+    } catch (e) {
+        console.log(e)
         return res.status(500).json({ message: 'Something went wrong' })
     }
 })
