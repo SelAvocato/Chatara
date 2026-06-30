@@ -13,10 +13,10 @@ export function WebSocketProvider({ children }) {
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
 
-    const { user } = useAuth()
+    const { user, accessToken } = useAuth()
 
     useEffect(() => {
-        wsRef.current = new WebSocket('ws://localhost:3000')
+        wsRef.current = new WebSocket(`ws://localhost:3000?token=${accessToken}`)
 
         wsRef.current.onopen = () => {
             console.log('connected')
@@ -60,7 +60,7 @@ export function WebSocketProvider({ children }) {
 
         return () => wsRef.current.close()
 
-    }, [])
+    }, [accessToken])
 
     async function openChat(chatroomId) {
         setCurrentChatroomId(chatroomId)

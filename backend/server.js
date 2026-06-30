@@ -1,5 +1,6 @@
 require('dotenv/config')
 const cookieParser = require('cookie-parser')
+const { parse } = require('url')
 const express = require('express')
 const cors = require('cors')
 const app = express()
@@ -33,9 +34,12 @@ app.use('/chatrooms', chatroomsRouter)
 app.use('/messages', messagesRouter)
 
 wss.on('connection', (socket, req) => {
+    const { query } = parse(req.url, true)
+    const token = query.token
+    socket.accessToken = token
     socket.currentRoom = null
     websocketService.connectSocket(wss, socket)
-    console.log('user connected')
+    console.log('user connected', token)
 })
 
 httpServer.listen(port, (req, res) => {
