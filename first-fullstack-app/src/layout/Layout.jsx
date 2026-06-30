@@ -5,7 +5,7 @@ import style from './Layout.module.css'
 import { useRefresh } from "../hooks/useRefresh";
 
 export default function Layout() {
-    const { isAuthenticated, isLoading } = useRefresh()
+    const { isAuthenticated, isLoading } = useRefresh(true)
     const { layoutStyle, sidebar, main } = style
 
     if (isLoading) return <div>Loading...</div>

@@ -32,25 +32,30 @@ export function AuthProvider({ children }) {
 
     const refresh = useCallback(async () => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/refresh`, {
+            const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/user`, {
                 method: 'POST',
                 credentials: 'include'
             })
             const data = await res.json()
             if (data.status !== 'ok') throw new Error(data.message)
-            console.log('dataaa', data)
             setUser(data.user)
             setAccessToken(data.accessToken)
-            console.log(data)
             return data.user
         } catch (e) {
             console.log(e)
         }
     }, [])
 
-    function logout() {
-        localStorage.clear()
+    async function logout() {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { authorization: `Bearer ${accessToken}` }
+        })
+        const data = await res.json()
+        console.log(data.message)
         setUser(null)
+        setAccessToken(null)
     }
 
     return (

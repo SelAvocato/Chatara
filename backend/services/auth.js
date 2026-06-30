@@ -5,6 +5,7 @@ const router = express.Router()
 const jwt = require('jsonwebtoken')
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../utils/generateTokens.js')
 const bcrypt = require('bcrypt')
+const authenticate = require('../middleware/authenticate.js')
 const refreshTokenOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -63,9 +64,27 @@ router.post('/signup', async (req, res) => {
     }
 })
 
+router.post('/user', async (req, res) => {
+    const reqRefreshToken = req.cookies.refreshToken
+    if (!reqRefreshToken) return res.status(401).json({ message: 'Missing refresh token' })
+    try {
+        const payload = jwt.verify(reqRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+        const selectQuery = `SELECT id, username, hashed_refresh_token FROM user_tbl where id = ?`
+        const [rows] = await pool.execute(selectQuery, [payload.sub])
+        const user = rows[0]
+        const { hashed_refresh_token, ...userWithoutHashedRefreshToken } = user
+        if (!user) return res.status(401).json({ message: 'User no longer exist' })
+
+        const accessToken = generateAccessToken(userWithoutHashedRefreshToken)
+        return res.status(200).json({ accessToken, user: userWithoutHashedRefreshToken, status: 'ok' })
+    } catch (e) {
+        console.log(e)
+        return res.status(401).json({ message: 'Invalid refresh token' })
+    }
+})
+
 router.post('/refresh', async (req, res) => {
     const refreshToken = req.cookies.refreshToken
-    console.log('refresh token', refreshToken)
     if (!refreshToken) return res.status(401).json({ message: 'Refresh token does not exist' })
 
     try {
@@ -92,14 +111,20 @@ router.post('/refresh', async (req, res) => {
         const updateQuery = `UPDATE user_tbl SET hashed_refresh_token = ? WHERE id = ?`
         await pool.execute(updateQuery, [newHashedRefreshToken, payload.sub])
 
-
         res.cookie('refreshToken', newRefreshToken, refreshTokenOptions)
-        console.log('all worked')
         return res.status(200).json({ accessToken: newAccessToken, user: userWithoutHashedRefreshToken, status: 'ok' })
     } catch (e) {
         console.log(e)
         return res.status(500).json({ message: 'Something went wrong' })
     }
+})
+
+router.post('/logout', authenticate, async (req, res) => {
+    res.clearCookie('refreshToken')
+    const updateQuery = `UPDATE user_tbl SET hashed_refresh_token = NULL where id = ?`
+    await pool.execute(updateQuery, [req.id])
+    console.log('user log out successfully')
+    return res.status(200).json({ message: 'Log out successfully' })
 })
 
 module.exports = router

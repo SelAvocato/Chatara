@@ -9,9 +9,9 @@ export default function Sidebar() {
 
     const navigate = useNavigate()
 
-    function onLogout() {
-        logout()
-        navigate('/')
+    async function onLogout() {
+        await logout()
+        navigate('/login')
     }
 
     return (
