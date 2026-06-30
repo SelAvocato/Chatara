@@ -1,7 +1,7 @@
 import { useState } from "react"
 import style from "./Login.module.css"
 import { Link, useNavigate, Navigate } from 'react-router'
-import { useAuth } from "../../hooks/useAuth"
+import { useAuth } from "../../../hooks/useAuth"
 
 export default function Login() {
     const [statusMessage, setStatusMessage] = useState(null)
@@ -30,6 +30,7 @@ export default function Login() {
             console.log('test')
         } catch (e) {
             setIsInvalid(true)
+            setStatusMessage(e.message || 'Something went wrong')
             return console.error(e.message || "Something went wrong")
         }
 

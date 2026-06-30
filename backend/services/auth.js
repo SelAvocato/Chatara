@@ -19,7 +19,7 @@ router.post('/login', async (req, res) => {
         const query = `SELECT * FROM user_tbl WHERE username = ? LIMIT 1 `
         const [rows] = await pool.execute(query, [username])
         const user = rows[0]
-        if (!user) return res.status(401).json({ message: "User no longer exist" })
+        if (!user) return res.status(401).json({ message: "Invalid username or password" })
 
         const isValid = await bcrypt.compare(password, user.hashed_password)
         if (!isValid) return res.status(401).json({ message: 'Invalid username or password' })
