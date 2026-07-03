@@ -23,12 +23,11 @@ app.use((req, res, next) => {
 const httpServer = new http.createServer(app)
 const wss = new WebSocketServer({ server: httpServer })
 
-const usersRouter = require('./users')
 const authRouter = require('./services/auth.js')
 const chatroomsRouter = require('./chatrooms')
+const authenticate = require('./middleware/authenticate.js')
 const messagesRouter = require('./messages')(wss)
 
-app.use('/users', usersRouter)
 app.use('/auth', authRouter)
 app.use('/chatrooms', chatroomsRouter)
 app.use('/messages', messagesRouter)
@@ -36,6 +35,7 @@ app.use('/messages', messagesRouter)
 wss.on('connection', (socket, req) => {
     const { query } = parse(req.url, true)
     const token = query.token
+    if (!token) return socket.close()
     socket.accessToken = token
     socket.currentRoom = null
     websocketService.connectSocket(wss, socket)

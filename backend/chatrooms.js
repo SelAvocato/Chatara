@@ -1,11 +1,12 @@
 const pool = require('./db')
 const express = require('express')
+const authenticate = require('./middleware/authenticate')
 const router = express.Router()
 const chatroomTbl = 'chatroom_tbl'
 const participantTbl = 'participant_tbl'
 const userTbl = 'user_tbl'
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticate, async (req, res) => {
     const id = req.params.id
     if (!id) return res.status(400).json({ message: "Error: Missing Id" })
     try {
@@ -19,7 +20,7 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-router.post('/create', async (req, res) => {
+router.post('/create', authenticate, async (req, res) => {
     const { chatroomName, username, userId } = req.body
     if (!chatroomName || !username) return res.status(400).json({ message: "Chatroom and Participant name must not be empty" })
     try {

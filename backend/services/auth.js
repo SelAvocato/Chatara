@@ -120,11 +120,16 @@ router.post('/refresh', async (req, res) => {
 })
 
 router.post('/logout', authenticate, async (req, res) => {
-    res.clearCookie('refreshToken')
-    const updateQuery = `UPDATE user_tbl SET hashed_refresh_token = NULL where id = ?`
-    await pool.execute(updateQuery, [req.id])
-    console.log('user log out successfully')
-    return res.status(200).json({ message: 'Log out successfully' })
+    try {
+        res.clearCookie('refreshToken')
+        const updateQuery = `UPDATE user_tbl SET hashed_refresh_token = NULL where id = ?`
+        await pool.execute(updateQuery, [req.id])
+        console.log(`userID: ${req.id} has logged out`)
+        return res.status(200).json({ message: 'Log out successfully' })
+    } catch (e) {
+        console.log(e)
+        return res.status(500).json({ message: 'Something went wrong' })
+    }
 })
 
 module.exports = router

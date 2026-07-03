@@ -2,12 +2,13 @@ const express = require('express')
 const router = express.Router()
 const pool = require('./db')
 const websocketService = require('./services/websocket.js')
+const authenticate = require('./middleware/authenticate.js')
 
 const messageTbl = 'message_tbl'
 const userTbl = 'user_tbl'
 
 module.exports = function (wss) {
-    router.get('/:id', async (req, res) => {
+    router.get('/:id', authenticate, async (req, res) => {
         const id = req.params.id
 
         try {
@@ -21,7 +22,7 @@ module.exports = function (wss) {
         }
     })
 
-    router.get('/latest/:id', async (req, res) => {
+    router.get('/latest/:id', authenticate, async (req, res) => {
         const id = req.params.id
         if (!id) return res.status(400).json({ message: 'Error: Id must be provided' })
 
@@ -36,7 +37,7 @@ module.exports = function (wss) {
         }
     })
 
-    router.post('/send', async (req, res) => {
+    router.post('/send', authenticate, async (req, res) => {
         const { chatroomId, senderId, senderName, messageText } = req.body
         if (!chatroomId || !senderId || !senderName || !messageText) return res.status(400).json({ message: "Message must not be empty" })
 
