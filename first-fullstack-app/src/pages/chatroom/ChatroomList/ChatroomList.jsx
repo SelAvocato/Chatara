@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react'
 import { useWebsocket } from '../../../hooks/useWebsocket'
+import { useApi } from '../../../hooks/useApi'
 import pfp from '/icons/pfp.svg'
 import style from './ChatroomList.module.css'
-import { apiClient } from '../../../services/api'
 
 export default function ChatroomList({ chatroom, setHasOpenChat }) {
     const [latestMessage, setLatestMessage] = useState(null)
 
     const { chatRoomStyle, chatroomNameStyle, chatroomLatestMessageStyle } = style
     const { latestMessageWs, openChat, currentChatroomId } = useWebsocket()
+    const api = useApi()
 
     useEffect(() => {
         async function fetchLatestMessage() {
-            const data = await apiClient.get(`/messages/latest/${chatroom.id}`)
+            const data = await api.get(`/messages/latest/${chatroom.id}`)
             setLatestMessage(data.data?.message_text || null)
         }
         fetchLatestMessage()
-    }, [chatroom.id])
+    }, [chatroom.id, api])
 
     useEffect(() => {
         function changeLatestMessage() {

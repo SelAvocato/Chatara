@@ -1,6 +1,6 @@
 import { useRef, useEffect, createContext, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { apiClient } from "../services/api";
+import { useApi } from "../hooks/useApi";
 
 const WebSocketContext = createContext(null)
 
@@ -14,6 +14,7 @@ export function WebSocketProvider({ children }) {
     const [chatMessages, setChatMessages] = useState([])
 
     const { user, accessToken } = useAuth()
+    const api = useApi()
 
     useEffect(() => {
         wsRef.current = new WebSocket(`ws://localhost:3000?token=${accessToken}`)
@@ -65,19 +66,18 @@ export function WebSocketProvider({ children }) {
     async function openChat(chatroomId) {
         setCurrentChatroomId(chatroomId)
         try {
-            const res = await apiClient.get(`/messages/${chatroomId}`)
+            const data = await api.get(`/messages/${chatroomId}`)
             wsRef.current.send(JSON.stringify({
                 type: "join",
                 chatroomId: chatroomId,
                 userId: user.id
             }))
-            console.log('sent join ws')
-            if (res.status === 'empty') {
+            if (data.status === 'empty') {
                 setChatMessages([])
-                return setStartChat(res.message)
+                return setStartChat(data.message)
             }
-            console.log(res.row)
-            return setChatMessages(res.row)
+            console.log(data.row)
+            return setChatMessages(data.row)
         } catch (e) {
             console.error(e)
             setStartChat('Something went wrong')

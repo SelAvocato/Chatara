@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import style from './ChatMessageActions.module.css'
 import { useAuth } from '../../../hooks/useAuth'
-import { apiClient } from '../../../services/api'
+import { useApi } from '../../../hooks/useApi'
 import submitIcon from './submit-icon.svg'
 import { useWebsocket } from '../../../hooks/useWebsocket'
 
@@ -12,6 +12,7 @@ export default function ChatMessageActions() {
     const [messageInput, setMessageInput] = useState('')
 
     const { user } = useAuth()
+    const api = useApi()
     const { wsRef, currentChatroomId } = useWebsocket()
     const { actionStyle, messageAndSubmitStyle, textInputStyle, submitStyle } = style
     const username = user.username
@@ -56,7 +57,7 @@ export default function ChatMessageActions() {
         }
 
         try {
-            const res = await apiClient.post('/messages/send', (data))
+            const res = await api.post('/messages/send', (data))
             console.log('response: ', res)
             if (res.status !== 'ok') return setErrorMessage(res.message)
             setErrorMessage(null)

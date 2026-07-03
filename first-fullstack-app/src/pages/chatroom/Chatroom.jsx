@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import { apiClient } from "../../services/api"
 import { useAuth } from "../../hooks/useAuth"
+import { useApi } from "../../hooks/useApi"
 import ChatParent from "./ChatParent/ChatParent"
 import style from "./Chatroom.module.css"
 import addCircle from '/icons/add_circle.svg'
@@ -14,12 +14,13 @@ export default function Chatroom() {
     const [hasOpenChat, setHasOpenChat] = useState(false)
 
     const { user } = useAuth()
+    const api = useApi()
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
 
     useEffect(() => {
         async function getChatrooms() {
             try {
-                const res = await apiClient.get(`/chatrooms/${user?.id}`)
+                const res = await api.get(`/chatrooms/${user?.id}`)
                 if (res.status !== 'ok') {
                     setMessage(res.message)
                 }
@@ -32,7 +33,7 @@ export default function Chatroom() {
         }
 
         getChatrooms()
-    }, [user])
+    }, [user, api])
 
     return (
         <div className={main}>

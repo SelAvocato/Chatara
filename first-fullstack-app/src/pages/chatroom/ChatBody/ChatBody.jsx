@@ -18,8 +18,6 @@ export default function ChatBody() {
         focusEndChat()
     }, [chatMessages, isTyping])
 
-
-
     return (
         <div className={chatBodyStyle}>
             <div className={chat}>

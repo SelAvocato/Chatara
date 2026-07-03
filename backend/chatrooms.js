@@ -11,7 +11,7 @@ router.get('/:id', async (req, res) => {
     try {
         const query = `SELECT c.id, c.name FROM ${chatroomTbl} c inner join ${participantTbl} p ON c.id = p.chatroom_id WHERE p.user_id = ? `
         const [rows] = await pool.execute(query, [id])
-        if (!rows[0]) return res.json({ message: "You have no messages" })
+        if (!rows[0]) return res.json({ message: "You have no chatrooms" })
         return res.json({ chatrooms: rows, status: 'ok' })
     } catch (e) {
         console.log(e)
