@@ -8,10 +8,11 @@ const port = 3000
 const http = require('http')
 const { WebSocketServer, WebSocket } = require('ws')
 const websocketService = require('./services/websocket.js')
+const originUrl = process.env.ORIGIN_URL
 
 app.use(cookieParser())
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: originUrl,
     credentials: true
 }));
 app.use(express.json())
@@ -24,12 +25,14 @@ const httpServer = new http.createServer(app)
 const wss = new WebSocketServer({ server: httpServer })
 
 const authRouter = require('./services/auth.js')
-const chatroomsRouter = require('./chatrooms')
+const chatroomsRouter = require('./chatrooms.js')
+const chatroomRouter = require('./chatroom.js')
 const authenticate = require('./middleware/authenticate.js')
-const messagesRouter = require('./messages')(wss)
+const messagesRouter = require('./messages.js')(wss)
 
 app.use('/auth', authRouter)
 app.use('/chatrooms', chatroomsRouter)
+app.use('/chatroom', chatroomRouter)
 app.use('/messages', messagesRouter)
 
 wss.on('connection', (socket, req) => {

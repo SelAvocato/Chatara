@@ -1,6 +1,7 @@
 import { useRef, useEffect, createContext, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useApi } from "../hooks/useApi";
+import { useChatroom } from "../hooks/useChatroom";
 
 const WebSocketContext = createContext(null)
 
@@ -15,6 +16,7 @@ export function WebSocketProvider({ children }) {
 
     const { user, accessToken } = useAuth()
     const api = useApi()
+    const { getChatroomInfo } = useChatroom()
 
     useEffect(() => {
         wsRef.current = new WebSocket(`ws://localhost:3000?token=${accessToken}`)
@@ -60,11 +62,11 @@ export function WebSocketProvider({ children }) {
         }
 
         return () => wsRef.current.close()
-
     }, [accessToken])
 
     async function openChat(chatroomId) {
         setCurrentChatroomId(chatroomId)
+        getChatroomInfo(chatroomId)
         try {
             const data = await api.get(`/messages/${chatroomId}`)
             wsRef.current.send(JSON.stringify({
@@ -74,10 +76,11 @@ export function WebSocketProvider({ children }) {
             }))
             if (data.status === 'empty') {
                 setChatMessages([])
-                return setStartChat(data.message)
+                setStartChat(data.message)
+                return
             }
             console.log(data.row)
-            return setChatMessages(data.row)
+            setChatMessages(data.row)
         } catch (e) {
             console.error(e)
             setStartChat('Something went wrong')

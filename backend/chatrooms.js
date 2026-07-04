@@ -6,14 +6,14 @@ const chatroomTbl = 'chatroom_tbl'
 const participantTbl = 'participant_tbl'
 const userTbl = 'user_tbl'
 
-router.get('/:id', authenticate, async (req, res) => {
-    const id = req.params.id
+router.get('/', authenticate, async (req, res) => {
+    const id = req.id
     if (!id) return res.status(400).json({ message: "Error: Missing Id" })
     try {
         const query = `SELECT c.id, c.name FROM ${chatroomTbl} c inner join ${participantTbl} p ON c.id = p.chatroom_id WHERE p.user_id = ? `
-        const [rows] = await pool.execute(query, [id])
-        if (!rows[0]) return res.json({ message: "You have no chatrooms" })
-        return res.json({ chatrooms: rows, status: 'ok' })
+        const [chatrooms] = await pool.execute(query, [id])
+        if (chatrooms.length === 0) return res.json({ message: "You have no chatrooms" })
+        res.json({ chatrooms, status: 'ok' })
     } catch (e) {
         console.log(e)
         return res.status(500).json({ message: "Something went wrong" })
@@ -24,10 +24,10 @@ router.post('/create', authenticate, async (req, res) => {
     const { chatroomName, username, userId } = req.body
     if (!chatroomName || !username) return res.status(400).json({ message: "Chatroom and Participant name must not be empty" })
     try {
-        const findUserQuery = `SELECT * FROM ${userTbl} WHERE username=?`
-        const [row] = await pool.execute(findUserQuery, [username])
-        if (row.length < 1) return res.status(400).json({ message: "User doesn't exist" })
-        const participantId = row[0].id
+        const findUserQuery = `SELECT id FROM ${userTbl} WHERE username=? LIMIT 1`
+        const [user] = await pool.execute(findUserQuery, [username])
+        if (user.length === 0) return res.status(400).json({ message: "User doesn't exist" })
+        const participantId = user[0].id
         if (participantId === userId) return res.status(400).json({ message: "You can't make a chatroom by yourself" })
 
         const chatroomQuery = `INSERT INTO ${chatroomTbl}(name) value (?)`
@@ -37,7 +37,7 @@ router.post('/create', authenticate, async (req, res) => {
         const participantQuery = `INSERT INTO ${participantTbl}(chatroom_id, user_id) values (?, ?),(?, ?)`
         await pool.execute(participantQuery, [chatroomId, participantId, chatroomId, userId])
 
-        return res.json({ message: "Chatroom successfully created", status: 'ok' })
+        res.json({ message: "Chatroom successfully created", status: 'ok' })
     } catch (e) {
         console.log(e)
         return res.status(500).json({ message: "Something went wrong" })

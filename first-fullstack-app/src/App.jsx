@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router'
 import { AuthProvider } from './context/AuthContext.jsx'
+import { WebSocketProvider } from './context/WebSocketContext.jsx'
+import { ChatroomProvider } from './context/ChatroomContext.jsx'
 import Login from './pages/auth/login/Login.jsx'
 import Signup from './pages/auth/signup/Signup.jsx'
 import Layout from './layout/Layout.jsx'
 import Chatroom from './pages/chatroom/Chatroom.jsx'
-import { WebSocketProvider } from './context/WebSocketContext.jsx'
 import ProtectedAuth from './pages/auth/ProtectedAuth.jsx'
 
 export default function App() {
@@ -15,9 +16,12 @@ export default function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route path='/' element={
-                <WebSocketProvider>
-                  <Chatroom />
-                </WebSocketProvider>}
+                <ChatroomProvider>
+                  <WebSocketProvider>
+                    <Chatroom />
+                  </WebSocketProvider>
+                </ChatroomProvider>
+              }
               />
             </Route>
 
