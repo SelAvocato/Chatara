@@ -12,8 +12,7 @@ export default function Chatroom() {
     const [message, setMessage] = useState('')
     const [chatrooms, setChatrooms] = useState(null)
     const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
-    const [hasOpenChat, setHasOpenChat] = useState(false)
-
+    const [hasOpenChat, setHasOpenChat] = useState(localStorage.getItem('recentChatroomId') !== null)
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
 
     useEffect(() => {

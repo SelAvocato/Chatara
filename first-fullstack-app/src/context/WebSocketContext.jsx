@@ -2,6 +2,7 @@ import { useRef, useEffect, createContext, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useApi } from "../hooks/useApi";
 import { useChatroom } from "../hooks/useChatroom";
+import { useCallback } from "react";
 
 const WebSocketContext = createContext(null)
 
@@ -10,13 +11,13 @@ export function WebSocketProvider({ children }) {
     const [isTyping, setIsTyping] = useState(false)
     const [latestMessageWs, setLatestMessageWs] = useState(null)
     const [userTyping, setUserTyping] = useState(null)
-    const [currentChatroomId, setCurrentChatroomId] = useState(null)
+    const [currentChatroomId, setCurrentChatroomId] = useState(localStorage.getItem('recentChatroomId') || null)
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
 
     const { user, accessToken } = useAuth()
+    const { savedChatroomId, getChatroomInfo } = useChatroom()
     const api = useApi()
-    const { getChatroomInfo } = useChatroom()
 
     useEffect(() => {
         wsRef.current = new WebSocket(`ws://localhost:3000?token=${accessToken}`)
@@ -64,7 +65,8 @@ export function WebSocketProvider({ children }) {
         return () => wsRef.current.close()
     }, [accessToken])
 
-    async function openChat(chatroomId) {
+    const openChat = useCallback(async (chatroomId) => {
+        localStorage.setItem('recentChatroomId', chatroomId)
         setCurrentChatroomId(chatroomId)
         getChatroomInfo(chatroomId)
         try {
@@ -85,7 +87,15 @@ export function WebSocketProvider({ children }) {
             console.error(e)
             setStartChat('Something went wrong')
         }
-    }
+    }, [api, getChatroomInfo, user.id])
+    
+    useEffect(() => {
+        async function refresh() {
+            if (!savedChatroomId) return
+            await openChat(savedChatroomId)
+        }
+        refresh()
+    }, [savedChatroomId, openChat])
 
     return <WebSocketContext value={{ wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping }} >
         {children}
