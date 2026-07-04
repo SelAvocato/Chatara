@@ -11,7 +11,7 @@ export function WebSocketProvider({ children }) {
     const [isTyping, setIsTyping] = useState(false)
     const [latestMessageWs, setLatestMessageWs] = useState(null)
     const [userTyping, setUserTyping] = useState(null)
-    const [currentChatroomId, setCurrentChatroomId] = useState(localStorage.getItem('recentChatroomId') || null)
+    const [currentChatroomId, setCurrentChatroomId] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) || null)
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
 
@@ -81,14 +81,13 @@ export function WebSocketProvider({ children }) {
                 setStartChat(data.message)
                 return
             }
-            console.log(data.row)
             setChatMessages(data.row)
         } catch (e) {
             console.error(e)
             setStartChat('Something went wrong')
         }
     }, [api, getChatroomInfo, user.id])
-    
+
     useEffect(() => {
         async function refresh() {
             if (!savedChatroomId) return

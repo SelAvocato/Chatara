@@ -36,7 +36,10 @@ export default function ChatMessageActions() {
     useEffect(() => {
         const currentWS = wsRef.current
         return () => {
-            currentWS?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
+            if (currentWS && currentWS.readyState === WebSocket.OPEN) {
+                currentWS?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
+            }
+
             setIsDebounced(false)
             setMessageInput('')
 
@@ -76,7 +79,7 @@ export default function ChatMessageActions() {
                 </button>
             </div>
             {
-                errorMessage ? errorMessage : null
+                errorMessage && errorMessage
             }
         </form>
     )
