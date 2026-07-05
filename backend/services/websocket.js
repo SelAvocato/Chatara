@@ -1,9 +1,11 @@
 const { WebSocket } = require('ws')
+const { authenticateWs } = require('../middleware/authenticate')
 
 websocketService = {
     connectSocket: (wss, socket) => {
         socket.on('message', (data) => {
             try {
+                authenticateWs(socket)
                 const parsed = JSON.parse(data.toString())
 
                 switch (parsed.type) {
@@ -34,6 +36,10 @@ websocketService = {
 
         socket.on('close', () => {
             console.log('user disconnected')
+        })
+
+        socket.on('error', (e) => {
+            console.log('Error for user Id ', socket?.id, ' : ', e)
         })
     },
 

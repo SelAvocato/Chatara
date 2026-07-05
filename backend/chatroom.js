@@ -1,7 +1,7 @@
 const pool = require('./db')
 const express = require('express')
 const router = express.Router()
-const authenticate = require('./middleware/authenticate')
+const { authenticate } = require('./middleware/authenticate')
 
 router.get('/:id', authenticate, async (req, res) => {
     const chatroomId = req.params.id

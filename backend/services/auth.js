@@ -5,7 +5,7 @@ const router = express.Router()
 const jwt = require('jsonwebtoken')
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../utils/generateTokens.js')
 const bcrypt = require('bcrypt')
-const authenticate = require('../middleware/authenticate.js')
+const { authenticate } = require('../middleware/authenticate.js')
 const refreshTokenOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -124,7 +124,6 @@ router.post('/logout', authenticate, async (req, res) => {
         res.clearCookie('refreshToken')
         const updateQuery = `UPDATE user_tbl SET hashed_refresh_token = NULL where id = ?`
         await pool.execute(updateQuery, [req.id])
-        console.log(`userID: ${req.id} has logged out`)
         return res.status(200).json({ message: 'Log out successfully' })
     } catch (e) {
         console.log(e)

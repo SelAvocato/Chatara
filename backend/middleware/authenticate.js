@@ -8,7 +8,6 @@ function authenticate(req, res, next) {
     try {
         const payload = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET)
         req.id = payload.sub
-        console.log('successfully saved req.id')
         next()
     } catch (e) {
         console.log(e)
@@ -16,4 +15,15 @@ function authenticate(req, res, next) {
     }
 }
 
-module.exports = authenticate
+function authenticateWs(socket) {
+    try {
+        const payload = jwt.verify(socket.accessToken, process.env.ACCESS_TOKEN_SECRET)
+        socket.id = payload.sub
+    } catch (e) {
+        console.log(e)
+        socket.close()
+        return
+    }
+}
+
+module.exports = { authenticate, authenticateWs }

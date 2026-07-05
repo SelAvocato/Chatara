@@ -1,6 +1,6 @@
 const pool = require('./db')
 const express = require('express')
-const authenticate = require('./middleware/authenticate')
+const { authenticate } = require('./middleware/authenticate')
 const router = express.Router()
 const chatroomTbl = 'chatroom_tbl'
 const participantTbl = 'participant_tbl'

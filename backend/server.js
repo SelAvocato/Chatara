@@ -27,7 +27,7 @@ const wss = new WebSocketServer({ server: httpServer })
 const authRouter = require('./services/auth.js')
 const chatroomsRouter = require('./chatrooms.js')
 const chatroomRouter = require('./chatroom.js')
-const authenticate = require('./middleware/authenticate.js')
+const {authenticate} = require('./middleware/authenticate.js')
 const messagesRouter = require('./messages.js')(wss)
 
 app.use('/auth', authRouter)
@@ -42,7 +42,7 @@ wss.on('connection', (socket, req) => {
     socket.accessToken = token
     socket.currentRoom = null
     websocketService.connectSocket(wss, socket)
-    console.log('user connected', token)
+    console.log('user connected')
 })
 
 httpServer.listen(port, (req, res) => {

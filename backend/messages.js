@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const pool = require('./db')
 const websocketService = require('./services/websocket.js')
-const authenticate = require('./middleware/authenticate.js')
+const {authenticate} = require('./middleware/authenticate.js')
 
 const messageTbl = 'message_tbl'
 const userTbl = 'user_tbl'
