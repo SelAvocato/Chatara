@@ -2,6 +2,30 @@ import { useAuth } from '../../../hooks/useAuth'
 import style from './ChatBubble.module.css'
 import pfpImage from '/icons/pfp.svg'
 
+const hourFormatter = new Intl.DateTimeFormat("en-PH", {
+    timeZone: 'Asia/Manila',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+})
+
+const dateFormatter = new Intl.DateTimeFormat("en-PH", {
+    timeZone: 'Asia/Manila',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+})
+
+const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
+    timeZone: 'Asia/Manila',
+    weekday: 'long',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+})
+
 export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
@@ -52,6 +76,24 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
     const isReceivedRecent = checkIfPartOfRecentMessageGroup()
     const isLast = checkIfLastOfMessageGroup()
 
+    function checkIfSingleMessage() {
+        if (prevChatMessageSenderId !== currentChatMessageSenderId) {
+            if (nextChatMessageSenderId !== currentChatMessageSenderId) return true
+            return !isRecent(nextChatMessageSentAtMs, currentChatMessageSentAtMs)
+        }
+
+        const isPrevMessageRecent = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
+        if (isPrevMessageRecent) return false
+
+        if (nextChatMessageSenderId === currentChatMessageSenderId) {
+            const isNextMessageRecent = isRecent(nextChatMessageSentAtMs, currentChatMessageSentAtMs)
+            if (isNextMessageRecent) return false
+        }
+        return true
+    }
+
+    const isSingleMessage = checkIfSingleMessage()
+
     function checkIfTimestampable() {
         if (!prevChatMessage) return true
         const isPrevRecent = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
@@ -68,30 +110,6 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
         const threeDays = dayMs * 3
         const twoDays = dayMs * 2
 
-        const hourFormatter = new Intl.DateTimeFormat("en-PH", {
-            timeZone: 'Asia/Manila',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        })
-
-        const dateFormatter = new Intl.DateTimeFormat("en-PH", {
-            timeZone: 'Asia/Manila',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        })
-
-        const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
-            timeZone: 'Asia/Manila',
-            weekday: 'long',
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        })
-
         if (timePassed > threeDays) {
             return dateFormatter.format(currentChatMessageSentAtMs)
         }
@@ -104,6 +122,7 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
         return hourFormatter.format(currentChatMessageSentAtMs)
     }
     const hasTimestamp = checkIfTimestampable()
+    const showUsername = !isSender && (isFirst || isSingleMessage)
 
     return (
         <>
@@ -116,7 +135,7 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
                     <img src={pfpImage} alt="Profile picture" />
                 </div>
                 <div className={`${chatInfo}`}>
-                    <p className={usernameStyle} hidden={isSender || !isFirst} >{chatMessage.sender_name}</p>
+                    {showUsername && <p className={usernameStyle} >{chatMessage.sender_name}</p>}
                     <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} `} >
                         <p>{chatMessage.message_text}</p>
                     </div>

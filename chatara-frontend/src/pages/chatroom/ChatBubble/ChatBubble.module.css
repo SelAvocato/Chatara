@@ -10,10 +10,12 @@
 
 .chatStyle.sent {
     justify-content: end;
+    margin-left: 30%;
 }
 
 .chatStyle.received {
     justify-content: start;
+    margin-right: 30%;
 }
 
 .chatStyle.recentlyReceived {
