@@ -5,7 +5,7 @@ import pfpImage from '/icons/pfp.svg'
 export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage }) {
     const { user } = useAuth()
     const { chatStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived, partOfRecentMessageGroupStyle, lastRecentChatStyle } = style
-    
+
     const isSender = chatMessage.sender_id === user?.id
     const fiveMins = 300000
     const currentChatMessageSentAtMs = new Date(chatMessage.sent_at)
@@ -35,6 +35,8 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
 
     function checkIfPartOfRecentMessageGroup() {
         if (!prevChatMessage || !nextChatMessage || prevChatMessageSenderId !== currentChatMessageSenderId || nextChatMessageSenderId !== currentChatMessageSenderId) return false
+        const isPrevRecent = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
+        if (!isPrevRecent) return false
         return isRecent(nextChatMessageSentAtMs, currentChatMessageSentAtMs)
     }
 
