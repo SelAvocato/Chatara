@@ -1,3 +1,7 @@
+:root {
+    --corner-border: 3px;
+}
+
 .chatStyle {
     display: flex;
     align-items: end;
@@ -43,32 +47,32 @@
 .chatBubble {
     padding: 10px 20px;
     background-color: #D9D9D9;
-    border-radius: 60px;
+    border-radius: 20px;
     font-size: 18px;
 }
 
 .chatStyle.received .chatBubble.firstRecentChat {
-    border-bottom-left-radius: 10px;
+    border-bottom-left-radius: var(--corner-border);
 }
 
 .chatStyle.received .chatBubble.partOfRecentMessageGroupStyle {
-    border-bottom-left-radius: 10px;
-    border-top-left-radius: 10px;
+    border-bottom-left-radius: var(--corner-border);
+    border-top-left-radius: var(--corner-border);
 }
 
 .chatStyle.received .chatBubble.lastRecentChatStyle {
-    border-top-left-radius: 10px;
+    border-top-left-radius: var(--corner-border);
 }
 
 .chatStyle.sent .chatBubble.firstRecentChat {
-    border-bottom-right-radius: 10px;
+    border-bottom-right-radius: var(--corner-border);
 }
 
 .chatStyle.sent .chatBubble.partOfRecentMessageGroupStyle {
-    border-bottom-right-radius: 10px;
-    border-top-right-radius: 10px;
+    border-bottom-right-radius: var(--corner-border);
+    border-top-right-radius: var(--corner-border);
 }
 
 .chatStyle.sent .chatBubble.lastRecentChatStyle {
-    border-top-right-radius: 10px;
+    border-top-right-radius: var(--corner-border);
 }

@@ -12,6 +12,7 @@
     gap: 1rem;
     max-height: 100%;
     min-width: 300px;
+    max-width: 300px;
     border: black solid 1px;
     border-radius: 10px;
     padding: 15px 10px;
@@ -37,9 +38,13 @@
 }
 
 .imgContainerStyle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border-radius: 10px;
     cursor: pointer;
-    padding: 5px;
+    padding: 2px;
+    max-width: 30px;
 }
 
 .imgContainerStyle:hover {
@@ -47,5 +52,5 @@
 }
 
 .imgContainerStyle img {
-    width: 25px;
+    width: 100%;
 }

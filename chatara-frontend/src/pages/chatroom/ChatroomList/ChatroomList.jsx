@@ -7,7 +7,7 @@ import style from './ChatroomList.module.css'
 export default function ChatroomList({ chatroom, setHasOpenChat }) {
     const [latestMessage, setLatestMessage] = useState(null)
 
-    const { chatRoomStyle, chatroomNameStyle, chatroomLatestMessageStyle } = style
+    const { chatRoomStyle, chatroomImageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle } = style
     const { latestMessageWs, openChat, currentChatroomId } = useWebsocket()
     const api = useApi()
 
@@ -34,7 +34,9 @@ export default function ChatroomList({ chatroom, setHasOpenChat }) {
 
     return (
         <div className={chatRoomStyle} key={chatroom.id} onClick={() => onOpenChat(chatroom.id)}>
-            <img src={pfp} alt="Profile picture" />
+            <div className={chatroomImageContainerStyle}>
+                <img src={pfp} alt="Profile picture" />
+            </div>
             <div>
                 <p className={chatroomNameStyle}>{chatroom.name}</p>
                 <p className={chatroomLatestMessageStyle}>{latestMessage && latestMessage}</p>

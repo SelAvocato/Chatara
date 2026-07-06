@@ -20,6 +20,14 @@
     background-color: #d4cfcfc2;
 }
 
+.chatroomImageContainerStyle{
+    min-width: 40px;
+}
+
+.chatroomImageContainerStyle img{
+    width: 100%;
+}
+
 .chatroomNameStyle {
     color: black;
     font-weight: 600;
@@ -27,4 +35,9 @@
 
 .chatroomLatestMessageStyle {
     font-weight: 500;
+    max-width: 150px;
+    max-height: 20px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
