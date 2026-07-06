@@ -12,25 +12,30 @@
     justify-content: start;
 }
 
-.chatStyle.recentlyReceived{
-    /* margin-block: -10px; */
-    margin-left: 35px;
+.chatStyle.recentlyReceived {
+    margin-bottom: -8px;
 }
 
-.imageContainerStyle{
-    width: 35px;
+.chatStyle.received.recentlyReceived {
+    margin-left: 40px;
 }
 
-.imageContainerStyle img{
+.imageContainerStyle {
+    max-width: 35px;
+    min-width: 35px;
+}
+
+.imageContainerStyle img {
     width: 100%;
 }
 
-.chatInfo{
+.chatInfo {
     display: flex;
     flex-direction: column;
     gap: 3px;
 }
-.usernameStyle{
+
+.usernameStyle {
     margin-left: 12px;
     font-size: 15px;
 }
@@ -42,6 +47,28 @@
     font-size: 18px;
 }
 
-.chatBubble.firstRecentChat{
-    border-bottom-left-radius: 0px;
+.chatStyle.received .chatBubble.firstRecentChat {
+    border-bottom-left-radius: 10px;
+}
+
+.chatStyle.received .chatBubble.partOfRecentMessageGroupStyle {
+    border-bottom-left-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.chatStyle.received .chatBubble.lastRecentChatStyle {
+    border-top-left-radius: 10px;
+}
+
+.chatStyle.sent .chatBubble.firstRecentChat {
+    border-bottom-right-radius: 10px;
+}
+
+.chatStyle.sent .chatBubble.partOfRecentMessageGroupStyle {
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.chatStyle.sent .chatBubble.lastRecentChatStyle {
+    border-top-right-radius: 10px;
 }
