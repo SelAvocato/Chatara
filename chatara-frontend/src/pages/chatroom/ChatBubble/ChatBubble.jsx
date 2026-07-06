@@ -25,8 +25,10 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
     function checkIfFirstMessageGroup() {
         if (!nextChatMessage || nextChatMessageSenderId !== currentChatMessageSenderId) return false
 
-        const isPrevInGroup = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
-        if (isPrevInGroup) return false
+        if (prevChatMessageSenderId === currentChatMessageSenderId) {
+            const isPrevInGroup = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
+            if (isPrevInGroup) return false
+        }
 
         const isNextInGroup = isRecent(nextChatMessageSentAtMs, currentChatMessageSentAtMs)
         if (!isNextInGroup) return false
@@ -51,7 +53,7 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
     const isLast = checkIfLastOfMessageGroup()
 
     function checkIfTimestampable() {
-        if(!prevChatMessage) return true
+        if (!prevChatMessage) return true
         const isPrevRecent = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
         if (isPrevRecent) return false
 
