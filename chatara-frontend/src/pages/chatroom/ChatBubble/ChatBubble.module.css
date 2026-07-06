@@ -24,13 +24,26 @@
     margin-left: 40px;
 }
 
+.timestampStyle {
+    text-transform: uppercase;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-block: 25px;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.562);
+}
+
 .imageContainerStyle {
     max-width: 35px;
     min-width: 35px;
+    height: 35px;
 }
 
 .imageContainerStyle img {
     width: 100%;
+    height: auto;
 }
 
 .chatInfo {
