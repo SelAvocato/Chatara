@@ -7,7 +7,7 @@ import ChatBubble from '../ChatBubble/ChatBubble'
 
 export default function ChatBody() {
     const lastMessageRef = useRef(null)
-    const [currentDate] = useState(() => Date.now());
+    const [currentDate, setCurrentDate] = useState(() => Date.now());
     const { startChat, chatMessages, isTyping, userTyping } = useWebsocket()
     const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat } = style
 
@@ -18,6 +18,15 @@ export default function ChatBody() {
     useEffect(() => {
         focusEndChat()
     }, [chatMessages, isTyping])
+
+    useEffect(() => {
+        const timer = () => setInterval(() => {
+            setCurrentDate(Date.now())
+        }, 60000)
+        timer()
+
+        return () => clearInterval(timer)
+    }, [])
 
     return (
         <div className={chatBodyStyle}>
