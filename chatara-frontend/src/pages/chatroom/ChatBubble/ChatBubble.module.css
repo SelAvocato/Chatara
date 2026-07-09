@@ -91,3 +91,24 @@
 .chatStyle.sent .chatBubble.lastRecentChatStyle {
     border-top-right-radius: var(--corner-border);
 }
+
+.messageBubbleActionsStyle {
+    display: none;
+}
+
+.chatStyle:hover .messageBubbleActionsStyle {
+    display: flex;
+    gap: 10px;
+}
+
+
+.chatBubbleContainerStyle {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    gap: 1rem;
+}
+
+.chatStyle.sent .chatBubbleContainerStyle {
+    flex-direction: row-reverse;
+}

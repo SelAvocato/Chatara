@@ -1,6 +1,7 @@
 import { useAuth } from '../../../hooks/useAuth'
 import style from './ChatBubble.module.css'
 import pfpImage from '/icons/pfp.svg'
+import ChatBubbleActions from '../ChatBubbleActionsStyle/ChatBubbleActions'
 
 const hourFormatter = new Intl.DateTimeFormat("en-PH", {
     timeZone: 'Asia/Manila',
@@ -29,7 +30,7 @@ const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
 export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
-        partOfRecentMessageGroupStyle, lastRecentChatStyle } = style
+        partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle } = style
 
     const isSender = chatMessage.sender_id === user?.id
     const threeMins = 180000
@@ -124,6 +125,8 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
     const hasTimestamp = checkIfTimestampable()
     const showUsername = !isSender && (isFirst || isSingleMessage)
 
+
+
     return (
         <>
             {hasTimestamp &&
@@ -136,8 +139,13 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
                 </div>
                 <div className={`${chatInfo}`}>
                     {showUsername && <p className={usernameStyle} >{chatMessage.sender_name}</p>}
-                    <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} `} >
-                        <p>{chatMessage.message_text}</p>
+                    <div className={chatBubbleContainerStyle}>
+                        <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} `} >
+                            <p>{chatMessage.message_text}</p>
+                        </div>
+                        <div className={messageBubbleActionsStyle}>
+                            <ChatBubbleActions chatMessage={chatMessage} />
+                        </div>
                     </div>
                 </div>
             </div>

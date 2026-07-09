@@ -1,0 +1,47 @@
+.optionContainerStyle {
+    position: relative;
+}
+
+.optionImageContainerStyle,
+.replyImageContainerStyle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4d7181a8;
+    border-radius: 50%;
+    width: 25px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.optionImageContainerStyle img,
+.replyImageContainerStyle img {
+    width: 100%;
+    height: auto;
+}
+
+.optionDropdownStyle {
+    position: absolute;
+    top: 30px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    width: 120px;
+    height: auto;
+    background-color: transparent;
+    border-radius: 5px;
+    padding: 10px 0px;
+}
+
+.optionDropdownStyle div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 30px;
+    cursor: pointer;
+    background-color: #3f6170;
+    font-weight: 500;
+    font-size: 17px;
+}
