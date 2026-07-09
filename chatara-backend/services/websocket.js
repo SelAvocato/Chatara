@@ -47,6 +47,12 @@ websocketService = {
         for (const client of wss.clients) {
             if (client.readyState === WebSocket.OPEN && client.currentRoom === chatroomId) {
                 client.send(JSON.stringify(payload))
+            }
+
+            if (client.readyState === WebSocket.OPEN && client.chatrooms.includes(chatroomId)) {
+                const { type, ...payloadWithoutType } = payload
+                const newPayload = { ...payloadWithoutType, type: 'notification' }
+                client.send(JSON.stringify(newPayload))
                 continue
             }
         }

@@ -34,7 +34,7 @@ export function WebSocketProvider({ children }) {
                 switch (parsed.type) {
                     case 'chat':
                         setChatMessages(prev => [...prev, parsed])
-                        setLatestMessageWs(parsed.message_text)
+                        setLatestMessageWs(parsed)
                         console.log('parsed chats', parsed)
                         break
                     case 'typing':
@@ -46,6 +46,9 @@ export function WebSocketProvider({ children }) {
                         setUserTyping(null)
                         setIsTyping(false)
                         console.log('stopped typing')
+                        break
+                    case 'notification':
+                        setLatestMessageWs(parsed)
                         break
                 }
             }

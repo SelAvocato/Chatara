@@ -8,23 +8,24 @@ export default function ChatroomList({ chatroom, setHasOpenChat }) {
     const [latestMessage, setLatestMessage] = useState(null)
 
     const { chatRoomStyle, chatroomImageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle } = style
-    const { latestMessageWs, openChat, currentChatroomId } = useWebsocket()
+    const { latestMessageWs, openChat, currentChatroomId, chatMessages } = useWebsocket()
     const api = useApi()
 
     useEffect(() => {
         async function fetchLatestMessage() {
             const data = await api.get(`/messages/latest/${chatroom.id}`)
-            setLatestMessage(data.data?.message_text || null)
+            setLatestMessage(data.data || null)
         }
         fetchLatestMessage()
-    }, [chatroom.id, api])
+    }, [chatroom.id, api, chatMessages])
 
     useEffect(() => {
+        if (latestMessageWs?.chatroom_id !== chatroom.id) return
         function changeLatestMessage() {
             setLatestMessage(latestMessageWs)
         }
         changeLatestMessage()
-    }, [latestMessageWs])
+    }, [latestMessageWs, chatroom.id])
 
     async function onOpenChat(chatroomId) {
         if (chatroomId === currentChatroomId) return
@@ -39,7 +40,7 @@ export default function ChatroomList({ chatroom, setHasOpenChat }) {
             </div>
             <div>
                 <p className={chatroomNameStyle}>{chatroom.name}</p>
-                <p className={chatroomLatestMessageStyle}>{latestMessage && latestMessage}</p>
+                <p className={chatroomLatestMessageStyle}>{latestMessage && latestMessage.message_text}</p>
             </div>
         </div>
     )
