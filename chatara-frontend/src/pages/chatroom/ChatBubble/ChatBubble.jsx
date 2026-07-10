@@ -1,7 +1,12 @@
 import { useAuth } from '../../../hooks/useAuth'
+import { useApi } from '../../../hooks/useApi'
+import { useWebsocket } from '../../../hooks/useWebsocket'
 import style from './ChatBubble.module.css'
 import pfpImage from '/icons/pfp.svg'
+import confirmImage from './img/confirm.svg'
+import cancelImage from './img/cancel.svg'
 import ChatBubbleActions from '../ChatBubbleActionsStyle/ChatBubbleActions'
+import { useEffect, useRef, useState } from 'react'
 
 const hourFormatter = new Intl.DateTimeFormat("en-PH", {
     timeZone: 'Asia/Manila',
@@ -29,9 +34,19 @@ const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
 
 export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
+    const api = useApi()
+    const { editMessage, editedMessage } = useWebsocket()
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
-        partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle } = style
+        partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle, confirmImageContainerStyle } = style
 
+    const inputRef = useRef(null)
+    const [isShowingOptions, setIsShowingOptions] = useState(false)
+    const [isEditingMessage, setIsEditingMessage] = useState(false)
+    const [newMessage, setNewMessage] = useState(chatMessage.message_text)
+
+    const isEditedThroughWs = editedMessage?.message_id === chatMessage?.message_id
+    const isEditedThroughDb = chatMessage.isEdited === 1
+    const isEdited = isEditedThroughDb || isEditedThroughWs
     const isSender = chatMessage.sender_id === user?.id
     const threeMins = 180000
     const currentChatMessageSentAtMs = new Date(chatMessage.sent_at)
@@ -125,7 +140,35 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
     const hasTimestamp = checkIfTimestampable()
     const showUsername = !isSender && (isFirst || isSingleMessage)
 
+    async function confirmEdit(e) {
+        e.preventDefault()
+        const editedMessage = { message_id: chatMessage?.message_id, message_text: newMessage, sender_id: chatMessage?.sender_id, chatroom_id: chatMessage?.chatroom_id }
 
+        try {
+            const data = await api.post('/messages/edit', editedMessage)
+            console.log(data || 'Something went wrong')
+            setIsEditingMessage(false)
+            editMessage(editedMessage)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    useEffect(() => {
+        if (isEditingMessage && inputRef.current) {
+            inputRef.current.focus()
+        }
+    }, [isEditingMessage])
+
+    useEffect(() => {
+
+    }, [newMessage])
+
+    function handleKeyDown(e) {
+        if (e.key === 'Escape') {
+            setIsEditingMessage(false)
+        }
+    }
 
     return (
         <>
@@ -133,18 +176,34 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
                 <div className={timestampStyle}>
                     <p>{getTimeStamp()}</p>
                 </div>}
-            <div className={`${chatStyle} ${isSender ? sent : received} ${isReceivedRecent && recentlyReceived || isFirst && recentlyReceived}`}>
+            <div className={`${chatStyle} ${isSender ? sent : received} ${isReceivedRecent && recentlyReceived || isFirst && recentlyReceived}`} onMouseLeave={() => setIsShowingOptions(false)}>
                 <div className={imageContainerStyle} hidden={isSender || isReceivedRecent || isFirst}>
                     <img src={pfpImage} alt="Profile picture" />
                 </div>
                 <div className={`${chatInfo}`}>
                     {showUsername && <p className={usernameStyle} >{chatMessage.sender_name}</p>}
+                    {isEdited && <p>Edited</p>}
                     <div className={chatBubbleContainerStyle}>
                         <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} `} >
-                            <p>{chatMessage.message_text}</p>
+                            {isEditingMessage
+                                ? <form onSubmit={(e) => confirmEdit(e)} onKeyDown={handleKeyDown}>
+                                    <input type="text" onChange={(e) => setNewMessage(e.target.value)} ref={inputRef} value={newMessage} />
+                                </form>
+                                : <p>{isEditedThroughWs ? editedMessage.message_text : chatMessage.message_text}</p>
+                            }
                         </div>
                         <div className={messageBubbleActionsStyle}>
-                            <ChatBubbleActions chatMessage={chatMessage} />
+                            {isEditingMessage
+                                ? <div>
+                                    <div className={cancelImageContainerStyle} onClick={() => setIsEditingMessage(false)}>
+                                        <img src={cancelImage} alt="Cancel image" />
+                                    </div>
+                                    <div className={confirmImageContainerStyle} onClick={confirmEdit}>
+                                        <img src={confirmImage} alt="Confirm Image" />
+                                    </div>
+                                </div>
+                                : <ChatBubbleActions chatMessage={chatMessage} onEdit={setIsEditingMessage} isSender={isSender} isShowingOptions={isShowingOptions} setIsShowingOptions={setIsShowingOptions} />
+                            }
                         </div>
                     </div>
                 </div>

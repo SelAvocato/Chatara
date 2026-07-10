@@ -3,7 +3,7 @@ import TypingIndicator from '../TypingIndicator/TypingIndicator'
 import ChatMessageActions from '../ChatMessageActions/ChatMessageActions'
 import { useWebsocket } from '../../../hooks/useWebsocket'
 import style from './ChatBody.module.css'
-import ChatBubble from '../ChatBubble/ChatBubble'
+import ChatBubble from '../ChatBubble/ChatBubble.jsx'
 
 export default function ChatBody() {
     const lastMessageRef = useRef(null)

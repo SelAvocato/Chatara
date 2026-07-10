@@ -8,18 +8,20 @@ const WebSocketContext = createContext(null)
 
 export function WebSocketProvider({ children }) {
     const wsRef = useRef(null)
+    const lastMessageRef = useRef(null)
     const [isTyping, setIsTyping] = useState(false)
     const [latestMessageWs, setLatestMessageWs] = useState(null)
     const [userTyping, setUserTyping] = useState(null)
     const [currentChatroomId, setCurrentChatroomId] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) || null)
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
-
+    const [editedMessage, setEditedMessage] = useState()
     const { user, accessToken } = useAuth()
     const { savedChatroomId, getChatroomInfo } = useChatroom()
     const api = useApi()
 
     useEffect(() => {
+        if (!accessToken) return
         wsRef.current = new WebSocket(`ws://localhost:3000?token=${accessToken}`)
 
         wsRef.current.onopen = () => {
@@ -50,6 +52,15 @@ export function WebSocketProvider({ children }) {
                     case 'notification':
                         setLatestMessageWs(parsed)
                         break
+                    case 'editMessage':
+                        setEditedMessage(parsed)
+                        if (parsed.message_id === lastMessageRef.current.message_id) {
+                            setLatestMessageWs(parsed)
+                        }
+                        console.log(parsed.message_id === lastMessageRef.current.message_id)
+                        break
+                    default:
+                        break
                 }
             }
             catch (e) {
@@ -74,7 +85,7 @@ export function WebSocketProvider({ children }) {
         getChatroomInfo(chatroomId)
         try {
             const data = await api.get(`/messages/${chatroomId}`)
-            wsRef.current.send(JSON.stringify({
+            wsRef.current?.send(JSON.stringify({
                 type: "join",
                 chatroomId: chatroomId,
                 userId: user.id
@@ -85,11 +96,21 @@ export function WebSocketProvider({ children }) {
                 return
             }
             setChatMessages(data.row)
+            lastMessageRef.current = data.row.at(-1)
         } catch (e) {
             console.error(e)
             setStartChat('Something went wrong')
         }
     }, [api, getChatroomInfo, user.id])
+
+    const editMessage = useCallback((updatedMessage) => {
+        try {
+            wsRef.current?.send(JSON.stringify({ ...updatedMessage, type: 'editMessage' }))
+            console.log('sent updatedMessage', { ...updatedMessage, type: 'editMessage' })
+        } catch (e) {
+            console.log(e)
+        }
+    }, [])
 
     useEffect(() => {
         async function refresh() {
@@ -99,7 +120,7 @@ export function WebSocketProvider({ children }) {
         refresh()
     }, [savedChatroomId, openChat])
 
-    return <WebSocketContext value={{ wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping }} >
+    return <WebSocketContext value={{ wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping, editMessage, editedMessage }} >
         {children}
     </WebSocketContext>
 }

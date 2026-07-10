@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const pool = require('./db.js')
 const websocketService = require('./services/websocket.js')
-const {authenticate} = require('./middleware/authenticate.js')
+const { authenticate } = require('./middleware/authenticate.js')
 
 const messageTbl = 'message_tbl'
 const userTbl = 'user_tbl'
@@ -12,7 +12,7 @@ module.exports = function (wss) {
         const id = req.params.id
 
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? ORDER BY message_id ASC`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.isEdited, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? ORDER BY message_id ASC`
             const [row] = await pool.execute(query, [id])
             if (row.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
             res.json({ row, status: 'ok' })
@@ -56,12 +56,26 @@ module.exports = function (wss) {
                 sent_at: new Date()
             }
             websocketService.broadcastPayload(wss, payload, chatroomId)
-            
+
             return res.json({ message: "Message successfully sent", status: "ok" })
         } catch (e) {
             console.error(e)
             return res.status(500).json({ message: "Something went wrong" })
         }
     })
+
+    router.post('/edit', authenticate, async (req, res) => {
+        const newMessage = req.body
+
+        const query = `UPDATE message_tbl SET message_text = ?, isEdited = 1 WHERE id = ?`
+        try {
+            await pool.execute(query, [newMessage.message_text, newMessage.message_id])
+            res.status(200).json({ message: 'Updated successfully' })
+        } catch (e) {
+            console.log(e)
+            res.status(500).json({ message: 'Something went wrong' })
+        }
+    })
+
     return router
 }

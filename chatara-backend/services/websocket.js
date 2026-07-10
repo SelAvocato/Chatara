@@ -8,6 +8,15 @@ websocketService = {
                 authenticateWs(socket)
                 const parsed = JSON.parse(data.toString())
 
+                function broadcast(payload) {
+                    for (const client of wss.clients) {
+                        if (client.currentRoom === socket.currentRoom && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify(payload))
+                        }
+                    }
+                    console.log('payloooaddd', payload)
+                }
+
                 switch (parsed.type) {
                     case 'join':
                         socket.currentRoom = parsed.chatroomId
@@ -15,18 +24,25 @@ websocketService = {
                         console.log(socket.id, ' joined ', socket.currentRoom)
                         break
                     case 'typing':
-                        for (const client of wss.clients) {
-                            if (client.currentRoom === socket.currentRoom && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify({ type: 'typing', username: parsed.username }))
-                            }
-                        }
-                        break;
+                        broadcast({
+                            type: 'typing',
+                            username: parsed.username
+                        })
+                        break
                     case 'stoppedTyping':
+                        broadcast({
+                            type: 'stoppedTyping',
+                            username: parsed.username
+                        })
+                        break
+                    case 'editMessage':
                         for (const client of wss.clients) {
-                            if (client.currentRoom === socket.currentRoom && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify({ type: 'stoppedTyping', username: parsed.username }))
+                            if (client.currentRoom === socket.currentRoom && client.readyState === WebSocket.OPEN) {
+                                client.send(JSON.stringify(parsed))
                             }
                         }
+                        break
+                    default:
                         break
                 }
             } catch (e) {
