@@ -16,11 +16,12 @@ export function apiClient({ getToken, onTokenRefresh }) {
         let data = await res.json()
         if (res.status !== 401) return data
 
-        res = await fetch(`${baseUrl}/auth/refresh`, { method: 'POST', ...newOption.credentials })
+        res = await fetch(`${baseUrl}/auth/refresh`, { method: 'POST', credentials: 'include' })
         data = await res.json()
         if (!res.ok) return data
         onTokenRefresh(data.accessToken)
 
+        headers['authorization'] = `Bearer ${data.accessToken}`
         res = await fetch(`${baseUrl}${endpoint}`, newOption)
         if (!res.ok) throw new Error('Something went wrong')
         data = await res.json()
@@ -29,6 +30,8 @@ export function apiClient({ getToken, onTokenRefresh }) {
 
     return {
         get: (endpoint, options) => request(endpoint, { ...options, method: 'GET' }),
-        post: (endpoint, data, options) => request(endpoint, { ...options, method: 'POST', body: JSON.stringify(data) })
+        post: (endpoint, data, options) => request(endpoint, { ...options, method: 'POST', body: JSON.stringify(data) }),
+        put: (endpoint, data, options) => request(endpoint, { ...options, method: 'PUT', body: JSON.stringify(data) }),
+        delete: (endpoint, options) => request(endpoint, { ...options, method: 'DELETE' })
     }
 }

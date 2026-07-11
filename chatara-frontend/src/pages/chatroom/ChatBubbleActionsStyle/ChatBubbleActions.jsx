@@ -3,7 +3,7 @@ import style from './ChatBubbleActions.module.css'
 import optionImage from './img/chatbubble-options.svg'
 import replyImage from './img/chatbubble-reply.svg'
 
-export default function ChatBubbleActions({ chatMessage, onEdit, isSender, isShowingOptions, setIsShowingOptions }) {
+export default function ChatBubbleActions({ chatMessage, onEdit, onDeleteForEveryone, isSender, isShowingOptions, setIsShowingOptions }) {
     const { optionImageContainerStyle, replyContainerStyle, replyImageContainerStyle, optionContainerStyle, optionDropdownStyle, above, below, receiver } = style
 
     const [messageIsBelow, setMessageIsBelow] = useState(false)
@@ -31,17 +31,14 @@ export default function ChatBubbleActions({ chatMessage, onEdit, isSender, isSho
                 {
                     isShowingOptions &&
                     <div className={`${optionDropdownStyle} ${messageIsBelow ? above : below} ${!isSender && receiver}`}>
-                        {isSender
-                            ? <>
-                                <div onClick={() => onEdit(true)}>Edit</div>
-                                <div>Delete</div>
-                            </>
-                            :
-                            <div>Delete for me</div>
-                        }
+                        <div>
+                            <p onClick={() => onEdit(true)}>Edit</p>
+                            <p hidden={!isSender} onClick={onDeleteForEveryone}>Delete for everyone</p>
+                            <p>Delete for you</p>
+                        </div>
                     </div>
                 }
-            </div>
+            </div >
         </>
     )
 }

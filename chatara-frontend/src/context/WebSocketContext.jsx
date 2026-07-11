@@ -16,6 +16,7 @@ export function WebSocketProvider({ children }) {
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
     const [editedMessage, setEditedMessage] = useState()
+    const [deletedMessage, setDeletedMessage] = useState(null)
     const { user, accessToken } = useAuth()
     const { savedChatroomId, getChatroomInfo } = useChatroom()
     const api = useApi()
@@ -58,6 +59,13 @@ export function WebSocketProvider({ children }) {
                             setLatestMessageWs(parsed)
                         }
                         console.log(parsed.message_id === lastMessageRef.current.message_id)
+                        break
+                    case 'deleteMessage':
+                        setDeletedMessage(parsed)
+                        if (parsed.message_id === lastMessageRef.current?.message_id) {
+                            setLatestMessageWs(parsed)
+                        }
+                        console.log(parsed.message_id === lastMessageRef.current?.message_id)
                         break
                     default:
                         break
@@ -106,7 +114,14 @@ export function WebSocketProvider({ children }) {
     const editMessage = useCallback((updatedMessage) => {
         try {
             wsRef.current?.send(JSON.stringify({ ...updatedMessage, type: 'editMessage' }))
-            console.log('sent updatedMessage', { ...updatedMessage, type: 'editMessage' })
+        } catch (e) {
+            console.log(e)
+        }
+    }, [])
+
+    const deleteMessage = useCallback((unsentMessage) => {
+        try {
+            wsRef.current?.send(JSON.stringify(unsentMessage))
         } catch (e) {
             console.log(e)
         }
@@ -120,7 +135,10 @@ export function WebSocketProvider({ children }) {
         refresh()
     }, [savedChatroomId, openChat])
 
-    return <WebSocketContext value={{ wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping, editMessage, editedMessage }} >
+    return <WebSocketContext value={{
+        wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
+        editMessage, editedMessage, deleteMessage, deletedMessage
+    }} >
         {children}
     </WebSocketContext>
 }

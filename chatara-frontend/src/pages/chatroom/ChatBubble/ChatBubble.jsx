@@ -35,18 +35,16 @@ const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
 export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
     const api = useApi()
-    const { editMessage, editedMessage } = useWebsocket()
+    const { editMessage, editedMessage, deleteMessage, deletedMessage } = useWebsocket()
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
-        partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle, confirmImageContainerStyle } = style
+        partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle,
+        confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
 
     const inputRef = useRef(null)
     const [isShowingOptions, setIsShowingOptions] = useState(false)
     const [isEditingMessage, setIsEditingMessage] = useState(false)
     const [newMessage, setNewMessage] = useState(chatMessage.message_text)
 
-    const isEditedThroughWs = editedMessage?.message_id === chatMessage?.message_id
-    const isEditedThroughDb = chatMessage.isEdited === 1
-    const isEdited = isEditedThroughDb || isEditedThroughWs
     const isSender = chatMessage.sender_id === user?.id
     const threeMins = 180000
     const currentChatMessageSentAtMs = new Date(chatMessage.sent_at)
@@ -55,6 +53,13 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
     const prevChatMessageSenderId = prevChatMessage?.sender_id
     const nextChatMessageSentAtMs = new Date(nextChatMessage?.sent_at)
     const nextChatMessageSenderId = nextChatMessage?.sender_id
+
+    const isEditedThroughWs = editedMessage?.message_id === chatMessage?.message_id
+    const isEditedThroughDb = chatMessage.is_edited === 1
+    const isEdited = isEditedThroughDb || isEditedThroughWs
+    const isDeletedThroughDb = chatMessage.is_deleted === 1
+    const isDeletedThroughWs = deletedMessage?.message_id === chatMessage.message_id
+    const isDeleted = isDeletedThroughDb || isDeletedThroughWs
 
     function isRecent(recent, old) {
         const lapsedTimeMs = recent - old
@@ -145,10 +150,21 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
         const editedMessage = { message_id: chatMessage?.message_id, message_text: newMessage, sender_id: chatMessage?.sender_id, chatroom_id: chatMessage?.chatroom_id }
 
         try {
-            const data = await api.post('/messages/edit', editedMessage)
+            const data = await api.put('/messages/edit', editedMessage)
             console.log(data || 'Something went wrong')
             setIsEditingMessage(false)
             editMessage(editedMessage)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
+    async function deleteForEveryone() {
+        try {
+            const data = await api.delete(`/messages/delete/${chatMessage?.message_id}`)
+            const { message_id, sender_id, chatroom_id } = chatMessage
+            deleteMessage({ message_id, sender_id, chatroom_id, message_text: 'Message deleted', is_deleted: 1, type: 'deleteMessage' })
+            console.log(data.message)
         } catch (e) {
             console.log(e)
         }
@@ -159,10 +175,6 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
             inputRef.current.focus()
         }
     }, [isEditingMessage])
-
-    useEffect(() => {
-
-    }, [newMessage])
 
     function handleKeyDown(e) {
         if (e.key === 'Escape') {
@@ -184,25 +196,29 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
                     {showUsername && <p className={usernameStyle} >{chatMessage.sender_name}</p>}
                     {isEdited && <p>Edited</p>}
                     <div className={chatBubbleContainerStyle}>
-                        <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} `} >
+                        <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} ${isDeleted && deletedMessageBubbleStyle}`} >
                             {isEditingMessage
                                 ? <form onSubmit={(e) => confirmEdit(e)} onKeyDown={handleKeyDown}>
                                     <input type="text" onChange={(e) => setNewMessage(e.target.value)} ref={inputRef} value={newMessage} />
                                 </form>
-                                : <p>{isEditedThroughWs ? editedMessage.message_text : chatMessage.message_text}</p>
+                                : <p>{
+                                    isDeletedThroughWs
+                                        ? deletedMessage?.message_text
+                                        : isEditedThroughWs ? editedMessage.message_text : chatMessage.message_text
+                                }</p>
                             }
                         </div>
-                        <div className={messageBubbleActionsStyle}>
+                        <div className={`${messageBubbleActionsStyle} ${isEditingMessage && showActions}`}>
                             {isEditingMessage
-                                ? <div>
+                                ? <>
                                     <div className={cancelImageContainerStyle} onClick={() => setIsEditingMessage(false)}>
                                         <img src={cancelImage} alt="Cancel image" />
                                     </div>
                                     <div className={confirmImageContainerStyle} onClick={confirmEdit}>
                                         <img src={confirmImage} alt="Confirm Image" />
                                     </div>
-                                </div>
-                                : <ChatBubbleActions chatMessage={chatMessage} onEdit={setIsEditingMessage} isSender={isSender} isShowingOptions={isShowingOptions} setIsShowingOptions={setIsShowingOptions} />
+                                </>
+                                : <ChatBubbleActions chatMessage={chatMessage} onEdit={setIsEditingMessage} onDeleteForEveryone={deleteForEveryone} isSender={isSender} isShowingOptions={isShowingOptions} setIsShowingOptions={setIsShowingOptions} />
                             }
                         </div>
                     </div>

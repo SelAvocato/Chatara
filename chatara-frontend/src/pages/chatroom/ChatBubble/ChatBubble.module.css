@@ -107,13 +107,16 @@
 
 .messageBubbleActionsStyle {
     display: none;
+    gap: 10px;
+}
+
+.messageBubbleActionsStyle.showActions {
+    display: flex;
 }
 
 .chatStyle:hover .messageBubbleActionsStyle {
     display: flex;
-    gap: 10px;
 }
-
 
 .chatBubbleContainerStyle {
     display: flex;
@@ -136,4 +139,9 @@
     width: 25px;
     padding: 5px;
     cursor: pointer;
+}
+
+.deletedMessageBubbleStyle {
+    background-color: gray;
+    color: white;
 }

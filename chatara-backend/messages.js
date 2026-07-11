@@ -12,7 +12,7 @@ module.exports = function (wss) {
         const id = req.params.id
 
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.isEdited, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? ORDER BY message_id ASC`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? ORDER BY message_id ASC`
             const [row] = await pool.execute(query, [id])
             if (row.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
             res.json({ row, status: 'ok' })
@@ -27,12 +27,12 @@ module.exports = function (wss) {
         if (!id) return res.status(400).json({ message: 'Error: Id must be provided' })
 
         try {
-            const query = `SELECT message_text from ${messageTbl} WHERE chatroom_id = ? ORDER BY id DESC LIMIT 1`
+            const query = `SELECT message_text from message_tbl WHERE chatroom_id = ? ORDER BY id DESC LIMIT 1`
             const [rows] = await pool.execute(query, [id])
             const row = rows[0]
             return res.status(200).json({ status: 'ok', data: row })
         } catch (e) {
-            res.json({ message: "Error: Something went wrong" })
+            res.status(500).json({ message: "Error: Something went wrong" })
             console.log(e)
         }
     })
@@ -64,13 +64,35 @@ module.exports = function (wss) {
         }
     })
 
-    router.post('/edit', authenticate, async (req, res) => {
-        const newMessage = req.body
+    router.put('/edit', authenticate, async (req, res) => {
+        const { message_id, message_text } = req.body
 
-        const query = `UPDATE message_tbl SET message_text = ?, isEdited = 1 WHERE id = ?`
+        const query = `UPDATE message_tbl SET message_text = ?, is_edited = 1 WHERE id = ?`
         try {
-            await pool.execute(query, [newMessage.message_text, newMessage.message_id])
+            await pool.execute(query, [message_text, message_id])
             res.status(200).json({ message: 'Updated successfully' })
+        } catch (e) {
+            console.log(e)
+            res.status(500).json({ message: 'Something went wrong' })
+        }
+    })
+
+    router.delete('/delete/:id', authenticate, async (req, res) => {
+        const messageId = req.params.id
+        if (!messageId) return res.status(400).json({ message: 'Missing message id' })
+
+        const selectQuery = `SELECT sender_id FROM message_tbl WHERE id = ?`
+        try {
+            const [rows] = await pool.execute(selectQuery, [messageId])
+            if (rows.length === 0) return res.status(404).json({ message: 'Message not found' })
+            if (rows[0].sender_id !== req.id) return res.status(401).json({ message: 'Unauthorize to delete the message' })
+
+            const query = `UPDATE message_tbl SET is_deleted = 1, message_text = 'Message deleted' WHERE id = ?`
+            const [result] = await pool.execute(query, [messageId])
+
+            if (result.affectedRows === 0) return res.status(404).json({ message: 'Message not found' })
+
+            res.status(200).json({ message: 'Message has been successfully deleted' })
         } catch (e) {
             console.log(e)
             res.status(500).json({ message: 'Something went wrong' })

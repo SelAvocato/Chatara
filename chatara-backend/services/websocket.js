@@ -42,6 +42,13 @@ websocketService = {
                             }
                         }
                         break
+                    case 'deleteMessage':
+                        for (const client of wss.clients) {
+                            if (client.currentRoom === socket.currentRoom && client.readyState === WebSocket.OPEN) {
+                                client.send(JSON.stringify(parsed))
+                            }
+                        }
+                        break
                     default:
                         break
                 }
