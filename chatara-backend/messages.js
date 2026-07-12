@@ -67,8 +67,13 @@ module.exports = function (wss) {
     router.put('/edit', authenticate, async (req, res) => {
         const { message_id, message_text } = req.body
 
-        const query = `UPDATE message_tbl SET message_text = ?, is_edited = 1 WHERE id = ?`
+        const selectQuery = `SELECT sender_id FROM message_tbl WHERE id = ?`
         try {
+            const [rows] = await pool.execute(selectQuery, [message_id])
+            if (rows.length === 0) return res.status(404).json({ message: 'Message not found' })
+            if (rows[0].sender_id !== req.id) return res.status(401).json({ message: 'Unauthorize to edit the message' })
+
+            const query = `UPDATE message_tbl SET message_text = ?, is_edited = 1 WHERE id = ?`
             await pool.execute(query, [message_text, message_id])
             res.status(200).json({ message: 'Updated successfully' })
         } catch (e) {

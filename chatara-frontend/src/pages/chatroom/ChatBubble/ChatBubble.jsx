@@ -1,12 +1,13 @@
 import { useAuth } from '../../../hooks/useAuth'
 import { useApi } from '../../../hooks/useApi'
-import { useWebsocket } from '../../../hooks/useWebsocket'
 import style from './ChatBubble.module.css'
 import pfpImage from '/icons/pfp.svg'
 import confirmImage from './img/confirm.svg'
 import cancelImage from './img/cancel.svg'
 import ChatBubbleActions from '../ChatBubbleActionsStyle/ChatBubbleActions'
 import { useEffect, useRef, useState } from 'react'
+import { memo } from 'react'
+import { useWebsocketActions } from '../../../hooks/useWebsocketActions'
 
 const hourFormatter = new Intl.DateTimeFormat("en-PH", {
     timeZone: 'Asia/Manila',
@@ -32,10 +33,10 @@ const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
     hour12: true
 })
 
-export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
+const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
     const api = useApi()
-    const { editMessage, editedMessage, deleteMessage, deletedMessage } = useWebsocket()
+    const { editMessage, deleteMessage, deletedMessage } = useWebsocketActions()
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
         partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle,
         confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
@@ -54,9 +55,7 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
     const nextChatMessageSentAtMs = new Date(nextChatMessage?.sent_at)
     const nextChatMessageSenderId = nextChatMessage?.sender_id
 
-    const isEditedThroughWs = editedMessage?.message_id === chatMessage?.message_id
-    const isEditedThroughDb = chatMessage.is_edited === 1
-    const isEdited = isEditedThroughDb || isEditedThroughWs
+    const isEdited = chatMessage.is_edited === 1
     const isDeletedThroughDb = chatMessage.is_deleted === 1
     const isDeletedThroughWs = deletedMessage?.message_id === chatMessage.message_id
     const isDeleted = isDeletedThroughDb || isDeletedThroughWs
@@ -147,13 +146,13 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
 
     async function confirmEdit(e) {
         e.preventDefault()
-        const editedMessage = { message_id: chatMessage?.message_id, message_text: newMessage, sender_id: chatMessage?.sender_id, chatroom_id: chatMessage?.chatroom_id }
+        const editedMessageInfo = { message_id: chatMessage?.message_id, message_text: newMessage, sender_id: chatMessage?.sender_id, chatroom_id: chatMessage?.chatroom_id }
 
         try {
-            const data = await api.put('/messages/edit', editedMessage)
+            const data = await api.put('/messages/edit', editedMessageInfo)
             console.log(data || 'Something went wrong')
             setIsEditingMessage(false)
-            editMessage(editedMessage)
+            editMessage(editedMessageInfo)
         } catch (e) {
             console.log(e)
         }
@@ -169,6 +168,8 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
             console.log(e)
         }
     }
+
+    console.log(chatMessage.message_id, ' reran')
 
     useEffect(() => {
         if (isEditingMessage && inputRef.current) {
@@ -204,7 +205,7 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
                                 : <p>{
                                     isDeletedThroughWs
                                         ? deletedMessage?.message_text
-                                        : isEditedThroughWs ? editedMessage.message_text : chatMessage.message_text
+                                        : chatMessage.message_text
                                 }</p>
                             }
                         </div>
@@ -226,4 +227,6 @@ export default function ChatBubble({ chatMessage, prevChatMessage, nextChatMessa
             </div>
         </>
     )
-}
+})
+
+export default ChatBubble

@@ -3,8 +3,10 @@ import { useAuth } from "../hooks/useAuth";
 import { useApi } from "../hooks/useApi";
 import { useChatroom } from "../hooks/useChatroom";
 import { useCallback } from "react";
+import { useMemo } from "react";
 
 const WebSocketContext = createContext(null)
+const WebsocketActionsContext = createContext(null)
 
 export function WebSocketProvider({ children }) {
     const wsRef = useRef(null)
@@ -15,8 +17,6 @@ export function WebSocketProvider({ children }) {
     const [currentChatroomId, setCurrentChatroomId] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) || null)
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
-    const [editedMessage, setEditedMessage] = useState()
-    const [deletedMessage, setDeletedMessage] = useState(null)
     const { user, accessToken } = useAuth()
     const { savedChatroomId, getChatroomInfo } = useChatroom()
     const api = useApi()
@@ -38,7 +38,7 @@ export function WebSocketProvider({ children }) {
                     case 'chat':
                         setChatMessages(prev => [...prev, parsed])
                         setLatestMessageWs(parsed)
-                        console.log('parsed chats', parsed)
+                        lastMessageRef.current = parsed
                         break
                     case 'typing':
                         setUserTyping(parsed.username)
@@ -54,18 +54,24 @@ export function WebSocketProvider({ children }) {
                         setLatestMessageWs(parsed)
                         break
                     case 'editMessage':
-                        setEditedMessage(parsed)
-                        if (parsed.message_id === lastMessageRef.current.message_id) {
-                            setLatestMessageWs(parsed)
-                        }
-                        console.log(parsed.message_id === lastMessageRef.current.message_id)
-                        break
-                    case 'deleteMessage':
-                        setDeletedMessage(parsed)
+                        setChatMessages(prev => prev.map(msg =>
+                            msg.message_id === parsed.message_id
+                                ? { ...msg, message_text: parsed.message_text, is_edited: 1 }
+                                : msg
+                        ))
                         if (parsed.message_id === lastMessageRef.current?.message_id) {
                             setLatestMessageWs(parsed)
                         }
-                        console.log(parsed.message_id === lastMessageRef.current?.message_id)
+                        break
+                    case 'deleteMessage':
+                        setChatMessages(prev => prev.map(msg =>
+                            msg.message_id === parsed.message_id
+                                ? { ...msg, message_text: parsed.message_text, is_deleted: 1 }
+                                : msg
+                        ))
+                        if (parsed.message_id === lastMessageRef.current?.message_id) {
+                            setLatestMessageWs(parsed)
+                        }
                         break
                     default:
                         break
@@ -135,12 +141,24 @@ export function WebSocketProvider({ children }) {
         refresh()
     }, [savedChatroomId, openChat])
 
-    return <WebSocketContext value={{
+    const contextValue = useMemo(() => ({
         wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
-        editMessage, editedMessage, deleteMessage, deletedMessage
-    }} >
-        {children}
-    </WebSocketContext>
+        editMessage, deleteMessage
+    }), [openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
+        editMessage, deleteMessage
+    ])
+
+    const chatBubbleContextValue = useMemo(() => ({
+        editMessage, deleteMessage
+    }), [editMessage, deleteMessage])
+
+    return (
+        <WebSocketContext value={contextValue} >
+            <WebsocketActionsContext value={chatBubbleContextValue}>
+                {children}
+            </WebsocketActionsContext>
+        </WebSocketContext>
+    )
 }
 
-export default WebSocketContext
+export { WebSocketContext, WebsocketActionsContext }

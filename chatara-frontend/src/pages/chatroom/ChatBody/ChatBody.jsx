@@ -35,7 +35,7 @@ export default function ChatBody() {
                     {
                         chatMessages && chatMessages.length > 0
                             ? chatMessages.map((chatMessage, i) =>
-                                <ChatBubble key={chatMessage.message_id} chatMessage={chatMessage} prevChatMessage={chatMessages[i - 1]} nextChatMessage={chatMessages[i + 1]} currentDate={currentDate} />
+                                <ChatBubble key={chatMessage?.message_id} chatMessage={chatMessage} prevChatMessage={chatMessages[i - 1]} nextChatMessage={chatMessages[i + 1]} currentDate={currentDate} />
                             )
                             : <p className={startChatStyle}>{startChat}</p>
                     }

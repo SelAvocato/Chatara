@@ -4,9 +4,11 @@ import optionImage from './img/chatbubble-options.svg'
 import replyImage from './img/chatbubble-reply.svg'
 
 export default function ChatBubbleActions({ chatMessage, onEdit, onDeleteForEveryone, isSender, isShowingOptions, setIsShowingOptions }) {
-    const { optionImageContainerStyle, replyContainerStyle, replyImageContainerStyle, optionContainerStyle, optionDropdownStyle, above, below, receiver } = style
-
+    const { optionImageContainerStyle, replyContainerStyle, replyImageContainerStyle, optionContainerStyle, optionDropdownStyle, above, below, receiver, deleted } = style
     const [messageIsBelow, setMessageIsBelow] = useState(false)
+
+    const isDeleted = chatMessage?.is_deleted === 1
+    const hidden = isDeleted || !isSender
 
     function showOptions(e) {
         const rect = e.target.getBoundingClientRect()
@@ -30,10 +32,10 @@ export default function ChatBubbleActions({ chatMessage, onEdit, onDeleteForEver
                 </div>
                 {
                     isShowingOptions &&
-                    <div className={`${optionDropdownStyle} ${messageIsBelow ? above : below} ${!isSender && receiver}`}>
+                    <div className={`${optionDropdownStyle} ${messageIsBelow ? above : below} ${!isSender && receiver} ${hidden && deleted}`}>
                         <div>
-                            <p onClick={() => onEdit(true)}>Edit</p>
-                            <p hidden={!isSender} onClick={onDeleteForEveryone}>Delete for everyone</p>
+                            <p onClick={() => onEdit(true)} hidden={hidden}>Edit</p>
+                            <p hidden={hidden} onClick={onDeleteForEveryone}>Delete for everyone</p>
                             <p>Delete for you</p>
                         </div>
                     </div>
