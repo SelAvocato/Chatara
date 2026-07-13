@@ -8,7 +8,7 @@ export function useApi() {
     const api = useMemo(() => {
         return apiClient({
             getToken: () => accessToken,
-            onTokenRefresh: (newAccessToken) => setAccessToken(newAccessToken)
+            onTokenRefresh: (newAccessToken) => setAccessToken(newAccessToken),
         })
     }, [accessToken, setAccessToken])
 

@@ -115,7 +115,7 @@ router.post('/refresh', async (req, res) => {
         return res.status(200).json({ accessToken: newAccessToken, user: userWithoutHashedRefreshToken, status: 'ok' })
     } catch (e) {
         console.log(e)
-        return res.status(500).json({ message: 'Something went wrong' })
+        return res.status(401).json({ message: 'Session expired. Please re-login' })
     }
 })
 

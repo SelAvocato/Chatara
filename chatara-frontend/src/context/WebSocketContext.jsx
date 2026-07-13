@@ -17,7 +17,7 @@ export function WebSocketProvider({ children }) {
     const [currentChatroomId, setCurrentChatroomId] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) || null)
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
-    const { user, accessToken } = useAuth()
+    const { user, setUser, setAccessToken, accessToken } = useAuth()
     const { savedChatroomId, getChatroomInfo } = useChatroom()
     const api = useApi()
 
@@ -110,12 +110,14 @@ export function WebSocketProvider({ children }) {
                 return
             }
             setChatMessages(data.row)
-            lastMessageRef.current = data.row.at(-1)
+            lastMessageRef.current = data?.row?.at(-1)
         } catch (e) {
             console.error(e)
             setStartChat('Something went wrong')
+            setUser(null)
+            setAccessToken(null)
         }
-    }, [api, getChatroomInfo, user.id])
+    }, [api, getChatroomInfo, user.id, setUser, setAccessToken])
 
     const editMessage = useCallback((updatedMessage) => {
         try {

@@ -44,6 +44,8 @@ export function AuthProvider({ children }) {
             return data.user
         } catch (e) {
             console.log(e)
+            setUser(null)
+            setAccessToken(null)
         }
     }, [])
 
@@ -60,7 +62,7 @@ export function AuthProvider({ children }) {
     }
 
     return (
-        <AuthContext value={{ accessToken, user, signup, login, refresh, logout }}>
+        <AuthContext value={{ accessToken, setAccessToken, user, setUser, signup, login, refresh, logout }}>
             {children}
         </AuthContext>
     )

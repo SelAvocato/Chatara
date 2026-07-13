@@ -11,17 +11,19 @@ export function apiClient({ getToken, onTokenRefresh }) {
         }
         headers['authorization'] = `Bearer ${token}`
 
-        const newOption = { ...options, headers, credentials: 'include' }
+        let newOption = { ...options, headers, credentials: 'include' }
         let res = await fetch(`${baseUrl}${endpoint}`, newOption)
         let data = await res.json()
         if (res.status !== 401) return data
 
         res = await fetch(`${baseUrl}/auth/refresh`, { method: 'POST', credentials: 'include' })
         data = await res.json()
+        if(res.status === 401) throw new Error('Session expired. Please re-login')
         if (!res.ok) return data
         onTokenRefresh(data.accessToken)
 
         headers['authorization'] = `Bearer ${data.accessToken}`
+        newOption = { ...options, headers, credentials: 'include' }
         res = await fetch(`${baseUrl}${endpoint}`, newOption)
         if (!res.ok) throw new Error('Something went wrong')
         data = await res.json()
