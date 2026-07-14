@@ -2,13 +2,11 @@ import { useState, createContext } from "react";
 import { useApi } from "../hooks/useApi";
 import { useEffect } from "react";
 import { useCallback } from "react";
-import { useAuth } from "../hooks/useAuth";
 
 const ChatroomContext = createContext(null)
 
 export function ChatroomProvider({ children }) {
     const api = useApi()
-    const { setUser, setAccessToken } = useAuth()
 
     //inside chatroom should have its id, name and theme and I can return it as just chatroom instead of returning chatroom id, name and theme
     const [chatroom, setChatroom] = useState(null)
@@ -26,10 +24,8 @@ export function ChatroomProvider({ children }) {
             setMembers(data.members)
         } catch (e) {
             console.error(e)
-            setUser(null)
-            setAccessToken(null)
         }
-    }, [api, setUser, setAccessToken])
+    }, [api])
 
     useEffect(() => {
         async function refresh() {

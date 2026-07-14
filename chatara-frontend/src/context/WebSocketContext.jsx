@@ -4,6 +4,7 @@ import { useApi } from "../hooks/useApi";
 import { useChatroom } from "../hooks/useChatroom";
 import { useCallback } from "react";
 import { useMemo } from "react";
+import { useHandleTokenExpiration } from "../hooks/useHandleTokenExpiration";
 
 const WebSocketContext = createContext(null)
 const WebsocketActionsContext = createContext(null)
@@ -13,13 +14,17 @@ export function WebSocketProvider({ children }) {
     const lastMessageRef = useRef(null)
     const [isTyping, setIsTyping] = useState(false)
     const [latestMessageWs, setLatestMessageWs] = useState(null)
+    const [isReconnecting, setIsReconnecting] = useState(false)
     const [userTyping, setUserTyping] = useState(null)
     const [currentChatroomId, setCurrentChatroomId] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) || null)
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
-    const { user, setUser, setAccessToken, accessToken } = useAuth()
+    const { user, accessToken, setUser, setAccessToken } = useAuth()
     const { savedChatroomId, getChatroomInfo } = useChatroom()
     const api = useApi()
+    const handleTokenExpiration = useHandleTokenExpiration()
+
+    const baseUrl = import.meta.env.VITE_API_BASE_URL
 
     useEffect(() => {
         if (!accessToken) return
@@ -29,7 +34,7 @@ export function WebSocketProvider({ children }) {
             console.log('connected')
         }
 
-        wsRef.current.onmessage = (event) => {
+        wsRef.current.onmessage = async (event) => {
             try {
                 const parsed = JSON.parse(event.data)
                 console.log('parsed data: ', parsed)
@@ -73,12 +78,36 @@ export function WebSocketProvider({ children }) {
                             setLatestMessageWs(parsed)
                         }
                         break
+                    case 'expiredAccessToken':
+                        // wsRef.current.send({ type: 'reconnect' })
+                        if (isReconnecting) return
+                        try {
+                            setIsReconnecting(true)
+                            console.log('Expired access token. Reconnecting...')
+                            const res = await fetch(`${baseUrl}/auth/refresh`, {
+                                method: 'POST',
+                                credentials: 'include'
+                            })
+                            if (res.status === 401) {
+                                handleTokenExpiration()
+                                return
+                            }
+                            const data = await res.json()
+                            if (!res.ok) return console.log(data.message)
+                            setUser(data.user)
+                            setAccessToken(data.accessToken)
+                        } catch (e) {
+                            console.log(e)
+                        } finally {
+                            setIsReconnecting(false)
+                        }
+                        break
                     default:
                         break
                 }
             }
             catch (e) {
-                console.log(e.message)
+                console.log('this is the message', e.message)
             }
         }
 
@@ -91,7 +120,7 @@ export function WebSocketProvider({ children }) {
         }
 
         return () => wsRef.current.close()
-    }, [accessToken])
+    }, [accessToken, handleTokenExpiration, isReconnecting, setUser, setAccessToken, baseUrl])
 
     const openChat = useCallback(async (chatroomId) => {
         localStorage.setItem('recentChatroomId', chatroomId)
@@ -109,15 +138,13 @@ export function WebSocketProvider({ children }) {
                 setStartChat(data.message)
                 return
             }
-            setChatMessages(data.row)
+            setChatMessages(data.row.toReversed())
             lastMessageRef.current = data?.row?.at(-1)
         } catch (e) {
-            console.error(e)
+            console.log(e)
             setStartChat('Something went wrong')
-            setUser(null)
-            setAccessToken(null)
         }
-    }, [api, getChatroomInfo, user.id, setUser, setAccessToken])
+    }, [api, getChatroomInfo, user.id])
 
     const editMessage = useCallback((updatedMessage) => {
         try {

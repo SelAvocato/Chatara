@@ -5,11 +5,9 @@ import style from "./Chatroom.module.css"
 import addCircle from '/icons/add_circle.svg'
 import CreateChatroom from "./CreateChatroom/CreateChatroom"
 import ChatroomList from "./ChatroomList/ChatroomList"
-import { useAuth } from "../../hooks/useAuth"
 
 export default function Chatroom() {
     const api = useApi()
-    const { setUser, setAccessToken } = useAuth()
 
     const [message, setMessage] = useState('')
     const [chatrooms, setChatrooms] = useState(null)
@@ -29,13 +27,11 @@ export default function Chatroom() {
             } catch (e) {
                 console.error(e)
                 setMessage(e)
-                setUser(null)
-                setAccessToken(null)
             }
         }
 
         getChatrooms()
-    }, [api, setUser, setAccessToken])
+    }, [api])
 
     return (
         <div className={main}>

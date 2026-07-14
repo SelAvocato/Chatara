@@ -25,10 +25,10 @@ router.post('/login', async (req, res) => {
         const isValid = await bcrypt.compare(password, user.hashed_password)
         if (!isValid) return res.status(401).json({ message: 'Invalid username or password' })
 
-        const { hashed_password, ...userWithoutPass } = user
+        const { hashed_password, hashed_refresh_token, ...userWithoutHash } = user
 
-        const accessToken = generateAccessToken(userWithoutPass)
-        const refreshToken = generateRefreshToken(userWithoutPass)
+        const accessToken = generateAccessToken(userWithoutHash)
+        const refreshToken = generateRefreshToken(userWithoutHash)
 
         res.cookie('refreshToken', refreshToken, refreshTokenOptions)
 
@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
         const updateQuery = `UPDATE user_tbl SET hashed_refresh_token = ? WHERE id = ?`
         await pool.execute(updateQuery, [hashRefreshToken, user.id])
 
-        return res.status(200).json({ accessToken, user: userWithoutPass, status: 'ok' })
+        return res.status(200).json({ accessToken, user: userWithoutHash, status: 'ok' })
     } catch (e) {
         console.log(e)
         return res.status(500).json({ message: e.message })

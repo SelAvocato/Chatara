@@ -3,14 +3,15 @@ import { apiClient } from "../services/api";
 import { useAuth } from "./useAuth";
 
 export function useApi() {
-    const { accessToken, setAccessToken } = useAuth()
+    const { accessToken, setAccessToken, setUser } = useAuth()
 
     const api = useMemo(() => {
         return apiClient({
             getToken: () => accessToken,
             onTokenRefresh: (newAccessToken) => setAccessToken(newAccessToken),
+            onTokensExpire: (emptyUser) => setUser(emptyUser)
         })
-    }, [accessToken, setAccessToken])
+    }, [accessToken, setAccessToken, setUser])
 
     return api
 }

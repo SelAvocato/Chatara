@@ -21,7 +21,7 @@ function authenticateWs(socket) {
         socket.id = payload.sub
     } catch (e) {
         console.log(e)
-        socket.close()
+        socket.send(JSON.stringify({ type: 'expiredAccessToken' }))
         return
     }
 }

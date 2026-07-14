@@ -1,6 +1,6 @@
 const baseUrl = import.meta.env.VITE_API_BASE_URL
 
-export function apiClient({ getToken, onTokenRefresh }) {
+export function apiClient({ getToken, onTokenRefresh, onTokensExpire }) {
     async function request(endpoint, options = {}) {
         const token = getToken()
         if (!token) throw new Error('Missing token')
@@ -18,7 +18,10 @@ export function apiClient({ getToken, onTokenRefresh }) {
 
         res = await fetch(`${baseUrl}/auth/refresh`, { method: 'POST', credentials: 'include' })
         data = await res.json()
-        if(res.status === 401) throw new Error('Session expired. Please re-login')
+        if (res.status === 401) {
+            onTokensExpire(null)
+            throw new Error('Session expired. Please re-login')
+        }
         if (!res.ok) return data
         onTokenRefresh(data.accessToken)
 
