@@ -22,11 +22,20 @@ module.exports = function (wss) {
         }
     })
 
-    // router.get('/:id', authenticate, async (req, res) => {
-    //     const chatroomId = req.params.id
-    //     const { messageId } = req.query
-    //     if(!chatroomId || !messageId) return res.status(400).json({message: ''})
-    // })
+    router.get('/extra/:id', authenticate, async (req, res) => {
+        const chatroomId = req.params.id
+        const { message_id } = req.query
+        if (!chatroomId || !message_id) return res.status(400).json({ message: 'Missing chatroom or message Id' })
+
+        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 10`
+        try {
+            const [messages] = await pool.execute(query, [chatroomId, message_id])
+            res.status(200).json({ messages })
+        } catch (e) {
+            console.error(e)
+            return res.status(500).json({ message: "Something went wrong" })
+        }
+    })
 
     router.get('/latest/:id', authenticate, async (req, res) => {
         const id = req.params.id

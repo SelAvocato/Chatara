@@ -12,6 +12,8 @@ const WebsocketActionsContext = createContext(null)
 export function WebSocketProvider({ children }) {
     const wsRef = useRef(null)
     const lastMessageRef = useRef(null)
+    const [firstMessage, setFirstMessage] = useState(null)
+    const [firstMessageIndex, setFirstMessageIndex] = useState(null)
     const [isTyping, setIsTyping] = useState(false)
     const [latestMessageWs, setLatestMessageWs] = useState(null)
     const [isReconnecting, setIsReconnecting] = useState(false)
@@ -138,7 +140,9 @@ export function WebSocketProvider({ children }) {
                 setStartChat(data.message)
                 return
             }
-            setChatMessages(data.row.toReversed())
+            const reversedData = data.row.toReversed()
+            setFirstMessageIndex(reversedData[0])
+            setChatMessages(reversedData)
             lastMessageRef.current = data?.row?.at(-1)
         } catch (e) {
             console.log(e)
@@ -172,9 +176,9 @@ export function WebSocketProvider({ children }) {
 
     const contextValue = useMemo(() => ({
         wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
-        editMessage, deleteMessage
+        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages
     }), [openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
-        editMessage, deleteMessage
+        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages
     ])
 
     const chatBubbleContextValue = useMemo(() => ({

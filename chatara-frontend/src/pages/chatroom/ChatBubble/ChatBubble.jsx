@@ -8,6 +8,7 @@ import ChatBubbleActions from '../ChatBubbleActionsStyle/ChatBubbleActions'
 import { useEffect, useRef, useState } from 'react'
 import { memo } from 'react'
 import { useWebsocketActions } from '../../../hooks/useWebsocketActions'
+import { useWebsocket } from '../../../hooks/useWebsocket'
 
 const hourFormatter = new Intl.DateTimeFormat("en-PH", {
     timeZone: 'Asia/Manila',
@@ -37,6 +38,8 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
     const { user } = useAuth()
     const api = useApi()
     const { editMessage, deleteMessage, deletedMessage } = useWebsocketActions()
+    const { setFirstMessage, firstMessageIndex } = useWebsocket()
+
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
         partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle,
         confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
@@ -189,7 +192,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                 <div className={timestampStyle}>
                     <p>{getTimeStamp()}</p>
                 </div>}
-            <div className={`${chatStyle} ${isSender ? sent : received} ${isReceivedRecent && recentlyReceived || isFirst && recentlyReceived}`} onMouseLeave={() => setIsShowingOptions(false)}>
+            <div className={`${chatStyle} ${isSender ? sent : received} ${isReceivedRecent && recentlyReceived || isFirst && recentlyReceived}`} onMouseLeave={() => setIsShowingOptions(false)} ref={firstMessageIndex.message_id === chatMessage.message_id ? setFirstMessage : null}>
                 <div className={imageContainerStyle} hidden={isSender || isReceivedRecent || isFirst}>
                     <img src={pfpImage} alt="Profile picture" />
                 </div>
