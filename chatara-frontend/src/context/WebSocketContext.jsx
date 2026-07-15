@@ -142,7 +142,11 @@ export function WebSocketProvider({ children }) {
             }
             const reversedData = data.row.toReversed()
             setFirstMessageIndex(reversedData[0])
-            setChatMessages(reversedData)
+            setChatMessages(reversedData.map(msg =>
+                msg.message_id === reversedData[0].message_id
+                    ? { ...msg, ref: setFirstMessage }
+                    : msg
+            ))
             lastMessageRef.current = data?.row?.at(-1)
         } catch (e) {
             console.log(e)

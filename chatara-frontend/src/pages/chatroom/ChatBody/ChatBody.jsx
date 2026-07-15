@@ -12,7 +12,7 @@ export default function ChatBody() {
     const [isRequestingMessages, setIsRequestingMessages] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
-    const { startChat, chatMessages, isTyping, userTyping, firstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages } = useWebsocket()
+    const { startChat, chatMessages, isTyping, userTyping, setFirstMessage, firstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages } = useWebsocket()
     const api = useApi()
     const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat } = style
     useEffect(() => {
@@ -37,28 +37,46 @@ export default function ChatBody() {
         }
     }, [firstMessage])
 
+    const isFetchingRef = useRef(false)
+    const firstMessageIndexRef = useRef(firstMessageIndex)
     useEffect(() => {
-        if (!isRequestingMessages) return
+        firstMessageIndexRef.current = firstMessageIndex
+    }, [firstMessageIndex])
+
+    useEffect(() => {
+        if (!isRequestingMessages || isFetchingRef.current) return
+        const controller = new AbortController()
         async function getMoreMessages() {
-            setIsLoading(true)
+            isFetchingRef.current = true
             try {
-                const data = await api.get(`/messages/extra/${firstMessageIndex.chatroom_id}?message_id=${firstMessageIndex.message_id}`)
-                if (data.messages.length === 0) return
+                setIsLoading(true)
+                const { chatroom_id, message_id } = firstMessageIndexRef.current
+                const data = await api.get(`/messages/extra/${chatroom_id}?message_id=${message_id}`, {
+                    signal: controller.signal
+                })
+                if (!data.messages || data.messages.length === 0) return
+
                 const reversedData = data.messages.toReversed()
-                console.log('this one should be the new first', reversedData[0])
+                const newData = reversedData.map(msg =>
+                    msg.message_id === reversedData[0].message_id
+                        ? { ...msg, ref: setFirstMessage }
+                        : msg
+                )
                 setFirstMessageIndex(reversedData[0])
-                console.log('this is the new chat messages', [...reversedData, ...chatMessages])
-                console.log('this is the new message id', firstMessageIndex)
-                setChatMessages(prev => [...reversedData, ...prev])
+                setChatMessages(prev => [...newData, ...prev])
             } catch (e) {
+                if (e.name === 'AbortError') return
                 console.log(e)
             } finally {
+                isFetchingRef.current = false
                 setIsLoading(false)
-                console.log('done')
             }
         }
         getMoreMessages()
-    }, [isRequestingMessages, firstMessageIndex, api, setFirstMessageIndex, setChatMessages, chatMessages])
+        return () => {
+            controller.abort()
+        }
+    }, [isRequestingMessages, api, setFirstMessageIndex, setChatMessages, setFirstMessage])
 
     function focusEndChat() {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -69,6 +87,10 @@ export default function ChatBody() {
     }, [chatMessages, isTyping])
 
     useEffect(() => {
+        focusEndChat()
+    }, [])
+
+    useEffect(() => {
         const timer = () => setInterval(() => {
             setCurrentDate(Date.now())
         }, 60000)
@@ -76,8 +98,6 @@ export default function ChatBody() {
 
         return () => clearInterval(timer)
     }, [])
-
-
 
     return (
         <div className={chatBodyStyle}>
