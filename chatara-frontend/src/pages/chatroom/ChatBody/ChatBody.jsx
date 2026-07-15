@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import TypingIndicator from '../TypingIndicator/TypingIndicator'
 import ChatMessageActions from '../ChatMessageActions/ChatMessageActions'
 import { useWebsocket } from '../../../hooks/useWebsocket'
@@ -21,7 +21,7 @@ export default function ChatBody() {
         }, {
             root: null,
             rootMargin: '0px',
-            threshold: 1
+            threshold: 0.1
         })
 
         const currentTarget = firstMessage
@@ -37,6 +37,9 @@ export default function ChatBody() {
         }
     }, [firstMessage])
 
+    const containerScrollRef = useRef(null)
+    const prevContainerScrollRef = useRef(0)
+    const isPrependingRef = useRef(false)
     const isFetchingRef = useRef(false)
     const firstMessageIndexRef = useRef(firstMessageIndex)
     useEffect(() => {
@@ -63,7 +66,9 @@ export default function ChatBody() {
                         : msg
                 )
                 setFirstMessageIndex(reversedData[0])
+                prevContainerScrollRef.current = containerScrollRef.current.scrollHeight ?? 0
                 setChatMessages(prev => [...newData, ...prev])
+                isPrependingRef.current = true
             } catch (e) {
                 if (e.name === 'AbortError') return
                 console.log(e)
@@ -76,19 +81,22 @@ export default function ChatBody() {
         return () => {
             controller.abort()
         }
-    }, [isRequestingMessages, api, setFirstMessageIndex, setChatMessages, setFirstMessage])
+    }, [isRequestingMessages, api, setFirstMessageIndex, setChatMessages, setFirstMessage, firstMessage])
 
-    function focusEndChat() {
+    useLayoutEffect(() => {
+        if (!isPrependingRef.current) return
+        const container = containerScrollRef.current
+        if (!container) return
+        container.scrollTop += container.scrollHeight - prevContainerScrollRef.current
+    }, [chatMessages])
+
+    useEffect(() => {
+        if (isPrependingRef.current) {
+            isPrependingRef.current = false
+            return
+        }
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
-
-    useEffect(() => {
-        focusEndChat()
     }, [chatMessages, isTyping])
-
-    useEffect(() => {
-        focusEndChat()
-    }, [])
 
     useEffect(() => {
         const timer = () => setInterval(() => {
@@ -102,7 +110,7 @@ export default function ChatBody() {
     return (
         <div className={chatBodyStyle}>
             <div className={chat}>
-                <div className={chatMessagesStyle}>
+                <div className={chatMessagesStyle} ref={containerScrollRef}>
                     {isLoading && <p>Loading...</p>}
                     {
                         chatMessages && chatMessages.length > 0
