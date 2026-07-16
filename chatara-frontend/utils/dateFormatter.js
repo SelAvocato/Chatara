@@ -1,11 +1,11 @@
-export const hourFormatter = new Intl.DateTimeFormat("en-PH", {
+const hourFormatter = new Intl.DateTimeFormat("en-PH", {
     timeZone: 'Asia/Manila',
     hour: 'numeric',
     minute: '2-digit',
     hour12: true
 })
 
-export const dateFormatter = new Intl.DateTimeFormat("en-PH", {
+const dateFormatter = new Intl.DateTimeFormat("en-PH", {
     timeZone: 'Asia/Manila',
     month: 'long',
     day: 'numeric',
@@ -14,10 +14,27 @@ export const dateFormatter = new Intl.DateTimeFormat("en-PH", {
     hour12: true
 })
 
-export const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
+const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
     timeZone: 'Asia/Manila',
     weekday: 'long',
     hour: 'numeric',
     minute: '2-digit',
     hour12: true
 })
+
+export function getTimeStamp(hasTimestamp, currentChatMessageSentAtMs, currentDate) {
+    if (!hasTimestamp) return
+
+    const day = currentChatMessageSentAtMs.getDate()
+    const dayDiff = currentDate - day
+    console.log('this is the day', day, dayDiff)
+
+    if (dayDiff === 1) {
+        return `YESTERDAY AT ${hourFormatter.format(currentChatMessageSentAtMs)}`
+    } else if (dayDiff > 1) {
+        return weekDayFormatter.format(currentChatMessageSentAtMs)
+    } else if (dayDiff > 3) {
+        return dateFormatter.format(currentChatMessageSentAtMs)
+    }
+    return hourFormatter.format(currentChatMessageSentAtMs)
+}

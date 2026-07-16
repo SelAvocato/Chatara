@@ -8,13 +8,13 @@ import ChatBubbleActions from '../ChatBubbleActionsStyle/ChatBubbleActions'
 import { useEffect, useRef, useState } from 'react'
 import { memo } from 'react'
 import { useWebsocketActions } from '../../../hooks/useWebsocketActions'
-import { hourFormatter, weekDayFormatter, dateFormatter } from '../../../../utils/dateFormatter'
+import { getTimeStamp } from '../../../../utils/dateFormatter'
+import { checkIfFirstMessageGroup, checkIfTimestampable, checkIfPartOfRecentMessageGroup, checkIfLastOfMessageGroup, checkIfSingleMessage } from './ChatBubbleHelpers'
 
 const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
     const api = useApi()
-    const { editMessage, deleteMessage, deletedMessage } = useWebsocketActions()
-
+    const { editMessage, deleteMessage } = useWebsocketActions()
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
         partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle,
         confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
@@ -25,7 +25,6 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
     const [newMessage, setNewMessage] = useState(chatMessage.message_text)
 
     const isSender = chatMessage.sender_id === user?.id
-    const threeMins = 180000
     const currentChatMessageSentAtMs = new Date(chatMessage.sent_at)
     const currentChatMessageSenderId = chatMessage.sender_id
     const prevChatMessageSentAtMs = new Date(prevChatMessage?.sent_at)
@@ -34,89 +33,15 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
     const nextChatMessageSenderId = nextChatMessage?.sender_id
 
     const isEdited = chatMessage.is_edited === 1
-    const isDeletedThroughDb = chatMessage.is_deleted === 1
-    const isDeletedThroughWs = deletedMessage?.message_id === chatMessage.message_id
-    const isDeleted = isDeletedThroughDb || isDeletedThroughWs
+    const isDeleted = chatMessage.is_deleted === 1
 
-    function isRecent(recent, old) {
-        const lapsedTimeMs = recent - old
-        if (lapsedTimeMs > threeMins) return false
-        return true
-    }
+    const isFirst = checkIfFirstMessageGroup(nextChatMessage, prevChatMessageSenderId, nextChatMessageSenderId, currentChatMessageSenderId, currentChatMessageSentAtMs, prevChatMessageSentAtMs, nextChatMessageSentAtMs)
+    const isReceivedRecent = checkIfPartOfRecentMessageGroup(prevChatMessage, nextChatMessage, prevChatMessageSenderId, currentChatMessageSenderId, nextChatMessageSenderId, currentChatMessageSentAtMs, prevChatMessageSentAtMs, nextChatMessageSentAtMs)
+    const isLast = checkIfLastOfMessageGroup(prevChatMessage, prevChatMessageSenderId, currentChatMessageSenderId, currentChatMessageSentAtMs, prevChatMessageSentAtMs)
+    const isSingleMessage = checkIfSingleMessage(prevChatMessageSenderId, currentChatMessageSenderId, nextChatMessageSenderId, currentChatMessageSentAtMs, nextChatMessageSentAtMs, prevChatMessageSentAtMs)
 
-    function checkIfFirstMessageGroup() {
-        if (!nextChatMessage || nextChatMessageSenderId !== currentChatMessageSenderId) return false
 
-        if (prevChatMessageSenderId === currentChatMessageSenderId) {
-            const isPrevInGroup = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
-            if (isPrevInGroup) return false
-        }
-
-        const isNextInGroup = isRecent(nextChatMessageSentAtMs, currentChatMessageSentAtMs)
-        if (!isNextInGroup) return false
-
-        return true
-    }
-
-    function checkIfPartOfRecentMessageGroup() {
-        if (!prevChatMessage || !nextChatMessage || prevChatMessageSenderId !== currentChatMessageSenderId || nextChatMessageSenderId !== currentChatMessageSenderId) return false
-        const isPrevRecent = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
-        if (!isPrevRecent) return false
-        return isRecent(nextChatMessageSentAtMs, currentChatMessageSentAtMs)
-    }
-
-    function checkIfLastOfMessageGroup() {
-        if (!prevChatMessage || prevChatMessageSenderId !== currentChatMessageSenderId) return false
-        return isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
-    }
-
-    const isFirst = checkIfFirstMessageGroup()
-    const isReceivedRecent = checkIfPartOfRecentMessageGroup()
-    const isLast = checkIfLastOfMessageGroup()
-
-    function checkIfSingleMessage() {
-        if (prevChatMessageSenderId !== currentChatMessageSenderId) {
-            if (nextChatMessageSenderId !== currentChatMessageSenderId) return true
-            return !isRecent(nextChatMessageSentAtMs, currentChatMessageSentAtMs)
-        }
-
-        const isPrevMessageRecent = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
-        if (isPrevMessageRecent) return false
-
-        if (nextChatMessageSenderId === currentChatMessageSenderId) {
-            const isNextMessageRecent = isRecent(nextChatMessageSentAtMs, currentChatMessageSentAtMs)
-            if (isNextMessageRecent) return false
-        }
-        return true
-    }
-
-    const isSingleMessage = checkIfSingleMessage()
-
-    function checkIfTimestampable() {
-        if (!prevChatMessage) return true
-        const isPrevRecent = isRecent(currentChatMessageSentAtMs, prevChatMessageSentAtMs)
-        if (isPrevRecent) return false
-
-        return true
-    }
-
-    function getTimeStamp() {
-        if (!hasTimestamp) return
-
-        const day = currentChatMessageSentAtMs.getDate()
-        const dayDiff = currentDate - day
-        console.log('this is the day', day, dayDiff)
-
-        if (dayDiff === 1) {
-            return `YESTERDAY AT ${hourFormatter.format(currentChatMessageSentAtMs)}`
-        } else if (dayDiff <= 3) {
-            return weekDayFormatter.format(currentChatMessageSentAtMs)
-        } else if (dayDiff > 3) {
-            return dateFormatter.format(currentChatMessageSentAtMs)
-        }
-        return hourFormatter.format(currentChatMessageSentAtMs)
-    }
-    const hasTimestamp = checkIfTimestampable()
+    const hasTimestamp = checkIfTimestampable(prevChatMessage, currentChatMessageSentAtMs, prevChatMessageSentAtMs)
     const showUsername = !isSender && (isFirst || isSingleMessage)
 
     async function confirmEdit(e) {
@@ -162,7 +87,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
         <>
             {hasTimestamp &&
                 <div className={timestampStyle}>
-                    <p>{getTimeStamp()}</p>
+                    <p>{getTimeStamp(hasTimestamp, currentChatMessageSentAtMs, currentDate)}</p>
                 </div>}
             <div className={`${chatStyle} ${isSender ? sent : received} ${isReceivedRecent && recentlyReceived || isFirst && recentlyReceived}`} onMouseLeave={() => setIsShowingOptions(false)} ref={chatMessage.ref !== undefined ? chatMessage.ref : null}>
                 <div className={imageContainerStyle} hidden={isSender || isReceivedRecent || isFirst}>
@@ -177,11 +102,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                                 ? <form onSubmit={(e) => confirmEdit(e)} onKeyDown={handleKeyDown}>
                                     <input type="text" onChange={(e) => setNewMessage(e.target.value)} ref={inputRef} value={newMessage} />
                                 </form>
-                                : <p>{
-                                    isDeletedThroughWs
-                                        ? deletedMessage?.message_text
-                                        : chatMessage.message_text
-                                }</p>
+                                : <p>{chatMessage.message_text}</p>
                             }
                         </div>
                         <div className={`${messageBubbleActionsStyle} ${isEditingMessage && showActions}`}>
