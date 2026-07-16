@@ -5,11 +5,11 @@ import pfpImage from '/icons/pfp.svg'
 import confirmImage from './img/confirm.svg'
 import cancelImage from './img/cancel.svg'
 import ChatBubbleActions from '../ChatBubbleActionsStyle/ChatBubbleActions'
-import { useEffect, useRef, useState } from 'react'
-import { memo } from 'react'
+import { useEffect, useRef, useState, memo } from 'react'
 import { useWebsocketActions } from '../../../hooks/useWebsocketActions'
 import { getTimeStamp } from '../../../../utils/dateFormatter'
 import { checkIfFirstMessageGroup, checkIfTimestampable, checkIfPartOfRecentMessageGroup, checkIfLastOfMessageGroup, checkIfSingleMessage } from './ChatBubbleHelpers'
+import MessageStatus from '../MessageStatus/MessageStatus'
 
 const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
@@ -19,34 +19,80 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
         partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle,
         confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
 
+    const chatBubbleRef = useRef(null)
     const inputRef = useRef(null)
     const [isShowingOptions, setIsShowingOptions] = useState(false)
     const [isEditingMessage, setIsEditingMessage] = useState(false)
+    const [isSeen, setIsSeen] = useState(false)
     const [newMessage, setNewMessage] = useState(chatMessage.message_text)
 
     const isSender = chatMessage.sender_id === user?.id
+    const isEdited = chatMessage.is_edited === 1
+    const isDeleted = chatMessage.is_deleted === 1
+
     const currentChatMessageSentAtMs = new Date(chatMessage.sent_at)
-    const currentChatMessageSenderId = chatMessage.sender_id
+    const currentChatMessageSenderId = chatMessage?.sender_id
+    const currentChatroomId = chatMessage?.chatroom_id
+    const currentMessageId = chatMessage?.message_id
     const prevChatMessageSentAtMs = new Date(prevChatMessage?.sent_at)
     const prevChatMessageSenderId = prevChatMessage?.sender_id
     const nextChatMessageSentAtMs = new Date(nextChatMessage?.sent_at)
     const nextChatMessageSenderId = nextChatMessage?.sender_id
-
-    const isEdited = chatMessage.is_edited === 1
-    const isDeleted = chatMessage.is_deleted === 1
 
     const isFirst = checkIfFirstMessageGroup(nextChatMessage, prevChatMessageSenderId, nextChatMessageSenderId, currentChatMessageSenderId, currentChatMessageSentAtMs, prevChatMessageSentAtMs, nextChatMessageSentAtMs)
     const isReceivedRecent = checkIfPartOfRecentMessageGroup(prevChatMessage, nextChatMessage, prevChatMessageSenderId, currentChatMessageSenderId, nextChatMessageSenderId, currentChatMessageSentAtMs, prevChatMessageSentAtMs, nextChatMessageSentAtMs)
     const isLast = checkIfLastOfMessageGroup(prevChatMessage, prevChatMessageSenderId, currentChatMessageSenderId, currentChatMessageSentAtMs, prevChatMessageSentAtMs)
     const isSingleMessage = checkIfSingleMessage(prevChatMessageSenderId, currentChatMessageSenderId, nextChatMessageSenderId, currentChatMessageSentAtMs, nextChatMessageSentAtMs, prevChatMessageSentAtMs)
 
-
     const hasTimestamp = checkIfTimestampable(prevChatMessage, currentChatMessageSentAtMs, prevChatMessageSentAtMs)
     const showUsername = !isSender && (isFirst || isSingleMessage)
+    const isLastMessage = nextChatMessage === undefined
+    const showMessageStatus = isSender && (chatMessage.message_status === 'sending...' || isLastMessage)
+    const hasSeenMessage = chatMessage.message_status === 'seen' || currentChatMessageSenderId === user.id
+
+    useEffect(() => {
+        if (hasSeenMessage) return
+        const observer = new IntersectionObserver(([entry]) => {
+            setIsSeen(entry?.isIntersecting)
+        }, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        })
+
+        const notSeenMessage = chatBubbleRef.current
+        if (notSeenMessage) {
+            observer.observe(notSeenMessage)
+        }
+
+        return () => {
+            if (notSeenMessage) {
+                observer.unobserve(notSeenMessage)
+            }
+        }
+    }, [hasSeenMessage, chatMessage])
+
+    useEffect(() => {
+        if (!isSeen) return
+        const controller = new AbortController()
+        async function seenMessage() {
+            try {
+                await api.put(`/messages/seen/${currentChatroomId}?message_id=${currentMessageId}`)
+            } catch (e) {
+                if (e.name === 'AbortError') return
+                console.log(e)
+            }
+        }
+
+        seenMessage()
+        return () => {
+            controller.abort()
+        }
+    }, [isSeen, currentChatroomId, currentMessageId, api])
 
     async function confirmEdit(e) {
         e.preventDefault()
-        const editedMessageInfo = { message_id: chatMessage?.message_id, message_text: newMessage, sender_id: chatMessage?.sender_id, chatroom_id: chatMessage?.chatroom_id }
+        const editedMessageInfo = { message_id: chatMessage?.message_id, message_text: newMessage, sender_id: currentChatMessageSenderId, chatroom_id: currentChatroomId }
 
         try {
             const data = await api.put('/messages/edit', editedMessageInfo)
@@ -60,9 +106,8 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
 
     async function deleteForEveryone() {
         try {
-            const data = await api.delete(`/messages/delete/${chatMessage?.message_id}`)
-            const { message_id, sender_id, chatroom_id } = chatMessage
-            deleteMessage({ message_id, sender_id, chatroom_id, message_text: 'Message deleted', is_deleted: 1, type: 'deleteMessage' })
+            const data = await api.delete(`/messages/delete/${currentMessageId}`)
+            deleteMessage({ message_id: currentMessageId, sender_id: currentChatMessageSenderId, chatroom_id: currentChatroomId, message_text: 'Message deleted', is_deleted: 1, type: 'deleteMessage' })
             console.log(data.message)
         } catch (e) {
             console.log(e)
@@ -97,7 +142,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                     {showUsername && <p className={usernameStyle} >{chatMessage.sender_name}</p>}
                     {isEdited && <p>Edited</p>}
                     <div className={chatBubbleContainerStyle}>
-                        <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} ${isDeleted && deletedMessageBubbleStyle}`} >
+                        <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} ${isDeleted && deletedMessageBubbleStyle}`} ref={chatBubbleRef}>
                             {isEditingMessage
                                 ? <form onSubmit={(e) => confirmEdit(e)} onKeyDown={handleKeyDown}>
                                     <input type="text" onChange={(e) => setNewMessage(e.target.value)} ref={inputRef} value={newMessage} />
@@ -120,6 +165,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                         </div>
                     </div>
                 </div>
+                {showMessageStatus && <MessageStatus messageStatus={chatMessage?.message_status} />}
             </div>
         </>
     )

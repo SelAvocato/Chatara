@@ -12,7 +12,7 @@ module.exports = function (wss) {
         const id = req.params.id
 
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? ORDER BY message_id DESC LIMIT 15`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? ORDER BY message_id DESC LIMIT 15`
             const [row] = await pool.execute(query, [id])
             if (row.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
             res.json({ row, status: 'ok' })
@@ -22,12 +22,28 @@ module.exports = function (wss) {
         }
     })
 
+    router.get('/received/:id', authenticate, async (req, res) => {
+        const chatroomId = req.params.id
+        if (!chatroomId) return res.status(400).json({ message: 'Missing chatroom Id' })
+
+        const userId = req.id
+        const query = `SELECT m.message_text, m.chatroom_id FROM message_tbl m INNER JOIN participant_tbl p ON m.chatroom_id = p.chatroom_id WHERE m.sender_id != ? AND p.user_id = ? AND m.chatroom_id = ? AND (m.message_status = 'sent' OR m.message_status = 'delivered')`
+        try {
+            const [messages] = await pool.execute(query, [userId, userId, chatroomId])
+            if (messages.length === 0) return res.status(200).json({ messages: [] })
+            return res.status(200).json({ messages })
+        } catch (e) {
+            console.log(e)
+            res.status(500).json({ message: 'Something went wrong' })
+        }
+    })
+
     router.get('/extra/:id', authenticate, async (req, res) => {
         const chatroomId = req.params.id
         const { message_id } = req.query
         if (!chatroomId || !message_id) return res.status(400).json({ message: 'Missing chatroom or message Id' })
 
-        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 15`
+        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 15`
         try {
             const [messages] = await pool.execute(query, [chatroomId, message_id])
             res.status(200).json({ messages })
@@ -57,7 +73,7 @@ module.exports = function (wss) {
         if (!chatroomId || !senderId || !senderName || !messageText) return res.status(400).json({ message: "Message must not be empty" })
 
         try {
-            const query = `INSERT INTO ${messageTbl}(chatroom_id, sender_id, message_text) value (?, ?, ?)`
+            const query = `INSERT INTO ${messageTbl}(chatroom_id, sender_id, message_text, message_status) value (?, ?, ?, 'sent')`
             const values = [chatroomId, senderId, messageText]
             const [row] = await pool.execute(query, values)
 
@@ -68,6 +84,7 @@ module.exports = function (wss) {
                 sender_name: senderName,
                 message_text: messageText,
                 message_id: row.insertId,
+                message_status: 'sent',
                 sent_at: new Date()
             }
             websocketService.broadcastPayload(wss, payload, chatroomId)
@@ -76,6 +93,32 @@ module.exports = function (wss) {
         } catch (e) {
             console.error(e)
             return res.status(500).json({ message: "Something went wrong" })
+        }
+    })
+
+    router.put('/delivered/:id', authenticate, async (req, res) => {
+        const chatroomId = req.params.id
+        if (!chatroomId) return res.status(400).json({ message: 'Missing chatroom Id' })
+
+        const userId = req.id
+        const query = `UPDATE message_tbl SET message_status = 'delivered' WHERE chatroom_id = ? AND sender_id != ? AND message_status = 'sent'`
+        try {
+            await pool.execute(query, [chatroomId, userId])
+        } catch (e) {
+            console.log(e)
+        }
+    })
+
+    router.put('/seen/:id', authenticate, async (req, res) => {
+        const chatroomId = req.params.id
+        const { message_id } = req.query
+
+        if (!chatroomId || !message_id) return res.status(400).json({ message: 'Missing chatroom or message Id' })
+        const query = `UPDATE message_tbl SET message_status = 'seen' WHERE chatroom_id = ? AND id = ? AND message_status = 'delivered'`
+        try {
+            await pool.execute(query, [chatroomId, message_id])
+        } catch (e) {
+            console.log(e)
         }
     })
 

@@ -9,6 +9,7 @@
 }
 
 .chatStyle.sent {
+    flex-direction: column;
     justify-content: end;
     margin-left: 30%;
 }

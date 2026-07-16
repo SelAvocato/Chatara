@@ -6,24 +6,34 @@ import style from './ChatroomList.module.css'
 
 export default function ChatroomList({ chatroom, setHasOpenChat }) {
     const [latestMessage, setLatestMessage] = useState(null)
+    const [unreadMessagesCount, setUnreadMessagesCount] = useState(null)
 
     const { chatRoomStyle, chatroomImageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle } = style
-    const { latestMessageWs, openChat, currentChatroomId, chatMessages } = useWebsocket()
+    const { latestMessageWs, openChat, currentChatroomId } = useWebsocket()
     const api = useApi()
 
     useEffect(() => {
         async function fetchLatestMessage() {
-            const data = await api.get(`/messages/latest/${chatroom.id}`)
-            setLatestMessage(data.data || null)
+            try {
+                let data = await api.get(`/messages/received/${chatroom.id}`)
+                if (data.messages.length === 0) {
+                    data = await api.get(`/messages/latest/${chatroom.id}`)
+                    setLatestMessage(data?.data || null)
+                    return
+                }
+                setLatestMessage(data?.messages?.at(-1))
+                setUnreadMessagesCount(data?.messages?.length)
+                await api.put(`/messages/delivered/${chatroom.id}`)
+            } catch (e) {
+                console.log(e)
+            }
         }
         fetchLatestMessage()
-    }, [chatroom.id, api, chatMessages])
+    }, [chatroom.id, api])
 
     useEffect(() => {
         if (latestMessageWs?.chatroom_id !== chatroom.id) return
-        function changeLatestMessage() {
-            setLatestMessage(latestMessageWs)
-        }
+        const changeLatestMessage = () => setLatestMessage(latestMessageWs)
         changeLatestMessage()
     }, [latestMessageWs, chatroom.id])
 
@@ -41,6 +51,7 @@ export default function ChatroomList({ chatroom, setHasOpenChat }) {
             <div>
                 <p className={chatroomNameStyle}>{chatroom.name}</p>
                 <p className={chatroomLatestMessageStyle}>{latestMessage && latestMessage.message_text}</p>
+                <p>{unreadMessagesCount}</p>
             </div>
         </div>
     )
