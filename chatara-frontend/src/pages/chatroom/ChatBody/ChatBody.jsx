@@ -102,8 +102,6 @@ export default function ChatBody() {
         const timer = setInterval(() => {
             setCurrentDate(Date.now())
         }, 60000)
-        timer()
-
         return () => clearInterval(timer)
     }, [])
 
