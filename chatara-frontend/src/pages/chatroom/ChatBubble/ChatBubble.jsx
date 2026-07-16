@@ -8,30 +8,7 @@ import ChatBubbleActions from '../ChatBubbleActionsStyle/ChatBubbleActions'
 import { useEffect, useRef, useState } from 'react'
 import { memo } from 'react'
 import { useWebsocketActions } from '../../../hooks/useWebsocketActions'
-
-const hourFormatter = new Intl.DateTimeFormat("en-PH", {
-    timeZone: 'Asia/Manila',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-})
-
-const dateFormatter = new Intl.DateTimeFormat("en-PH", {
-    timeZone: 'Asia/Manila',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-})
-
-const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
-    timeZone: 'Asia/Manila',
-    weekday: 'long',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-})
+import { hourFormatter, weekDayFormatter, dateFormatter } from '../../../../utils/dateFormatter'
 
 const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
@@ -126,19 +103,16 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
     function getTimeStamp() {
         if (!hasTimestamp) return
 
-        const timePassed = currentDate - currentChatMessageSentAtMs.getTime()
-        const dayMs = 1000 * 60 * 60 * 24
-        const threeDays = dayMs * 3
-        const twoDays = dayMs * 2
+        const day = currentChatMessageSentAtMs.getDate()
+        const dayDiff = currentDate - day
+        console.log('this is the day', day, dayDiff)
 
-        if (timePassed > threeDays) {
-            return dateFormatter.format(currentChatMessageSentAtMs)
-        }
-        if (timePassed > twoDays) {
-            return weekDayFormatter.format(currentChatMessageSentAtMs)
-        }
-        if (timePassed > dayMs) {
+        if (dayDiff === 1) {
             return `YESTERDAY AT ${hourFormatter.format(currentChatMessageSentAtMs)}`
+        } else if (dayDiff <= 3) {
+            return weekDayFormatter.format(currentChatMessageSentAtMs)
+        } else if (dayDiff > 3) {
+            return dateFormatter.format(currentChatMessageSentAtMs)
         }
         return hourFormatter.format(currentChatMessageSentAtMs)
     }
