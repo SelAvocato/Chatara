@@ -7,7 +7,7 @@ import ChatBubble from '../ChatBubble/ChatBubble.jsx'
 import { useApi } from '../../../hooks/useApi.js'
 
 export default function ChatBody() {
-    const lastMessageRef = useRef(null)
+    const bottomRef = useRef(null)
     const [currentDate, setCurrentDate] = useState(() => new Date().getDate());
     const [isRequestingMessages, setIsRequestingMessages] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -95,11 +95,11 @@ export default function ChatBody() {
             isPrependingRef.current = false
             return
         }
-        lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" })
     }, [chatMessages, isTyping])
 
     useEffect(() => {
-        const timer = () => setInterval(() => {
+        const timer = setInterval(() => {
             setCurrentDate(Date.now())
         }, 60000)
         timer()
@@ -122,7 +122,7 @@ export default function ChatBody() {
                     {
                         isTyping && <TypingIndicator userTyping={userTyping} />
                     }
-                    <div ref={lastMessageRef} />
+                    <div ref={bottomRef} />
                 </div>
             </div>
             <ChatMessageActions />
