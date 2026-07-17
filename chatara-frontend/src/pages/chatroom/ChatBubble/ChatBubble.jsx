@@ -114,8 +114,6 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
         }
     }
 
-    console.log(chatMessage.message_id, ' reran')
-
     useEffect(() => {
         if (isEditingMessage && inputRef.current) {
             inputRef.current.focus()

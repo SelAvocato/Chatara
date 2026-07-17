@@ -30,6 +30,8 @@ export function WebSocketProvider({ children }) {
 
     useEffect(() => {
         if (!accessToken) return
+        console.log('WS connecting, new socket')
+
         wsRef.current = new WebSocket(`ws://localhost:3000?token=${accessToken}`)
 
         wsRef.current.onopen = () => {
@@ -125,9 +127,9 @@ export function WebSocketProvider({ children }) {
     }, [accessToken, handleTokenExpiration, isReconnecting, setUser, setAccessToken, baseUrl])
 
     const openChat = useCallback(async (chatroomId) => {
+        getChatroomInfo(chatroomId)
         localStorage.setItem('recentChatroomId', chatroomId)
         setCurrentChatroomId(chatroomId)
-        getChatroomInfo(chatroomId)
         try {
             const data = await api.get(`/messages/${chatroomId}`)
             wsRef.current?.send(JSON.stringify({

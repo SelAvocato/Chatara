@@ -27,7 +27,6 @@ export function getTimeStamp(hasTimestamp, currentChatMessageSentAtMs, currentDa
 
     const day = currentChatMessageSentAtMs.getDate()
     const dayDiff = currentDate - day
-    console.log('this is the day', day, dayDiff)
 
     if (dayDiff === 1) {
         return `YESTERDAY AT ${hourFormatter.format(currentChatMessageSentAtMs)}`

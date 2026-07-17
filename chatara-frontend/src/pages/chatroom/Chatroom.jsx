@@ -46,7 +46,7 @@ export default function Chatroom() {
                     {
                         chatrooms && chatrooms.length > 0
                             ? chatrooms.map((chatroom) =>
-                                <ChatroomList key={chatroom.id} chatroom={chatroom} setHasOpenChat={setHasOpenChat} />
+                                <ChatroomList key={chatroom.id} chatroom={chatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
                             )
                             : message
                     }

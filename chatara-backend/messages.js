@@ -10,15 +10,15 @@ const userTbl = 'user_tbl'
 module.exports = function (wss) {
     router.get('/:id', authenticate, async (req, res) => {
         const id = req.params.id
-
+        if (!id) return res.status(400).json({ message: 'Missing chatroom Id' })
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? ORDER BY message_id DESC LIMIT 15`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
             const [row] = await pool.execute(query, [id])
             if (row.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
             res.json({ row, status: 'ok' })
         } catch (e) {
             console.error(e)
-            return res.status(500).json({ message: "Something went wrong" })
+            res.status(500).json({ message: "Something went wrong" })
         }
     })
 
@@ -31,7 +31,7 @@ module.exports = function (wss) {
         try {
             const [messages] = await pool.execute(query, [userId, userId, chatroomId])
             if (messages.length === 0) return res.status(200).json({ messages: [] })
-            return res.status(200).json({ messages })
+            res.status(200).json({ messages })
         } catch (e) {
             console.error(e)
             res.status(500).json({ message: 'Something went wrong' })
@@ -49,7 +49,7 @@ module.exports = function (wss) {
             res.status(200).json({ messages })
         } catch (e) {
             console.error(e)
-            return res.status(500).json({ message: "Something went wrong" })
+            res.status(500).json({ message: "Something went wrong" })
         }
     })
 
@@ -61,7 +61,7 @@ module.exports = function (wss) {
             const query = `SELECT message_text from message_tbl WHERE chatroom_id = ? ORDER BY id DESC LIMIT 1`
             const [rows] = await pool.execute(query, [id])
             const row = rows[0]
-            return res.status(200).json({ status: 'ok', data: row })
+            res.status(200).json({ status: 'ok', data: row })
         } catch (e) {
             res.status(500).json({ message: "Error: Something went wrong" })
             console.error(e)
@@ -89,10 +89,10 @@ module.exports = function (wss) {
             }
             websocketService.broadcastPayload(wss, payload, chatroomId)
 
-            return res.json({ message: "Message successfully sent", status: "ok" })
+            res.json({ message: "Message successfully sent", status: "ok" })
         } catch (e) {
             console.error(e)
-            return res.status(500).json({ message: "Something went wrong" })
+            res.status(500).json({ message: "Something went wrong" })
         }
     })
 
@@ -104,8 +104,10 @@ module.exports = function (wss) {
         const query = `UPDATE message_tbl SET message_status = 'delivered' WHERE chatroom_id = ? AND sender_id != ? AND message_status = 'sent'`
         try {
             await pool.execute(query, [chatroomId, userId])
+            res.status(200).json({ status: 'ok' })
         } catch (e) {
             console.error(e)
+            res.status(500).json({ message: 'Something went wrong' })
         }
     })
 

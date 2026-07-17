@@ -4,7 +4,7 @@ import { useApi } from '../../../hooks/useApi'
 import pfp from '/icons/pfp.svg'
 import style from './ChatroomList.module.css'
 
-export default function ChatroomList({ chatroom, setHasOpenChat }) {
+export default function ChatroomList({ chatroom, hasOpenChat, setHasOpenChat }) {
     const [latestMessage, setLatestMessage] = useState(null)
     const [unreadMessagesCount, setUnreadMessagesCount] = useState(null)
 
@@ -39,8 +39,11 @@ export default function ChatroomList({ chatroom, setHasOpenChat }) {
 
     async function onOpenChat(chatroomId) {
         if (chatroomId === currentChatroomId) return
-        setHasOpenChat(true)
-        openChat(chatroomId)
+        if (hasOpenChat === false) {
+            setHasOpenChat(true)
+        }
+        await openChat(chatroomId)
+        console.log('this is the chatroomId and this is the current chatroom id ', chatroomId, currentChatroomId, hasOpenChat)
     }
 
     return (
