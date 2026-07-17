@@ -12,7 +12,7 @@ export function useRefresh(bool) {
                 const user = await refresh()
                 if (!user) setIsAuthenticated(false)
             } catch (e) {
-                console.log(e)
+                console.error(e)
                 setIsAuthenticated(false)
             } finally {
                 setIsLoading(false)

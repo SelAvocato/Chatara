@@ -10,7 +10,7 @@ function authenticate(req, res, next) {
         req.id = payload.sub
         next()
     } catch (e) {
-        console.log(e)
+        console.error(e)
         return res.status(401).json({ message: 'Invalid access token' })
     }
 }
@@ -20,7 +20,7 @@ function authenticateWs(socket) {
         const payload = jwt.verify(socket.accessToken, process.env.ACCESS_TOKEN_SECRET)
         socket.id = payload.sub
     } catch (e) {
-        console.log(e)
+        console.error(e)
         socket.send(JSON.stringify({ type: 'expiredAccessToken' }))
         return
     }

@@ -33,7 +33,7 @@ module.exports = function (wss) {
             if (messages.length === 0) return res.status(200).json({ messages: [] })
             return res.status(200).json({ messages })
         } catch (e) {
-            console.log(e)
+            console.error(e)
             res.status(500).json({ message: 'Something went wrong' })
         }
     })
@@ -64,7 +64,7 @@ module.exports = function (wss) {
             return res.status(200).json({ status: 'ok', data: row })
         } catch (e) {
             res.status(500).json({ message: "Error: Something went wrong" })
-            console.log(e)
+            console.error(e)
         }
     })
 
@@ -105,7 +105,7 @@ module.exports = function (wss) {
         try {
             await pool.execute(query, [chatroomId, userId])
         } catch (e) {
-            console.log(e)
+            console.error(e)
         }
     })
 
@@ -118,7 +118,7 @@ module.exports = function (wss) {
         try {
             await pool.execute(query, [chatroomId, message_id])
         } catch (e) {
-            console.log(e)
+            console.error(e)
         }
     })
 
@@ -135,7 +135,7 @@ module.exports = function (wss) {
             await pool.execute(query, [message_text, message_id])
             res.status(200).json({ message: 'Updated successfully' })
         } catch (e) {
-            console.log(e)
+            console.error(e)
             res.status(500).json({ message: 'Something went wrong' })
         }
     })
@@ -157,7 +157,7 @@ module.exports = function (wss) {
 
             res.status(200).json({ message: 'Message has been successfully deleted' })
         } catch (e) {
-            console.log(e)
+            console.error(e)
             res.status(500).json({ message: 'Something went wrong' })
         }
     })

@@ -39,7 +39,7 @@ router.post('/login', async (req, res) => {
 
         return res.status(200).json({ accessToken, user: userWithoutHash, status: 'ok' })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         return res.status(500).json({ message: e.message })
     }
 })
@@ -78,7 +78,7 @@ router.post('/user', async (req, res) => {
         const accessToken = generateAccessToken(userWithoutHashedRefreshToken)
         return res.status(200).json({ accessToken, user: userWithoutHashedRefreshToken, status: 'ok' })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         return res.status(401).json({ message: 'Invalid refresh token' })
     }
 })
@@ -114,7 +114,7 @@ router.post('/refresh', async (req, res) => {
         res.cookie('refreshToken', newRefreshToken, refreshTokenOptions)
         return res.status(200).json({ accessToken: newAccessToken, user: userWithoutHashedRefreshToken, status: 'ok' })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         return res.status(401).json({ message: 'Session expired. Please re-login' })
     }
 })
@@ -126,7 +126,7 @@ router.post('/logout', authenticate, async (req, res) => {
         await pool.execute(updateQuery, [req.id])
         return res.status(200).json({ message: 'Log out successfully' })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         return res.status(500).json({ message: 'Something went wrong' })
     }
 })

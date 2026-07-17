@@ -80,7 +80,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                 await api.put(`/messages/seen/${currentChatroomId}?message_id=${currentMessageId}`)
             } catch (e) {
                 if (e.name === 'AbortError') return
-                console.log(e)
+                console.error(e)
             }
         }
 
@@ -100,7 +100,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
             setIsEditingMessage(false)
             editMessage(editedMessageInfo)
         } catch (e) {
-            console.log(e)
+            console.error(e)
         }
     }
 
@@ -110,7 +110,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
             deleteMessage({ message_id: currentMessageId, sender_id: currentChatMessageSenderId, chatroom_id: currentChatroomId, message_text: 'Message deleted', is_deleted: 1, type: 'deleteMessage' })
             console.log(data.message)
         } catch (e) {
-            console.log(e)
+            console.error(e)
         }
     }
 

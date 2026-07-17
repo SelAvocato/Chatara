@@ -14,7 +14,7 @@ router.get('/:id', authenticate, async (req, res) => {
         const [membersRow] = await pool.execute(memberQuery, [chatroomId])
         return res.status(200).json({ chatroom, members: membersRow })
     } catch (e) {
-        console.log(e)
+        console.error(e)
         return res.status(500).json({ message: 'Something went wrong' })
     }
 })

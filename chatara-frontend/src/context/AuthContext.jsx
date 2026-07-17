@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
             setAccessToken(data.accessToken)
             return data.user
         } catch (e) {
-            console.log(e)
+            console.error(e)
             setUser(null)
             setAccessToken(null)
         }

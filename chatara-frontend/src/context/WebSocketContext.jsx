@@ -99,7 +99,7 @@ export function WebSocketProvider({ children }) {
                             setUser(data.user)
                             setAccessToken(data.accessToken)
                         } catch (e) {
-                            console.log(e)
+                            console.error(e)
                         } finally {
                             setIsReconnecting(false)
                         }
@@ -149,7 +149,7 @@ export function WebSocketProvider({ children }) {
             ))
             lastMessageRef.current = data?.row?.at(-1)
         } catch (e) {
-            console.log(e)
+            console.error(e)
             setStartChat('Something went wrong')
         }
     }, [api, getChatroomInfo, user.id])
@@ -158,7 +158,7 @@ export function WebSocketProvider({ children }) {
         try {
             wsRef.current?.send(JSON.stringify({ ...updatedMessage, type: 'editMessage' }))
         } catch (e) {
-            console.log(e)
+            console.error(e)
         }
     }, [])
 
@@ -166,7 +166,7 @@ export function WebSocketProvider({ children }) {
         try {
             wsRef.current?.send(JSON.stringify(unsentMessage))
         } catch (e) {
-            console.log(e)
+            console.error(e)
         }
     }, [])
 

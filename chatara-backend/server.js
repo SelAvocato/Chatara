@@ -52,7 +52,7 @@ wss.on('connection', async (socket, req) => {
         const [chatrooms] = await pool.execute(query, [socket.id])
         socket.chatrooms = chatrooms.map(c => c.chatroom_id)
     } catch (e) {
-        console.log(e)
+        console.error(e)
         return socket.send(JSON.stringify({ type: 'error', message: 'Something went wrong' }))
     }
 

@@ -71,7 +71,7 @@ export default function ChatBody() {
                 isPrependingRef.current = true
             } catch (e) {
                 if (e.name === 'AbortError') return
-                console.log(e)
+                console.error(e)
             } finally {
                 isFetchingRef.current = false
                 setIsLoading(false)

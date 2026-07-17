@@ -25,7 +25,7 @@ export default function ChatroomList({ chatroom, setHasOpenChat }) {
                 setUnreadMessagesCount(data?.messages?.length)
                 await api.put(`/messages/delivered/${chatroom.id}`)
             } catch (e) {
-                console.log(e)
+                console.error(e)
             }
         }
         fetchLatestMessage()
