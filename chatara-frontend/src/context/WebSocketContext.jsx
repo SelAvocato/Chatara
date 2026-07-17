@@ -41,6 +41,7 @@ export function WebSocketProvider({ children }) {
         wsRef.current.onmessage = async (event) => {
             try {
                 const parsed = JSON.parse(event.data)
+                const { message_status } = parsed
                 console.log('parsed data: ', parsed)
 
                 switch (parsed.type) {
@@ -81,6 +82,13 @@ export function WebSocketProvider({ children }) {
                         if (parsed.message_id === lastMessageRef.current?.message_id) {
                             setLatestMessageWs(parsed)
                         }
+                        break
+                    case 'delivered':
+                        setChatMessages(prev => prev.map(msg =>
+                            msg.message_id === parsed.message_id
+                                ? { ...msg, message_status }
+                                : msg
+                        ))
                         break
                     case 'expiredAccessToken':
                         // wsRef.current.send({ type: 'reconnect' })

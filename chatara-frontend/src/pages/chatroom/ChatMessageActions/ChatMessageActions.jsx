@@ -51,7 +51,7 @@ export default function ChatMessageActions() {
 
     async function handleMessageSubmit(e) {
         e.preventDefault()
-        const data = {
+        const chatInfo = {
             type: 'chat',
             chatroomId: currentChatroomId,
             senderId: user.id,
@@ -67,9 +67,9 @@ export default function ChatMessageActions() {
         // }])
 
         try {
-            const res = await api.post('/messages/send', (data))
-            console.log('response: ', res)
-            if (res.status !== 'ok') return setErrorMessage(res.message)
+            const data = await api.post('/messages/send', (chatInfo))
+            console.log('response: ', data)
+            if (data.status !== 'ok') return setErrorMessage(data.message)
             setErrorMessage(null)
             setMessageInput('')
         } catch (e) {

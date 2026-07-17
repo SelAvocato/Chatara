@@ -24,7 +24,7 @@ module.exports = function (wss) {
         if (!chatroomId) return res.status(400).json({ message: 'Missing chatroom Id' })
 
         const userId = req.id
-        const query = `SELECT m.message_text, m.chatroom_id FROM message_tbl m INNER JOIN participant_tbl p ON m.chatroom_id = p.chatroom_id WHERE m.sender_id != ? AND p.user_id = ? AND m.chatroom_id = ? AND (m.message_status = 'sent' OR m.message_status = 'delivered')`
+        const query = `SELECT m.message_text, m.id AS message_id, m.chatroom_id FROM message_tbl m INNER JOIN participant_tbl p ON m.chatroom_id = p.chatroom_id WHERE m.sender_id != ? AND p.user_id = ? AND m.chatroom_id = ? AND (m.message_status = 'sent' OR m.message_status = 'delivered')`
         try {
             const [messages] = await pool.execute(query, [userId, userId, chatroomId])
             if (messages.length === 0) return res.status(200).json({ messages: [] })
