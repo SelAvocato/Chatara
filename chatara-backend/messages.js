@@ -4,15 +4,12 @@ const pool = require('./db.js')
 const websocketService = require('./services/websocket.js')
 const { authenticate } = require('./middleware/authenticate.js')
 
-const messageTbl = 'message_tbl'
-const userTbl = 'user_tbl'
-
 module.exports = function (wss) {
     router.get('/:id', authenticate, async (req, res) => {
         const id = req.params.id
         if (!id) return res.status(400).json({ message: 'Missing chatroom Id' })
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
             const [row] = await pool.execute(query, [id])
             if (row.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
             res.json({ row, status: 'ok' })
@@ -43,7 +40,7 @@ module.exports = function (wss) {
         const { message_id } = req.query
         if (!chatroomId || !message_id) return res.status(400).json({ message: 'Missing chatroom or message Id' })
 
-        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM ${messageTbl} m INNER JOIN ${userTbl} u on m.sender_id = u.id WHERE chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 15`
+        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 15`
         try {
             const [messages] = await pool.execute(query, [chatroomId, message_id])
             res.status(200).json({ messages })
@@ -73,7 +70,7 @@ module.exports = function (wss) {
         if (!chatroomId || !senderId || !senderName || !messageText) return res.status(400).json({ message: "Message must not be empty" })
 
         try {
-            const query = `INSERT INTO ${messageTbl}(chatroom_id, sender_id, message_text, message_status) value (?, ?, ?, 'sent')`
+            const query = `INSERT INTO message_tbl(chatroom_id, sender_id, message_text, message_status) value (?, ?, ?, 'sent')`
             const values = [chatroomId, senderId, messageText]
             const [row] = await pool.execute(query, values)
 
