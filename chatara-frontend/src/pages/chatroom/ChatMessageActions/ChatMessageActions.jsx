@@ -54,7 +54,6 @@ export default function ChatMessageActions() {
         const chatInfo = {
             type: 'chat',
             chatroomId: currentChatroomId,
-            senderId: user.id,
             senderName: username,
             messageText: messageInput
         }
