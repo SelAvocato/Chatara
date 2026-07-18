@@ -7,8 +7,6 @@ const database = process.env.DB_NAME
 const waitForConnections = process.env.DB_WAIT_FOR_CONNECTION
 const connectionLimit = Number(process.env.DB_CONNECTION_LIMIT)
 
-console.log('user', user)
-console.log('db password', password, typeof (password))
 const pool = mysql.createPool({
     host: host,
     user: user,

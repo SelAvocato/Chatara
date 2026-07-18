@@ -12,11 +12,11 @@ const WebsocketActionsContext = createContext(null)
 export function WebSocketProvider({ children }) {
     const wsRef = useRef(null)
     const lastMessageRef = useRef(null)
+    const isReconnectingRef = useRef(false)
     const [firstMessage, setFirstMessage] = useState(null)
     const [firstMessageIndex, setFirstMessageIndex] = useState(null)
     const [isTyping, setIsTyping] = useState(false)
     const [latestMessageWs, setLatestMessageWs] = useState(null)
-    const [isReconnecting, setIsReconnecting] = useState(false)
     const [userTyping, setUserTyping] = useState(null)
     const [currentChatroomId, setCurrentChatroomId] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) || null)
     const [startChat, setStartChat] = useState('')
@@ -99,9 +99,9 @@ export function WebSocketProvider({ children }) {
                         break
                     case 'expiredAccessToken':
                         // wsRef.current.send({ type: 'reconnect' })
-                        if (isReconnecting) return
+                        if (isReconnectingRef.current) return
                         try {
-                            setIsReconnecting(true)
+                            isReconnectingRef.current = true
                             console.log('Expired access token. Reconnecting...')
                             const res = await fetch(`${baseUrl}/auth/refresh`, {
                                 method: 'POST',
@@ -118,7 +118,7 @@ export function WebSocketProvider({ children }) {
                         } catch (e) {
                             console.error(e)
                         } finally {
-                            setIsReconnecting(false)
+                            isReconnectingRef.current = false
                         }
                         break
                     default:
@@ -139,7 +139,7 @@ export function WebSocketProvider({ children }) {
         }
 
         return () => wsRef.current.close()
-    }, [accessToken, handleTokenExpiration, isReconnecting, setUser, setAccessToken, baseUrl])
+    }, [accessToken, handleTokenExpiration, setUser, setAccessToken, baseUrl])
 
     const openChat = useCallback(async (chatroomId) => {
         getChatroomInfo(chatroomId)
