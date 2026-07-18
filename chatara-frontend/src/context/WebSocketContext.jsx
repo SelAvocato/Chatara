@@ -90,6 +90,14 @@ export function WebSocketProvider({ children }) {
                                 : msg
                         ))
                         break
+                    case 'seen':
+                        console.log('seen', parsed)
+                        setChatMessages(prev => prev.map(msg =>
+                            msg.message_id === parsed.message_id
+                                ? { ...msg, message_status: 'seen' }
+                                : msg
+                        ))
+                        break
                     case 'expiredAccessToken':
                         // wsRef.current.send({ type: 'reconnect' })
                         if (isReconnecting) return
@@ -196,8 +204,8 @@ export function WebSocketProvider({ children }) {
     ])
 
     const chatBubbleContextValue = useMemo(() => ({
-        editMessage, deleteMessage
-    }), [editMessage, deleteMessage])
+        editMessage, deleteMessage, wsRef
+    }), [editMessage, deleteMessage, wsRef])
 
     return (
         <WebSocketContext value={contextValue} >

@@ -28,7 +28,6 @@ export default function ChatBody() {
         if (currentTarget) {
             observer.observe(currentTarget)
         }
-        console.log('this is the current target', currentTarget)
 
         return () => {
             if (currentTarget) {

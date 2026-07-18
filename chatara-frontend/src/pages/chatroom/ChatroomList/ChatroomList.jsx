@@ -15,21 +15,16 @@ export default function ChatroomList({ chatroom, hasOpenChat, setHasOpenChat }) 
     useEffect(() => {
         async function fetchLatestMessage() {
             try {
-                console.log('trying data below')
                 let data = await api.get(`/messages/received/${chatroom.id}`)
-                console.log('ran messages', data.messages)
                 if (data?.messages?.length === 0) {
                     data = await api.get(`/messages/latest/${chatroom.id}`)
                     setLatestMessage(data?.data || null)
                     return
                 }
-                console.log('first message', data.messages[0])
                 for (let x = 0; x < data.messages.length; x++) {
                     const currentMessage = data.messages[x]
                     const { message_id, chatroom_id } = currentMessage
-                    console.log('going to deliver below')
                     wsRef?.current?.send(JSON.stringify({ message_id, chatroom_id, message_status: 'delivered', type: 'delivered' }))
-                    console.log({ message_id, chatroom_id, type: 'delivered' })
                 }
                 setLatestMessage(data?.messages?.at(-1))
                 setUnreadMessagesCount(data?.messages?.length)
@@ -53,7 +48,6 @@ export default function ChatroomList({ chatroom, hasOpenChat, setHasOpenChat }) 
             setHasOpenChat(true)
         }
         await openChat(chatroomId)
-        console.log('this is the chatroomId and this is the current chatroom id ', chatroomId, currentChatroomId, hasOpenChat)
     }
 
     return (

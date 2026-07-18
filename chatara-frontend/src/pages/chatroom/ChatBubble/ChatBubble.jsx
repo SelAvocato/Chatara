@@ -14,7 +14,7 @@ import MessageStatus from '../MessageStatus/MessageStatus'
 const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { user } = useAuth()
     const api = useApi()
-    const { editMessage, deleteMessage } = useWebsocketActions()
+    const { wsRef, editMessage, deleteMessage } = useWebsocketActions()
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
         partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle,
         confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
@@ -77,7 +77,8 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
         const controller = new AbortController()
         async function seenMessage() {
             try {
-                await api.put(`/messages/seen/${currentChatroomId}?message_id=${currentMessageId}`)
+                await api.put(`/messages/seen/${currentChatroomId}?message_id=${currentMessageId}`, { signal: controller.signal })
+                wsRef?.current?.send(JSON.stringify({ type: 'seen', message_id: currentMessageId, chatroom_id: currentChatroomId, message_status: 'seen' }))
             } catch (e) {
                 if (e.name === 'AbortError') return
                 console.error(e)
@@ -85,18 +86,15 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
         }
 
         seenMessage()
-        return () => {
-            controller.abort()
-        }
-    }, [isSeen, currentChatroomId, currentMessageId, api])
+        return () => controller.abort()
+    }, [isSeen, currentChatroomId, currentMessageId, api, wsRef])
 
     async function confirmEdit(e) {
         e.preventDefault()
         const editedMessageInfo = { message_id: chatMessage?.message_id, message_text: newMessage, sender_id: currentChatMessageSenderId, chatroom_id: currentChatroomId }
 
         try {
-            const data = await api.put('/messages/edit', editedMessageInfo)
-            console.log(data || 'Something went wrong')
+            await api.put('/messages/edit', editedMessageInfo)
             setIsEditingMessage(false)
             editMessage(editedMessageInfo)
         } catch (e) {
@@ -106,9 +104,8 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
 
     async function deleteForEveryone() {
         try {
-            const data = await api.delete(`/messages/delete/${currentMessageId}`)
+            await api.delete(`/messages/delete/${currentMessageId}`)
             deleteMessage({ message_id: currentMessageId, sender_id: currentChatMessageSenderId, chatroom_id: currentChatroomId, message_text: 'Message deleted', is_deleted: 1, type: 'deleteMessage' })
-            console.log(data.message)
         } catch (e) {
             console.error(e)
         }

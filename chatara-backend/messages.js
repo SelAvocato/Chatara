@@ -116,8 +116,10 @@ module.exports = function (wss) {
         const query = `UPDATE message_tbl SET message_status = 'seen' WHERE chatroom_id = ? AND id = ? AND message_status = 'delivered'`
         try {
             await pool.execute(query, [chatroomId, message_id])
+            res.status(200).json({ status: 'ok' })
         } catch (e) {
             console.error(e)
+            res.status(500).json({ message: 'Something went wrong' })
         }
     })
 

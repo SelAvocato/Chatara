@@ -50,7 +50,12 @@ websocketService = {
                         }
                         break
                     case 'delivered':
-                        console.log('this is delivered data', parsed)
+                        for (const client of wss.clients) {
+                            if (client.currentRoom === parsed.chatroom_id && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
+                                client.send(JSON.stringify(parsed))
+                            }
+                        }
+                    case 'seen':
                         for (const client of wss.clients) {
                             if (client.currentRoom === parsed.chatroom_id && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
                                 client.send(JSON.stringify(parsed))
