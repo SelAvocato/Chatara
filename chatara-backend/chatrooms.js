@@ -18,26 +18,36 @@ router.get('/', authenticate, async (req, res) => {
 })
 
 router.post('/create', authenticate, async (req, res) => {
-    const { chatroomName, username, userId } = req.body
-    if (!chatroomName || !username) return res.status(400).json({ message: "Chatroom and Participant name must not be empty" })
+    const { chatroomName, username } = req.body
+    if (!chatroomName || !username || username.length === 0) return res.status(400).json({ message: "Chatroom and Participant name must not be empty" })
+    const userId = req.id
+    if (!userId) return res.status(400).json({ message: 'Missing user Id' })
     try {
-        const findUserQuery = `SELECT id FROM user_tbl WHERE username=? LIMIT 1`
-        const [user] = await pool.execute(findUserQuery, [username])
-        if (user.length === 0) return res.status(400).json({ message: "User doesn't exist" })
-        const participantId = user[0].id
-        if (participantId === userId) return res.status(400).json({ message: "You can't make a chatroom by yourself" })
+        let membersId = []
+        for (let x = 0; x < username.length; x++) {
+            const findUserQuery = `SELECT id FROM user_tbl WHERE username=? LIMIT 1`
+            const [user] = await pool.execute(findUserQuery, [username[x]])
+            if (user.length === 0) return res.status(400).json({ message: `User named '${username[x]}' doesn't exist` })
+            const memberId = user[0].id
+            if (memberId === req.id) return res.status(400).json({ message: `You don't need to include your name` })
+            membersId.push(memberId)
+        }
 
         const chatroomQuery = `INSERT INTO chatroom_tbl(name) value (?)`
         const [newChatroom] = await pool.execute(chatroomQuery, [chatroomName])
         const chatroomId = newChatroom.insertId
 
-        const participantQuery = `INSERT INTO participant_tbl(chatroom_id, user_id) values (?, ?),(?, ?)`
-        await pool.execute(participantQuery, [chatroomId, participantId, chatroomId, userId])
+        const participantQuery = `INSERT INTO participant_tbl(chatroom_id, user_id) value (?, ?)`
+        await pool.execute(participantQuery, [chatroomId, userId])
 
-        res.json({ message: "Chatroom successfully created", status: 'ok' })
+        membersId.forEach(async (memberId) => {
+            await pool.execute(participantQuery, [chatroomId, memberId])
+        })
+
+        res.status(200).json({ message: "Chatroom successfully created", status: 'ok' })
     } catch (e) {
         console.error(e)
-        return res.status(500).json({ message: "Something went wrong" })
+        res.status(500).json({ message: "Something went wrong" })
     }
 })
 
