@@ -91,7 +91,6 @@ export function WebSocketProvider({ children }) {
                         ))
                         break
                     case 'seen':
-                        console.log('seen', parsed)
                         setChatMessages(prev => prev.map(msg =>
                             msg.message_id === parsed.message_id
                                 ? { ...msg, message_status: 'seen' }
