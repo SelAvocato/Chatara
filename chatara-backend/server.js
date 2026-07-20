@@ -25,6 +25,7 @@ app.use((req, res, next) => {
 const httpServer = new http.createServer(app)
 const wss = new WebSocketServer({ server: httpServer })
 
+const usersRouter = require('./users.js')
 const authRouter = require('./services/auth.js')
 const chatroomsRouter = require('./chatrooms.js')
 const chatroomRouter = require('./chatroom.js')
@@ -35,6 +36,7 @@ app.use('/auth', authRouter)
 app.use('/chatrooms', chatroomsRouter)
 app.use('/chatroom', chatroomRouter)
 app.use('/messages', messagesRouter)
+app.use('/users', usersRouter)
 
 wss.on('connection', async (socket, req) => {
     const parsedUrl = new URL(req.url, 'http://localhost')
