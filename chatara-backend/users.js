@@ -1,6 +1,6 @@
 const express = require('express')
 const { authenticate } = require('./middleware/authenticate')
-const { pool } = require('./db')
+const pool = require('./db')
 const router = express.Router()
 
 router.get('/filter', authenticate, async (req, res) => {
@@ -11,7 +11,7 @@ router.get('/filter', authenticate, async (req, res) => {
     const query = `SELECT username, id FROM user_tbl WHERE username LIKE ? LIMIT 20`
     try {
         const [users] = await pool.execute(query, [`%${username}%`])
-        if (rows.length === 0) return res.status(200).json({ users, message: 'No users found' })
+        if (users.length === 0) return res.status(200).json({ users, message: 'No users found' })
         res.status(200).json({ users })
     } catch (e) {
         console.error(e)
