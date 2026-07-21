@@ -19,7 +19,7 @@ router.get('/', authenticate, async (req, res) => {
 
 router.post('/create', authenticate, async (req, res) => {
     const { chatroomName, username } = req.body
-    if (!chatroomName || !username || username.length === 0) return res.status(400).json({ message: "Chatroom and Participant name must not be empty" })
+    if (!chatroomName || !username || username.length === 0) return res.status(400).json({ message: "Chatroom and Participant names must not be empty" })
     const userId = req.id
     if (!userId) return res.status(400).json({ message: 'Missing user Id' })
     try {
