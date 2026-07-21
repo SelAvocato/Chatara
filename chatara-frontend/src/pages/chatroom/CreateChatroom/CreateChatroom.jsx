@@ -85,8 +85,6 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
         return () => controller.abort()
 
     }, [memberUsername, api])
-    console.log('length of things', selectedMembers.length + 1 - filteredUsers?.length)
-    console.log('selected Members', selectedMembers)
     return (
         <div className={formContainer}>
             <div className={formStyle}>
