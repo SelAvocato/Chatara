@@ -4,6 +4,7 @@ import ChatParent from "./ChatParent/ChatParent"
 import style from "./Chatroom.module.css"
 import addCircle from '/icons/add_circle.svg'
 import CreateChatroom from "./CreateChatroom/CreateChatroom"
+import SearchChatroom from "./SearchChatroom/SearchChatroom"
 import ChatroomList from "./ChatroomList/ChatroomList"
 
 export default function Chatroom() {
@@ -11,6 +12,8 @@ export default function Chatroom() {
 
     const [message, setMessage] = useState('')
     const [chatrooms, setChatrooms] = useState(null)
+    const [searchedChatroom, setSearchedChatroom] = useState('')
+    const [filteredChatrooms, setFilteredChatrooms] = useState(null)
     const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
     const [hasOpenChat, setHasOpenChat] = useState(localStorage.getItem('recentChatroomId') !== null)
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
@@ -33,6 +36,18 @@ export default function Chatroom() {
         getChatrooms()
     }, [api])
 
+    useEffect(() => {
+        if (!chatrooms || chatrooms.length === 0 || searchedChatroom.trim() === '') return
+        console.log('ror')
+
+        function filterChatroom() {
+            const validChatrooms = chatrooms.filter(chatroom => chatroom.name.includes(searchedChatroom))
+            setFilteredChatrooms(validChatrooms)
+            console.log(validChatrooms)
+        }
+        filterChatroom()
+    }, [searchedChatroom, chatrooms])
+
     return (
         <div className={main}>
             <div className={chatroomsStyle}>
@@ -43,12 +58,20 @@ export default function Chatroom() {
                     </div>
                 </div>
                 <div className={chatroomsListStyle}>
+                    <SearchChatroom searchedChatroom={searchedChatroom} setSearchedChatroom={setSearchedChatroom} />
                     {
-                        chatrooms && chatrooms.length > 0
-                            ? chatrooms.map((chatroom) =>
-                                <ChatroomList key={chatroom.id} chatroom={chatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
-                            )
-                            : message
+                        searchedChatroom !== '' && filteredChatrooms
+                            ? filteredChatrooms.length === 0
+                                ? <p>No chatrooms found</p>
+                                : filteredChatrooms.map(filteredChatroom =>
+                                    <ChatroomList key={filteredChatroom.id} chatroom={filteredChatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
+                                )
+
+                            : chatrooms && chatrooms.length > 0
+                                ? chatrooms.map(chatroom =>
+                                    <ChatroomList key={chatroom.id} chatroom={chatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
+                                )
+                                : message
                     }
                 </div>
 
