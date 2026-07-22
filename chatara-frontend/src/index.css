@@ -1,10 +1,11 @@
 :root{
     --primary-color: #9FA1FF;
-    --accent-color: #B5BAFF;
+    --accent-color: #eeeff1;
     --secondary-color: #B3EBF2;
     --background-color: #B3EBF2;
     --text-color: #0E4950;
     --scrollbar-thumb-color: #80808079;
+    --placeholder-color: #2c2a2aa1;
 }
 
 * {

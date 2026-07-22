@@ -38,12 +38,10 @@ export default function Chatroom() {
 
     useEffect(() => {
         if (!chatrooms || chatrooms.length === 0 || searchedChatroom.trim() === '') return
-        console.log('ror')
 
         function filterChatroom() {
             const validChatrooms = chatrooms.filter(chatroom => chatroom.name.includes(searchedChatroom))
             setFilteredChatrooms(validChatrooms)
-            console.log(validChatrooms)
         }
         filterChatroom()
     }, [searchedChatroom, chatrooms])

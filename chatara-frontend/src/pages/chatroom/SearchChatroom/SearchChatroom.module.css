@@ -1,0 +1,36 @@
+.searchChatroomStyle {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+    width: 90%;
+    padding: 3px 5px;
+    border-radius: 3px;
+    background-color: var(--accent-color);
+    cursor: text;
+}
+
+.searchImageContainer {
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+}
+
+.searchImageContainer img {
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+}
+
+.searchInputStyle {
+    width: 100%;
+    font-size: 17px;
+    font-weight: 500;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.searchInputStyle::placeholder {
+    color: var(--placeholder-color);
+}
