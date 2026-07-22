@@ -90,7 +90,7 @@
 }
 
 .memberContainerStyle::-webkit-scrollbar-thumb {
-    background: rgba(128, 128, 128, 0.473);
+    background: var(--scrollbar-thumb-color);
     border-radius: 10px;
 }
 
