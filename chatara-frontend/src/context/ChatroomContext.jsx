@@ -1,4 +1,4 @@
-import { useState, createContext } from "react";
+import { useState, createContext, useMemo } from "react";
 import { useApi } from "../hooks/useApi";
 import { useEffect } from "react";
 import { useCallback } from "react";
@@ -11,8 +11,7 @@ export function ChatroomProvider({ children }) {
     //inside chatroom should have its id, name and theme and I can return it as just chatroom instead of returning chatroom id, name and theme
     const [chatroom, setChatroom] = useState(null)
     const [members, setMembers] = useState(null)
-    // localStorage.setItem('recentChatroomId', JSON.stringify(14))
-    // localStorage.clear()
+    const [isChatroomInfoOpened, setIsChatroomInfoOpened] = useState(false)
     const savedChatroomId = JSON.parse(localStorage.getItem('recentChatroomId')) || null
 
     const getChatroomInfo = useCallback(async (chatroomId) => {
@@ -37,7 +36,16 @@ export function ChatroomProvider({ children }) {
         refresh()
     }, [getChatroomInfo, savedChatroomId])
 
-    return <ChatroomContext value={{ savedChatroomId, getChatroomInfo, chatroom, members }}>
+    const leaveChatroom = useCallback(async () => {
+        if (!chatroom) return
+        await api.post(`/chatroom/leave/${chatroom?.id}`)
+    }, [chatroom, api])
+
+    const contextValue = useMemo(() => ({
+        savedChatroomId, getChatroomInfo, leaveChatroom, chatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened
+    }), [savedChatroomId, getChatroomInfo, leaveChatroom, chatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened])
+
+    return <ChatroomContext value={contextValue}>
         {children}
     </ChatroomContext>
 }

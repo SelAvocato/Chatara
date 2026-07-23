@@ -1,4 +1,4 @@
-.chatHeaderStyle{
+.chatHeaderStyle {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -7,27 +7,30 @@
     background-color: #77a7ad8c;
 }
 
-.chatHeaderProfileStyle{
+.chatHeaderProfileStyle {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
-.chatHeaderProfileStyle img{
+
+.chatHeaderProfileStyle img {
     width: 50px;
 }
-.chatHeaderProfileStyle p{
+
+.chatHeaderProfileStyle p {
     font-size: 22px;
     font-weight: 600;
     color: white;
     letter-spacing: 0.6px;
 }
 
-.chatHeaderActionStyle{
+.chatHeaderActionStyle {
     display: flex;
     gap: 1rem;
 }
 
-.chatHeaderActionStyle img{
+.infoIconImageStyle {
     width: 30px;
-    height: auto;
+    height: 30px;
+    cursor: pointer;
 }

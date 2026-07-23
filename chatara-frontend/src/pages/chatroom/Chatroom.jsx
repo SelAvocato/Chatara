@@ -6,9 +6,13 @@ import addCircle from '/icons/add_circle.svg'
 import CreateChatroom from "./CreateChatroom/CreateChatroom"
 import SearchChatroom from "./SearchChatroom/SearchChatroom"
 import ChatroomList from "./ChatroomList/ChatroomList"
+import ChatroomInfo from "./ChatroomInfo/ChatroomInfo"
+import { useChatroom } from "../../hooks/useChatroom"
 
 export default function Chatroom() {
+    const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
     const api = useApi()
+    const { isChatroomInfoOpened } = useChatroom()
 
     const [message, setMessage] = useState('')
     const [chatrooms, setChatrooms] = useState(null)
@@ -16,7 +20,6 @@ export default function Chatroom() {
     const [filteredChatrooms, setFilteredChatrooms] = useState(null)
     const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
     const [hasOpenChat, setHasOpenChat] = useState(localStorage.getItem('recentChatroomId') !== null)
-    const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
 
     useEffect(() => {
         async function getChatrooms() {
@@ -76,6 +79,7 @@ export default function Chatroom() {
                 {isCreatingChatroom && < CreateChatroom setIsCreatingChatroom={setIsCreatingChatroom} />}
             </div>
             {hasOpenChat && < ChatParent />}
+            {isChatroomInfoOpened && <ChatroomInfo />}
         </div >
     )
 }
