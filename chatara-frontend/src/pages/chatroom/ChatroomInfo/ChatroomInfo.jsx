@@ -7,7 +7,7 @@ export default function ChatroomInfo() {
     const { chatroomInfoStyle, chatroomInfoHeaderStyle, chatroomImageStyle, chatroomInfoOptionsStyle, changeChatroomNameStyle, changeThemeStyle,
         seeMembersStyle, leaveChatroomStyle
     } = style
-    const { chatroom, members, leaveChatroom } = useChatroom()
+    const { chatroom, members, leaveChatroom, renameChatroom } = useChatroom()
     const chatroomNameRef = useRef(null)
     const [isChangingChatroomName, setIsChangingChatroomName] = useState(false)
     const [isViewingMembers, setIsViewingMembers] = useState(false)
@@ -18,12 +18,14 @@ export default function ChatroomInfo() {
         chatroomNameRef?.current?.focus()
     }, [isChangingChatroomName])
 
-    async function handleChatroomNameChange(e) {
+    async function handleChatroomRename(e) {
         e.preventDefault()
-        if (newChatroomName === chatroom?.name) return
+        if (!newChatroomName || newChatroomName === chatroom?.name) return
+        const stringChatroom = newChatroomName.toString()
+        if (stringChatroom.trim() === '') return
+        renameChatroom(stringChatroom)
+        setIsChangingChatroomName(false)
     }
-
-    console.log('members', members)
 
     return (
         <div className={chatroomInfoStyle}>
@@ -33,7 +35,7 @@ export default function ChatroomInfo() {
                 </div>
                 {
                     isChangingChatroomName
-                        ? <form onSubmit={handleChatroomNameChange}>
+                        ? <form onSubmit={handleChatroomRename}>
                             <input type='text' autoComplete='off' value={newChatroomName} onChange={(e) => { setNewChatroomName(e.target.value) }} ref={chatroomNameRef} />
                             <input type='button' value={'x'} onClick={() => setIsChangingChatroomName(false)} />
                             <input type='submit' value={'✓'} />

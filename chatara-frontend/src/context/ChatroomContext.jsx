@@ -41,9 +41,14 @@ export function ChatroomProvider({ children }) {
         await api.post(`/chatroom/leave/${chatroom?.id}`)
     }, [chatroom, api])
 
+    const renameChatroom = useCallback(async (newChatroomName) => {
+        if (!chatroom) return
+        await api.put(`/chatroom/rename/${chatroom?.id}`, { newChatroomName })
+    }, [chatroom, api])
+
     const contextValue = useMemo(() => ({
-        savedChatroomId, getChatroomInfo, leaveChatroom, chatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened
-    }), [savedChatroomId, getChatroomInfo, leaveChatroom, chatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened])
+        savedChatroomId, getChatroomInfo, leaveChatroom, renameChatroom, chatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened
+    }), [savedChatroomId, getChatroomInfo, leaveChatroom, renameChatroom, chatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened])
 
     return <ChatroomContext value={contextValue}>
         {children}
