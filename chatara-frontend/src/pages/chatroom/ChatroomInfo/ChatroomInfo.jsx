@@ -51,7 +51,7 @@ export default function ChatroomInfo() {
                     <p>Change Theme</p>
                 </div>
                 <div className={seeMembersStyle} onClick={() => setIsViewingMembers(!isViewingMembers)}>
-                    <p>See Members</p>
+                    <p>{isViewingMembers ? 'Hide Members' : 'See Members'}</p>
                 </div>
                 {isViewingMembers &&
                     <div>
