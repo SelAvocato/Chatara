@@ -3,10 +3,12 @@ import { useApi } from "../../../hooks/useApi"
 import { useAuth } from "../../../hooks/useAuth"
 import style from "./CreateChatroom.module.css"
 import userProfile from '/icons/pfp.svg'
+import { useWebsocket } from "../../../hooks/useWebsocket"
 
 export default function CreateChatroom({ setIsCreatingChatroom }) {
     const api = useApi()
     const { user } = useAuth()
+    const { wsRef } = useWebsocket()
     const { formContainer, closeBtnStyle, formStyle, chatroomNameStyle, memberContainerStyle, userProfileContainerStyle, userRowStyle,
         buttonsContainerStyle, usernameContainerStyle, usernameStyle, filteredUsersContainerStyle, filteredUserContainerStyle,
         filteredUserImageContainer, filteredUsername, noUsersFoundStyle, errorMessageStyle, footerContainerStyle } = style
@@ -46,7 +48,12 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
         }
         try {
             const data = await api.post('/chatrooms/create', chatroomInfo)
+            console.log('data', data)
             if (data.status !== 'ok') return setErrorMessage(data.message)
+            console.log('gonna send ')
+            const { username, chatroomName } = chatroomInfo
+            wsRef?.current?.send(JSON.stringify({ username, name: chatroomName, id: data.chatroomId, type: 'createChatroom' }))
+            console.log('sent')
             setIsCreatingChatroom(false)
         } catch (e) {
             console.error(e)

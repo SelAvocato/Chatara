@@ -44,7 +44,7 @@ router.post('/create', authenticate, async (req, res) => {
             await pool.execute(participantQuery, [chatroomId, memberId])
         })
 
-        res.status(200).json({ message: "Chatroom successfully created", status: 'ok' })
+        res.status(200).json({ chatroomId, message: "Chatroom successfully created", status: 'ok' })
     } catch (e) {
         console.error(e)
         res.status(500).json({ message: "Something went wrong" })

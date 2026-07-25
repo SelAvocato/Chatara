@@ -3,8 +3,9 @@ import { useWebsocket } from '../../../hooks/useWebsocket'
 import { useApi } from '../../../hooks/useApi'
 import pfp from '/icons/pfp.svg'
 import style from './ChatroomList.module.css'
+import { memo } from 'react'
 
-export default function ChatroomList({ chatroom, hasOpenChat, setHasOpenChat }) {
+const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasOpenChat }) {
     const [latestMessage, setLatestMessage] = useState(null)
     const [unreadMessagesCount, setUnreadMessagesCount] = useState(null)
 
@@ -62,4 +63,5 @@ export default function ChatroomList({ chatroom, hasOpenChat, setHasOpenChat }) 
             </div>
         </div>
     )
-}
+})
+export default ChatroomList

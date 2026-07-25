@@ -19,6 +19,7 @@ function authenticateWs(socket) {
     try {
         const payload = jwt.verify(socket.accessToken, process.env.ACCESS_TOKEN_SECRET)
         socket.id = payload.sub
+        socket.username = payload.username
     } catch (e) {
         console.error(e)
         socket.send(JSON.stringify({ type: 'expiredAccessToken' }))

@@ -19,6 +19,7 @@ export function WebSocketProvider({ children }) {
     const [latestMessageWs, setLatestMessageWs] = useState(null)
     const [userTyping, setUserTyping] = useState(null)
     const [currentChatroomId, setCurrentChatroomId] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) || null)
+    const [newChatroom, setNewChatroom] = useState(null)
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
     const { user, accessToken, setUser, setAccessToken } = useAuth()
@@ -121,6 +122,10 @@ export function WebSocketProvider({ children }) {
                             isReconnectingRef.current = false
                         }
                         break
+                    case 'createChatroom':
+                        setNewChatroom(parsed)
+                        console.log('parsed create', parsed)
+                        break
                     default:
                         break
                 }
@@ -197,9 +202,9 @@ export function WebSocketProvider({ children }) {
 
     const contextValue = useMemo(() => ({
         wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
-        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages
+        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom
     }), [openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
-        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages
+        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom
     ])
 
     const chatBubbleContextValue = useMemo(() => ({

@@ -8,11 +8,13 @@ import SearchChatroom from "./SearchChatroom/SearchChatroom"
 import ChatroomList from "./ChatroomList/ChatroomList"
 import ChatroomInfo from "./ChatroomInfo/ChatroomInfo"
 import { useChatroom } from "../../hooks/useChatroom"
+import { useWebsocket } from "../../hooks/useWebsocket"
 
 export default function Chatroom() {
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
     const api = useApi()
     const { isChatroomInfoOpened } = useChatroom()
+    const { newChatroom } = useWebsocket()
 
     const [message, setMessage] = useState('')
     const [chatrooms, setChatrooms] = useState(null)
@@ -38,6 +40,15 @@ export default function Chatroom() {
 
         getChatrooms()
     }, [api])
+
+    useEffect(() => {
+        if (!newChatroom) return
+        console.log('new chatroom here', newChatroom)
+        function prependNewChatroom() {
+            setChatrooms(prev => [newChatroom, ...prev])
+        }
+        prependNewChatroom()
+    }, [newChatroom])
 
     useEffect(() => {
         if (!chatrooms || chatrooms.length === 0 || searchedChatroom.trim() === '') return
