@@ -7,7 +7,7 @@ router.get('/:id', authenticate, async (req, res) => {
     const chatroomId = req.params.id
     if (!chatroomId) return res.status(401).json({ message: 'Missing chatroom Id' })
     try {
-        const chatroomQuery = 'SELECT id, name, theme FROM chatroom_tbl WHERE id = ?'
+        const chatroomQuery = 'SELECT id, name, creator_id, theme FROM chatroom_tbl WHERE id = ?'
         const [chatroomRow] = await pool.execute(chatroomQuery, [chatroomId])
         const chatroom = chatroomRow[0]
         const memberQuery = 'SELECT u.id, u.username FROM user_tbl u INNER JOIN participant_tbl p ON u.id = p.user_id WHERE p.chatroom_id = ?'

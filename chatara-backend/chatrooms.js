@@ -33,8 +33,8 @@ router.post('/create', authenticate, async (req, res) => {
             membersId.push(memberId)
         }
 
-        const chatroomQuery = `INSERT INTO chatroom_tbl(name) value (?)`
-        const [newChatroom] = await pool.execute(chatroomQuery, [chatroomName])
+        const chatroomQuery = `INSERT INTO chatroom_tbl(name, creator_id) value (?, ?)`
+        const [newChatroom] = await pool.execute(chatroomQuery, [chatroomName, userId])
         const chatroomId = newChatroom.insertId
 
         const participantQuery = `INSERT INTO participant_tbl(chatroom_id, user_id) value (?, ?)`

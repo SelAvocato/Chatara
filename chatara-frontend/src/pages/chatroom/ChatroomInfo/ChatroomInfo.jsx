@@ -57,7 +57,8 @@ export default function ChatroomInfo() {
                     <div>
                         {members && members?.length !== 0 && members?.map(member =>
                             <div key={member?.id}>
-                                {member?.username}
+                                <p>{member?.username}</p>
+                                <p>{chatroom?.creator_id === member?.id ? 'Admin' : 'Member'}</p>
                             </div>
                         )
                         }
