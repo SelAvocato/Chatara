@@ -27,7 +27,6 @@ export default function Login() {
             setStatusMessage(message)
             setIsInvalid(false)
             navigate("/")
-            console.log('test')
         } catch (e) {
             setIsInvalid(true)
             setStatusMessage(e.message || 'Something went wrong')

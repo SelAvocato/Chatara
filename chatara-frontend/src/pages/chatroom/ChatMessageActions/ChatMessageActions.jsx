@@ -67,7 +67,6 @@ export default function ChatMessageActions() {
 
         try {
             const data = await api.post('/messages/send', (chatInfo))
-            console.log('response: ', data)
             if (data.status !== 'ok') return setErrorMessage(data.message)
             wsRef.current.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
             setErrorMessage(null)

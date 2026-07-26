@@ -43,7 +43,6 @@ export default function Chatroom() {
 
     useEffect(() => {
         if (!newChatroom) return
-        console.log('new chatroom here', newChatroom)
         function prependNewChatroom() {
             setChatrooms(prev => [newChatroom, ...prev])
         }

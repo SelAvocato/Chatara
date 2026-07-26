@@ -18,7 +18,6 @@ export function ChatroomProvider({ children }) {
         try {
             const data = await api.get(`/chatroom/${chatroomId}`)
             if (!data.chatroom || !data.members) {
-                console.log(data.message)
                 return
             }
             setChatroom(data.chatroom)

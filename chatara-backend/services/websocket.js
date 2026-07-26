@@ -7,7 +7,6 @@ websocketService = {
             try {
                 authenticateWs(socket)
                 const parsed = JSON.parse(data.toString())
-                console.log('this is what was parsed', parsed)
 
                 function broadcast(payload) {
                     for (const client of wss.clients) {
@@ -15,7 +14,6 @@ websocketService = {
                             client.send(JSON.stringify(payload))
                         }
                     }
-                    console.log('payloooaddd', payload)
                 }
 
                 switch (parsed.type) {
@@ -65,7 +63,6 @@ websocketService = {
                     case 'createChatroom':
                         for (const client of wss.clients) {
                             if (client.readyState === WebSocket.OPEN && (parsed.username.includes(client.username) || socket.id === client.id)) {
-                                console.log('sent this one too')
                                 client.send(JSON.stringify(parsed))
                             }
                         }

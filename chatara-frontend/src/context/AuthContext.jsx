@@ -22,7 +22,6 @@ export function AuthProvider({ children }) {
 
         setUser(data.user)
         setAccessToken(data.accessToken)
-        console.log(data)
     }
 
     async function signup(username, password) {
@@ -55,8 +54,7 @@ export function AuthProvider({ children }) {
             credentials: 'include',
             headers: { authorization: `Bearer ${accessToken}` }
         })
-        const data = await res.json()
-        console.log(data.message)
+        await res.json()
         setUser(null)
         setAccessToken(null)
     }

@@ -48,12 +48,9 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
         }
         try {
             const data = await api.post('/chatrooms/create', chatroomInfo)
-            console.log('data', data)
             if (data.status !== 'ok') return setErrorMessage(data.message)
-            console.log('gonna send ')
             const { username, chatroomName } = chatroomInfo
             wsRef?.current?.send(JSON.stringify({ username, name: chatroomName, id: data.chatroomId, type: 'createChatroom' }))
-            console.log('sent')
             setIsCreatingChatroom(false)
         } catch (e) {
             console.error(e)

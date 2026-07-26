@@ -31,7 +31,6 @@ export function WebSocketProvider({ children }) {
 
     useEffect(() => {
         if (!accessToken) return
-        console.log('WS connecting, new socket')
 
         wsRef.current = new WebSocket(`ws://localhost:3000?token=${accessToken}`)
 
@@ -54,12 +53,10 @@ export function WebSocketProvider({ children }) {
                     case 'typing':
                         setUserTyping(parsed.username)
                         setIsTyping(true)
-                        console.log('is typing')
                         break
                     case 'stoppedTyping':
                         setUserTyping(null)
                         setIsTyping(false)
-                        console.log('stopped typing')
                         break
                     case 'notification':
                         setLatestMessageWs(parsed)
@@ -124,14 +121,13 @@ export function WebSocketProvider({ children }) {
                         break
                     case 'createChatroom':
                         setNewChatroom(parsed)
-                        console.log('parsed create', parsed)
                         break
                     default:
                         break
                 }
             }
             catch (e) {
-                console.log('this is the message', e.message)
+                console.log('Error: ', e.message)
             }
         }
 
