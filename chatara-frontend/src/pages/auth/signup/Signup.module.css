@@ -6,13 +6,13 @@
     padding: 1rem;
 
     border: 1px solid black;
-    border-radius: 10px;
+    border-radius: var(--section-border-radius);
 }
 
 .header {
     margin-block: 1rem 3rem;
     font-size: 30px;
-    font-weight: 500;
+    font-weight: var(--medium-text-font);
     text-align: center;
 }
 
@@ -30,7 +30,7 @@
 
 .signupForm input {
     font-size: 15px;
-    font-weight: 500;
+    font-weight: var(--medium-text-font);
 }
 
 .signupForm div {
@@ -48,7 +48,7 @@
 
 .actions input {
     padding: 5px 10px;
-    font-weight: 500;
+    font-weight: var(--medium-text-font);
     border: none;
     border-radius: 3px;
     margin-block: .4rem 1rem;

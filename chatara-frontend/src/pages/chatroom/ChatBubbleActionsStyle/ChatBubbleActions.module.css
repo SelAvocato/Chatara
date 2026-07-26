@@ -56,7 +56,7 @@
     width: 100%;
     height: 100%;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: var(--medium-text-font);
     font-size: 17px;
 }
 

@@ -4,8 +4,10 @@ import style from './ChatroomInfo.module.css'
 import chatroomImage from '/icons/pfp.svg'
 
 export default function ChatroomInfo() {
-    const { chatroomInfoStyle, chatroomInfoHeaderStyle, chatroomImageStyle, chatroomInfoOptionsStyle, changeChatroomNameStyle, changeThemeStyle,
-        seeMembersStyle, leaveChatroomStyle
+    const { chatroomInfoStyle, chatroomInfoHeaderStyle, chatroomImageStyle, formStyle, inputRenameChatroomStyle, formActionsStyle, inputCancelRenameStyle,
+        inputConfirmRenameStyle, chatroomNameStyle, chatroomInfoOptionsStyle, changeChatroomNameStyle, changeThemeStyle,
+        seeMembersStyle, membersContainerStyle, memberStyle, memberNameStyle, memberRoleStyle, leaveChatroomStyle, leaveChatroomButtonStyle,
+        leaveConfirmationStyle, leaveActionsStyle, leaveMessageStyle, confirmLeaveStyle, cancelLeaveStyle
     } = style
     const { chatroom, members, leaveChatroom, renameChatroom } = useChatroom()
     const chatroomNameRef = useRef(null)
@@ -35,12 +37,14 @@ export default function ChatroomInfo() {
                 </div>
                 {
                     isChangingChatroomName
-                        ? <form onSubmit={handleChatroomRename}>
-                            <input type='text' autoComplete='off' value={newChatroomName} onChange={(e) => { setNewChatroomName(e.target.value) }} ref={chatroomNameRef} />
-                            <input type='button' value={'x'} onClick={() => setIsChangingChatroomName(false)} />
-                            <input type='submit' value={'✓'} />
+                        ? <form className={formStyle} onSubmit={handleChatroomRename}>
+                            <input className={inputRenameChatroomStyle} type='text' autoComplete='off' value={newChatroomName} onChange={(e) => { setNewChatroomName(e.target.value) }} ref={chatroomNameRef} />
+                            <div className={formActionsStyle}>
+                                <input className={inputCancelRenameStyle} type='button' value={'Cancel'} onClick={() => setIsChangingChatroomName(false)} />
+                                <input className={inputConfirmRenameStyle} type='submit' value={'Rename'} />
+                            </div>
                         </form>
-                        : <p>{chatroom?.name}</p>
+                        : <p className={chatroomNameStyle}>{chatroom?.name}</p>
                 }
             </div>
             <div className={chatroomInfoOptionsStyle}>
@@ -50,32 +54,33 @@ export default function ChatroomInfo() {
                 <div className={changeThemeStyle}>
                     <p>Change Theme</p>
                 </div>
-                <div className={seeMembersStyle} onClick={() => setIsViewingMembers(!isViewingMembers)}>
-                    <p>{isViewingMembers ? 'Hide Members' : 'See Members'}</p>
+                <div>
+                    <p className={seeMembersStyle} onClick={() => setIsViewingMembers(!isViewingMembers)}>{isViewingMembers ? 'Hide Members' : 'See Members'} </p>
+                    {isViewingMembers &&
+                        <div className={membersContainerStyle}>
+                            {members && members?.length !== 0 && members?.map(member =>
+                                <div className={memberStyle} key={member?.id}>
+                                    <p className={memberNameStyle}>{member?.username}</p>
+                                    <p className={memberRoleStyle}>{chatroom?.creator_id === member?.id ? 'Admin' : 'Member'}</p>
+                                </div>
+                            )
+                            }
+                        </div>}
                 </div>
-                {isViewingMembers &&
-                    <div>
-                        {members && members?.length !== 0 && members?.map(member =>
-                            <div key={member?.id}>
-                                <p>{member?.username}</p>
-                                <p>{chatroom?.creator_id === member?.id ? 'Admin' : 'Member'}</p>
+
+                <div className={leaveChatroomStyle}>
+                    <p className={leaveChatroomButtonStyle} onClick={() => setIsLeavingChatroom(true)}>Leave Chatroom</p>
+                    {isLeavingChatroom &&
+                        <div className={leaveConfirmationStyle}>
+                            <p className={leaveMessageStyle}>Are you sure you want to leave the chatroom?</p>
+                            <div className={leaveActionsStyle}>
+                                <button className={confirmLeaveStyle} onClick={leaveChatroom}>Leave</button>
+                                <button className={cancelLeaveStyle} onClick={() => setIsLeavingChatroom(false)}>Cancel</button>
                             </div>
-                        )
-                        }
-                    </div>}
-                <div className={leaveChatroomStyle} onClick={() => setIsLeavingChatroom(true)}>
-                    <p>Leave Chatroom</p>
+                        </div>
+                    }
                 </div>
             </div>
-            {isLeavingChatroom &&
-                <div>
-                    <p>Are you sure you want to leave the chatroom?</p>
-                    <div>
-                        <button onClick={leaveChatroom}>Leave</button>
-                        <button onClick={() => setIsLeavingChatroom(false)}>Cancel</button>
-                    </div>
-                </div>
-            }
         </div>
     )
 }

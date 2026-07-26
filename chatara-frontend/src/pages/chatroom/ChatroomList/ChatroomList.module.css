@@ -34,7 +34,7 @@
 }
 
 .chatroomLatestMessageStyle {
-    font-weight: 500;
+    font-weight: var(--medium-text-font);
     max-width: 150px;
     max-height: 20px;
     overflow: hidden;

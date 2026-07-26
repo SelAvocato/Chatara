@@ -6,7 +6,7 @@
     padding: 1rem;
 
     border: 1px solid black;
-    border-radius: 10px;
+    border-radius: var(--section-border-radius);
 }
 
 .form {
@@ -23,7 +23,7 @@
 
 .form input {
     font-size: 15px;
-    font-weight: 500;
+    font-weight: var(--medium-text-font);
 }
 
 .form div {
@@ -39,7 +39,7 @@
 
 .actions input {
     padding: 5px 10px;
-    font-weight: 500;
+    font-weight: var(--medium-text-font);
     border: none;
     border-radius: 3px;
     margin-block: .4rem 1rem;

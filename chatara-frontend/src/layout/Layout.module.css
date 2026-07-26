@@ -14,7 +14,7 @@
     width: 100px;
     height: 100%;
     border: 1px solid black;
-    border-radius: 10px;
+    border-radius: var(--section-border-radius);
     background-color: var(--background-color)
 }
 

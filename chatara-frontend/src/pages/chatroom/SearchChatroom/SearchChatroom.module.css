@@ -25,7 +25,7 @@
 .searchInputStyle {
     width: 100%;
     font-size: 17px;
-    font-weight: 500;
+    font-weight: var(--medium-text-font);
     border: none;
     outline: none;
     background-color: transparent;

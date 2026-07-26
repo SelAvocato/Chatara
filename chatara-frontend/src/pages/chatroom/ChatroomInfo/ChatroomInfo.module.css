@@ -1,0 +1,165 @@
+.chatroomInfoStyle {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+    min-width: 100px;
+    width: 100%;
+    max-width: 200px;
+    border: solid 1px black;
+    border-radius: var(--section-border-radius);
+    padding: 1rem 5px;
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+.chatroomInfoHeaderStyle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.chatroomImageStyle {
+    width: 50px;
+    height: 50px;
+}
+
+.chatroomImageStyle img {
+    width: 100%;
+    height: 100%;
+}
+
+.formStyle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.inputRenameChatroomStyle {
+    outline: none;
+    border: none;
+    font-size: 18px;
+    max-width: 100%;
+    background: transparent;
+    color: var(--text-color);
+}
+
+.formActionsStyle {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 5px;
+}
+
+.formActionsStyle input {
+    padding: 3px 5px;
+    font-weight: var(--medium-text-font);
+    font-size: 16px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.inputCancelRenameStyle {
+    background-color: rgba(128, 128, 128, 0.411);
+    color: rgb(126, 36, 36);
+}
+
+.inputConfirmRenameStyle {
+    background-color: rgba(0, 128, 0, 0.226);
+}
+
+.chatroomNameStyle {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.chatroomInfoOptionsStyle {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    font-weight: var(--medium-text-font);
+    margin-top: 1rem;
+}
+
+.changeChatroomNameStyle,
+.changeThemeStyle,
+.seeMembersStyle,
+.leaveChatroomButtonStyle {
+    cursor: pointer;
+}
+
+.membersContainerStyle {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 5px;
+    margin-left: 5px;
+}
+
+.memberStyle {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.memberNameStyle {
+    color: rgb(85, 85, 85);
+    font-size: 17px;
+}
+
+.memberRoleStyle {
+    font-size: 15px;
+    margin-left: 5px;
+}
+
+.leaveChatroomButtonStyle {
+    color: red;
+    margin-top: 1rem;
+    margin-bottom: 5px;
+}
+
+.leaveConfirmationStyle {
+    margin-left: 5px;
+}
+
+.leaveActionsStyle {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    gap: 5px;
+}
+
+.leaveActionsStyle button {
+    padding: 3px 5px;
+    font-weight: var(--medium-text-font);
+    font-size: 16px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.leaveMessageStyle {
+    margin-bottom: 10px;
+    font-weight: var(--medium-text-font);
+}
+
+.confirmLeaveStyle {
+    background-color: rgba(128, 128, 128, 0.411);
+    color: rgb(126, 36, 36);
+}
+
+.cancelLeaveStyle {
+    background-color: rgba(0, 128, 0, 0.226);
+}

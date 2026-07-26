@@ -6,6 +6,8 @@
     --text-color: #0E4950;
     --scrollbar-thumb-color: #80808079;
     --placeholder-color: #2c2a2aa1;
+    --section-border-radius: 10px;
+    --medium-text-font: 500;
 }
 
 * {
