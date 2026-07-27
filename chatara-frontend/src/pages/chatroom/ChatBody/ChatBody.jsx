@@ -102,7 +102,7 @@ export default function ChatBody() {
             setCurrentDate(Date.now())
         }, 60000)
         return () => clearInterval(timer)
-    }, [])
+    }, [chatMessages])
 
     return (
         <div className={chatBodyStyle}>
