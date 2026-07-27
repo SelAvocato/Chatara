@@ -136,7 +136,7 @@ module.exports = function (wss) {
         try {
             const [rows] = await pool.execute(selectQuery, [message_id])
             if (rows.length === 0) return res.status(404).json({ message: 'Message not found' })
-            if (rows[0].sender_id !== req.id) return res.status(401).json({ message: 'Unauthorize to edit the message' })
+            if (rows[0].sender_id !== req.id) return res.status(403).json({ message: `You can't edit this message` })
 
             const query = `UPDATE message_tbl SET message_text = ?, is_edited = 1 WHERE id = ?`
             await pool.execute(query, [message_text, message_id])
@@ -155,7 +155,7 @@ module.exports = function (wss) {
         try {
             const [rows] = await pool.execute(selectQuery, [messageId])
             if (rows.length === 0) return res.status(404).json({ message: 'Message not found' })
-            if (rows[0].sender_id !== req.id) return res.status(401).json({ message: 'Unauthorize to delete the message' })
+            if (rows[0].sender_id !== req.id) return res.status(403).json({ message: `You can't delete this message` })
 
             const query = `UPDATE message_tbl SET is_deleted = 1, message_text = 'Message deleted' WHERE id = ?`
             const [result] = await pool.execute(query, [messageId])

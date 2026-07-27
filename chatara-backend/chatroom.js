@@ -5,7 +5,7 @@ const { authenticate } = require('./middleware/authenticate')
 
 router.get('/:id', authenticate, async (req, res) => {
     const chatroomId = req.params.id
-    if (!chatroomId) return res.status(401).json({ message: 'Missing chatroom Id' })
+    if (!chatroomId) return res.status(400).json({ message: 'Missing chatroom Id' })
     try {
         const chatroomQuery = 'SELECT id, name, creator_id, theme FROM chatroom_tbl WHERE id = ?'
         const [chatroomRow] = await pool.execute(chatroomQuery, [chatroomId])
