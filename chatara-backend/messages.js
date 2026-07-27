@@ -66,14 +66,19 @@ module.exports = function (wss) {
     })
 
     router.post('/send', authenticate, async (req, res) => {
-        const { chatroomId, senderName, messageText } = req.body
+        const { chatroomId, messageText } = req.body
         const senderId = req.id
-        if (!chatroomId || !senderId || !senderName || !messageText) return res.status(400).json({ message: "Message must not be empty" })
+        if (!chatroomId || !senderId || !messageText || messageText.trim() === '') return res.status(400).json({ message: "Message must not be empty" })
 
         try {
-            const query = `INSERT INTO message_tbl(chatroom_id, sender_id, message_text, message_status) value (?, ?, ?, 'sent')`
+            const findMemberQuery = `SELECT u.username FROM participant_tbl p INNER JOIN user_tbl u ON u.user_id = p.user_id WHERE p.user_id = ? AND p.chatroom_id = ? LIMIT 1`
+            const [memberRows] = await pool.execute(findMemberQuery, [senderId, chatroomId])
+            if (memberRows.length === 0) return res.status(403).json({ message: 'You are not a participant of this chatroom' })
+            const senderName = memberRows[0].username
+
+            const insertQuery = `INSERT INTO message_tbl(chatroom_id, sender_id, message_text, message_status) value (?, ?, ?, 'sent')`
             const values = [chatroomId, senderId, messageText]
-            const [row] = await pool.execute(query, values)
+            const [result] = await pool.execute(insertQuery, values)
 
             const payload = {
                 type: "chat",
@@ -81,7 +86,7 @@ module.exports = function (wss) {
                 sender_id: senderId,
                 sender_name: senderName,
                 message_text: messageText,
-                message_id: row.insertId,
+                message_id: result.insertId,
                 message_status: 'sent',
                 sent_at: new Date()
             }

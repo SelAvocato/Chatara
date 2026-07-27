@@ -51,10 +51,10 @@ export default function ChatMessageActions() {
 
     async function handleMessageSubmit(e) {
         e.preventDefault()
+        if (messageInput.trim() === '') return
         const chatInfo = {
             type: 'chat',
             chatroomId: currentChatroomId,
-            senderName: username,
             messageText: messageInput
         }
 
