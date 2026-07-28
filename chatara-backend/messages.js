@@ -71,7 +71,7 @@ module.exports = function (wss) {
         if (!chatroomId || !senderId || !messageText || messageText.trim() === '') return res.status(400).json({ message: "Message must not be empty" })
 
         try {
-            const findMemberQuery = `SELECT u.username FROM participant_tbl p INNER JOIN user_tbl u ON u.user_id = p.user_id WHERE p.user_id = ? AND p.chatroom_id = ? LIMIT 1`
+            const findMemberQuery = `SELECT u.username FROM participant_tbl p INNER JOIN user_tbl u ON u.id = p.user_id WHERE p.user_id = ? AND p.chatroom_id = ? LIMIT 1`
             const [memberRows] = await pool.execute(findMemberQuery, [senderId, chatroomId])
             if (memberRows.length === 0) return res.status(403).json({ message: 'You are not a participant of this chatroom' })
             const senderName = memberRows[0].username
