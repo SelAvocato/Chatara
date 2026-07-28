@@ -1,13 +1,15 @@
 .searchChatroomStyle {
+    position: fixed;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     gap: 5px;
-    width: 90%;
+    max-width: 255px;
     padding: 3px 5px;
     border-radius: 3px;
     background-color: var(--accent-color);
     cursor: text;
+    margin-bottom: 1rem;
 }
 
 .searchImageContainer {

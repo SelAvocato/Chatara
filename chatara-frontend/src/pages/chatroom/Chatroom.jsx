@@ -70,20 +70,22 @@ export default function Chatroom() {
                 </div>
                 <div className={chatroomsListStyle}>
                     <SearchChatroom searchedChatroom={searchedChatroom} setSearchedChatroom={setSearchedChatroom} />
-                    {
-                        searchedChatroom !== '' && filteredChatrooms
-                            ? filteredChatrooms.length === 0
-                                ? <p>No chatrooms found</p>
-                                : filteredChatrooms.map(filteredChatroom =>
-                                    <ChatroomList key={filteredChatroom.id} chatroom={filteredChatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
-                                )
+                    <div style={{ marginTop: '3rem', height: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {
+                            searchedChatroom !== '' && filteredChatrooms
+                                ? filteredChatrooms.length === 0
+                                    ? <p>No chatrooms found</p>
+                                    : filteredChatrooms.map(filteredChatroom =>
+                                        <ChatroomList key={filteredChatroom.id} chatroom={filteredChatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
+                                    )
 
-                            : chatrooms && chatrooms.length > 0
-                                ? chatrooms.map(chatroom =>
-                                    <ChatroomList key={chatroom.id} chatroom={chatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
-                                )
-                                : message
-                    }
+                                : chatrooms && chatrooms.length > 0
+                                    ? chatrooms.map(chatroom =>
+                                        <ChatroomList key={chatroom.id} chatroom={chatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
+                                    )
+                                    : message
+                        }
+                    </div>
                 </div>
 
                 {isCreatingChatroom && < CreateChatroom setIsCreatingChatroom={setIsCreatingChatroom} />}
