@@ -96,7 +96,6 @@ export function WebSocketProvider({ children }) {
                         ))
                         break
                     case 'expiredAccessToken':
-                        // wsRef.current.send({ type: 'reconnect' })
                         if (isReconnectingRef.current) return
                         try {
                             isReconnectingRef.current = true

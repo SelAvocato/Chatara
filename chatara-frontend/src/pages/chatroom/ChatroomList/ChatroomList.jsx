@@ -23,6 +23,7 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
                     return
                 }
                 for (let x = 0; x < data.messages.length; x++) {
+                    if (data.messages[x].message_status !== 'sent') continue
                     const currentMessage = data.messages[x]
                     const { message_id, chatroom_id } = currentMessage
                     wsRef?.current?.send(JSON.stringify({ message_id, chatroom_id, message_status: 'delivered', type: 'delivered' }))
