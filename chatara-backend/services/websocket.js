@@ -7,7 +7,6 @@ websocketService = {
             try {
                 authenticateWs(socket)
                 const parsed = JSON.parse(data.toString())
-                console.log('yow wassuped', parsed)
 
                 function broadcast(payload) {
                     for (const client of wss.clients) {

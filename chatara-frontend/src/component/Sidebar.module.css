@@ -6,14 +6,47 @@
     padding: 15px 4px;
 }
 
+.iconsContainerStyle {
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    gap: 1rem;
+}
+
+.messagesIconStyle,
+.settingsContainerStyle,
+.logoutStyle button {
+    cursor: pointer;
+}
+
+.logoutStyle button,
+.settingsContainerStyle svg,
+.messagesIconStyle img {
+    width: 100%;
+    height: 100%;
+}
+
 .messagesIconStyle {
-    width: 32px;
+    width: 39px;
     height: auto;
+    background-color: #6a479125;
+    border-radius: 5px;
+    padding: 5px;
 }
 
 .messagesIconStyle img {
     width: 100%;
     height: auto;
+}
+
+.settingsContainerStyle {
+    width: 32px;
+    height: auto;
+}
+
+.settingsContainerStyle svg {
+    width: 100%;
+    height: 100%;
 }
 
 .nameAndLogoutStyle {
@@ -23,8 +56,26 @@
     gap: 5px;
 }
 
-.userStyle {
+.userContainerStyle {
     font-weight: var(--medium-text-font);
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    margin-bottom: 1rem;
+}
+
+.userContainerStyle p {
+    font-weight: var(--medium-text-font);
+}
+
+.pfpContainerStyle {
+    width: 40px;
+    height: 40px;
+}
+
+.pfpContainerStyle img {
+    width: 100%;
+    height: 100%;
 }
 
 .logoutStyle button {
