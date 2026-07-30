@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router";
-import Sidebar from "../component/Sidebar";
+import Sidebar from "../component/Sidebar/Sidebar";
 import style from './Layout.module.css'
 import { useRefresh } from "../hooks/useRefresh";
 import { useAuth } from "../hooks/useAuth";
