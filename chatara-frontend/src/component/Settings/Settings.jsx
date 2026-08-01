@@ -5,7 +5,7 @@ import style from './Settings.module.css'
 import pfp from '/icons/pfp.svg'
 
 export default function Settings() {
-    const { user } = useAuth()
+    const { user, setUser } = useAuth()
     const api = useApi()
     const { settingsStyle, headerStyle, pfpContainerStyle, usernameContainerStyle, passwordContainerStyle } = style
 
@@ -15,6 +15,24 @@ export default function Settings() {
     const [isChangingPfp, setIsChangingPfp] = useState(false)
     const [oldPassValue, setOldPassValue] = useState('')
     const [newPassValue, setNewPassValue] = useState('')
+    const [newUsername, setNewUsername] = useState(user?.username)
+
+    async function handleUsernameChange(e) {
+        e.preventDefault()
+        const trimmedUsername = newUsername.trim()
+        if (user?.username === trimmedUsername || trimmedUsername === '') return
+        try {
+            const data = await api.put(`/users/username`, { newUsername })
+            if (data.errorMessage) {
+                console.error(data.errorMessage)
+                return
+            }
+            setUser(prev => ({ ...prev, username: trimmedUsername }))
+            setIsChangingUsername(false)
+        } catch (e) {
+            console.error(e)
+        }
+    }
 
     async function handlePassChange(e) {
         e.preventDefault()
@@ -35,7 +53,17 @@ export default function Settings() {
                     <img src={pfp} alt="Profile Picture" />
                 </div>
                 <div className={usernameContainerStyle}>
-                    <p>{user?.username}</p>
+                    {isChangingUsername
+                        ? <form onSubmit={handleUsernameChange}>
+                            <input type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)} />
+                            <input type="submit" />
+                        </form>
+                        : <>
+                            <p>{user?.username}</p>
+                            <button onClick={() => setIsChangingUsername(true)}>Edit</button>
+                        </>
+                    }
+
                 </div>
             </div>
             <div className={passwordContainerStyle} >

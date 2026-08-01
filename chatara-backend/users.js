@@ -19,6 +19,30 @@ router.get('/filter', authenticate, async (req, res) => {
     }
 })
 
+router.put('/username', authenticate, async (req, res) => {
+    const userId = req.id
+    if (!userId) return res.status(401).json({ errorMessage: 'Unauthorize' })
+    const { newUsername } = req.body
+    if (!newUsername || typeof (newUsername) !== 'string' || newUsername.trim() === '') return res.status(400).json({ errorMessage: 'Username must not be empty' })
+    const trimmedUsername = newUsername.trim()
+    try {
+        const findUserQuery = `SELECT username FROM user_tbl WHERE id = ?`
+        const [rows] = await pool.execute(findUserQuery, [userId])
+        if (rows.length === 0) return res.status(404).json({ errorMessage: 'User not found' })
+        if (rows[0].username === trimmedUsername) return res.status(400).json({ errorMessage: 'New username cannot be the same as old username' })
+        const updateUsernameQuery = 'UPDATE user_tbl SET username = ? where id = ?'
+        await pool.execute(updateUsernameQuery, [trimmedUsername, userId])
+        res.status(200).json({ message: 'Username successfully changed' })
+    } catch (e) {
+        console.error(e)
+        if (e.code === 'ER_DUP_ENTRY') {
+            res.status(400).json({ errorMessage: 'Username already taken' })
+            return
+        }
+        res.status(500).json({ errorMessage: 'Something went wrong' })
+    }
+})
+
 router.put('/password', authenticate, async (req, res) => {
     const userId = req.id
     if (!userId) return res.status(401).json({ message: 'Unauthorize' })
@@ -36,10 +60,10 @@ router.put('/password', authenticate, async (req, res) => {
         const newHashedPassword = await bcrypt.hash(newPassword, 12)
         const updatePasswordQuery = 'UPDATE user_tbl SET hashed_password = ? WHERE id = ?'
         await pool.execute(updatePasswordQuery, [newHashedPassword, userId])
-        return res.status(200).json({ message: 'Updated password successfully' })
+        res.status(200).json({ message: 'Updated password successfully' })
     } catch (e) {
         console.error(e)
-        return res.status(500).json({ message: 'Something went wrong' })
+        res.status(500).json({ message: 'Something went wrong' })
     }
 })
 

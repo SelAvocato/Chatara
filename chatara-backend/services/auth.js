@@ -53,14 +53,14 @@ router.post('/signup', async (req, res) => {
         const sql = `INSERT INTO user_tbl(username, hashed_password) values (?, ?)`
         const values = [username, hashedPassword]
         await pool.execute(sql, values)
-        return res.status(201).json({ message: 'Account successfully created', status: 'ok' })
+        res.status(201).json({ message: 'Account successfully created', status: 'ok' })
     } catch (e) {
         if (e.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ message: 'Username already taken' })
+            res.status(400).json({ message: 'Username already taken' })
+            return
         }
-
         console.error(e)
-        return res.status(500).json({ message: 'Something went wrong' })
+        res.status(500).json({ message: 'Something went wrong' })
     }
 })
 
