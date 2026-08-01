@@ -3,6 +3,7 @@ const router = express.Router()
 const pool = require('./db.js')
 const websocketService = require('./services/websocket.js')
 const { authenticate } = require('./middleware/authenticate.js')
+const { catchRouterError } = require('./utils/handleError')
 
 module.exports = function (wss) {
     router.get('/:id', authenticate, async (req, res) => {
@@ -14,8 +15,7 @@ module.exports = function (wss) {
             if (row.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
             res.json({ row, status: 'ok' })
         } catch (e) {
-            console.error(e)
-            res.status(500).json({ message: "Something went wrong" })
+            catchRouterError(e, res)
         }
     })
 
@@ -30,8 +30,7 @@ module.exports = function (wss) {
             if (messages.length === 0) return res.status(200).json({ messages: [] })
             res.status(200).json({ messages })
         } catch (e) {
-            console.error(e)
-            res.status(500).json({ message: 'Something went wrong' })
+            catchRouterError(e, res)
         }
     })
 
@@ -45,8 +44,7 @@ module.exports = function (wss) {
             const [messages] = await pool.execute(query, [chatroomId, message_id])
             res.status(200).json({ messages })
         } catch (e) {
-            console.error(e)
-            res.status(500).json({ message: "Something went wrong" })
+            catchRouterError(e, res)
         }
     })
 
@@ -60,8 +58,7 @@ module.exports = function (wss) {
             const row = rows[0]
             res.status(200).json({ status: 'ok', data: row })
         } catch (e) {
-            res.status(500).json({ message: "Error: Something went wrong" })
-            console.error(e)
+            catchRouterError(e, res)
         }
     })
 
@@ -94,8 +91,7 @@ module.exports = function (wss) {
 
             res.json({ message: "Message successfully sent", status: "ok" })
         } catch (e) {
-            console.error(e)
-            res.status(500).json({ message: "Something went wrong" })
+            catchRouterError(e, res)
         }
     })
 
@@ -109,8 +105,7 @@ module.exports = function (wss) {
             await pool.execute(query, [chatroomId, userId])
             res.status(200).json({ status: 'ok' })
         } catch (e) {
-            console.error(e)
-            res.status(500).json({ message: 'Something went wrong' })
+            catchRouterError(e, res)
         }
     })
 
@@ -124,8 +119,7 @@ module.exports = function (wss) {
             await pool.execute(query, [chatroomId, message_id])
             res.status(200).json({ status: 'ok' })
         } catch (e) {
-            console.error(e)
-            res.status(500).json({ message: 'Something went wrong' })
+            catchRouterError(e, res)
         }
     })
 
@@ -142,8 +136,7 @@ module.exports = function (wss) {
             await pool.execute(query, [message_text, message_id])
             res.status(200).json({ message: 'Updated successfully' })
         } catch (e) {
-            console.error(e)
-            res.status(500).json({ message: 'Something went wrong' })
+            catchRouterError(e, res)
         }
     })
 
@@ -164,8 +157,7 @@ module.exports = function (wss) {
 
             res.status(200).json({ message: 'Message has been successfully deleted' })
         } catch (e) {
-            console.error(e)
-            res.status(500).json({ message: 'Something went wrong' })
+            catchRouterError(e, res)
         }
     })
 

@@ -4,6 +4,7 @@ const pool = require('../db.js')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../utils/generateTokens.js')
+const { catchRouterError } = require('../utils/handleError.js')
 const bcrypt = require('bcrypt')
 const { authenticate } = require('../middleware/authenticate.js')
 const refreshTokenOptions = {
@@ -39,8 +40,7 @@ router.post('/login', async (req, res) => {
 
         return res.status(200).json({ accessToken, user: userWithoutHash, status: 'ok' })
     } catch (e) {
-        console.error(e)
-        return res.status(500).json({ message: e.message })
+        catchRouterError(e, res)
     }
 })
 
@@ -59,8 +59,7 @@ router.post('/signup', async (req, res) => {
             res.status(400).json({ message: 'Username already taken' })
             return
         }
-        console.error(e)
-        res.status(500).json({ message: 'Something went wrong' })
+        catchRouterError(e, res)
     }
 })
 
@@ -126,8 +125,7 @@ router.post('/logout', authenticate, async (req, res) => {
         await pool.execute(updateQuery, [req.id])
         return res.status(200).json({ message: 'Log out successfully' })
     } catch (e) {
-        console.error(e)
-        return res.status(500).json({ message: 'Something went wrong' })
+        catchRouterError(e, res)
     }
 })
 

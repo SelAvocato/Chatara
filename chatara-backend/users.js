@@ -3,6 +3,7 @@ const { authenticate } = require('./middleware/authenticate')
 const pool = require('./db')
 const router = express.Router()
 const bcrypt = require('bcrypt')
+const { catchRouterError } = require('./utils/handleError')
 
 router.get('/filter', authenticate, async (req, res) => {
     const { username } = req.query
@@ -14,8 +15,7 @@ router.get('/filter', authenticate, async (req, res) => {
         if (users.length === 0) return res.status(200).json({ users, message: 'No users found' })
         res.status(200).json({ users })
     } catch (e) {
-        console.error(e)
-        res.status(500).json({ message: 'Something went wrong' })
+        catchRouterError(e, res)
     }
 })
 
@@ -62,8 +62,7 @@ router.put('/password', authenticate, async (req, res) => {
         await pool.execute(updatePasswordQuery, [newHashedPassword, userId])
         res.status(200).json({ message: 'Updated password successfully' })
     } catch (e) {
-        console.error(e)
-        res.status(500).json({ message: 'Something went wrong' })
+        catchRouterError(e, res)
     }
 })
 

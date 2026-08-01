@@ -2,6 +2,7 @@ const pool = require('./db')
 const express = require('express')
 const { authenticate } = require('./middleware/authenticate')
 const router = express.Router()
+const { catchRouterError } = require('./utils/handleError')
 
 router.get('/', authenticate, async (req, res) => {
     const id = req.id
@@ -12,8 +13,7 @@ router.get('/', authenticate, async (req, res) => {
         if (chatrooms.length === 0) return res.json({ message: "You have no chatrooms" })
         res.json({ chatrooms, status: 'ok' })
     } catch (e) {
-        console.error(e)
-        return res.status(500).json({ message: "Something went wrong" })
+        catchRouterError(e, res)
     }
 })
 
@@ -46,8 +46,7 @@ router.post('/create', authenticate, async (req, res) => {
 
         res.status(200).json({ chatroomId, message: "Chatroom successfully created", status: 'ok' })
     } catch (e) {
-        console.error(e)
-        res.status(500).json({ message: "Something went wrong" })
+        catchRouterError(e, res)
     }
 })
 

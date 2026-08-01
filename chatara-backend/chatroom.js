@@ -2,6 +2,7 @@ const pool = require('./db')
 const express = require('express')
 const router = express.Router()
 const { authenticate } = require('./middleware/authenticate')
+const { catchRouterError } = require('./utils/handleError')
 
 router.get('/:id', authenticate, async (req, res) => {
     const chatroomId = req.params.id
@@ -14,8 +15,7 @@ router.get('/:id', authenticate, async (req, res) => {
         const [membersRow] = await pool.execute(memberQuery, [chatroomId])
         return res.status(200).json({ chatroom, members: membersRow })
     } catch (e) {
-        console.error(e)
-        return res.status(500).json({ message: 'Something went wrong' })
+        catchRouterError(e, res)
     }
 })
 
@@ -33,8 +33,7 @@ router.post('/leave/:chatroomId', authenticate, async (req, res) => {
         await pool.execute(deleteQuery, [userId, chatroomId])
         res.status(200).json({ message: 'Left chatroom' })
     } catch (e) {
-        console.error(e)
-        res.status(500).json({ message: 'Something went wrong' })
+        catchRouterError(e, res)
     }
 })
 
@@ -54,8 +53,7 @@ router.put('/rename/:chatroomId', authenticate, async (req, res) => {
         if (updateResult.affectedRows === 0) return res.status(404).json({ message: 'Chatroom not found' })
         res.status(200).json({ message: 'Changed chatroom name successfully' })
     } catch (e) {
-        console.error(e)
-        res.status(500).json({ message: 'Something went wrong' })
+        catchRouterError(e, res)
     }
 })
 
