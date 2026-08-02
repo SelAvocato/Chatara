@@ -25,15 +25,19 @@ const weekDayFormatter = new Intl.DateTimeFormat("en-PH", {
 export function getTimeStamp(hasTimestamp, currentChatMessageSentAtMs, currentDate) {
     if (!hasTimestamp) return
 
-    const day = currentChatMessageSentAtMs.getDate()
-    const dayDiff = currentDate - day
+    const sentDate = new Date(currentChatMessageSentAtMs)
+    const now = new Date(currentDate)
 
-    if (dayDiff === 1) {
-        return `YESTERDAY AT ${hourFormatter.format(currentChatMessageSentAtMs)}`
-    } else if (dayDiff > 1) {
-        return weekDayFormatter.format(currentChatMessageSentAtMs)
-    } else if (dayDiff > 3) {
-        return dateFormatter.format(currentChatMessageSentAtMs)
+    const startOfSent = new Date(sentDate.getFullYear(), sentDate.getMonth(), sentDate.getDate())
+    const startOfNow = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const dayDiff = Math.round((startOfNow - startOfSent) / 86400000)
+
+    if (dayDiff <= 0) {
+        return hourFormatter.format(sentDate)
+    } else if (dayDiff === 1) {
+        return `YESTERDAY AT ${hourFormatter.format(sentDate)}`
+    } else if (dayDiff <= 3) {
+        return weekDayFormatter.format(sentDate)
     }
-    return hourFormatter.format(currentChatMessageSentAtMs)
+    return dateFormatter.format(sentDate)
 }

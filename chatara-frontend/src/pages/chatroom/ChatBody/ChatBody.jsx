@@ -8,7 +8,7 @@ import { useApi } from '../../../hooks/useApi.js'
 
 export default function ChatBody() {
     const bottomRef = useRef(null)
-    const [currentDate, setCurrentDate] = useState(() => new Date().getDate());
+    const [currentDate, setCurrentDate] = useState(() => Date.now())
     const [isRequestingMessages, setIsRequestingMessages] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
