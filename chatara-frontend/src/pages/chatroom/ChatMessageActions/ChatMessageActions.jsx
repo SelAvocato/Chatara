@@ -14,7 +14,7 @@ export default function ChatMessageActions() {
     const { user } = useAuth()
     const api = useApi()
     const { wsRef, currentChatroomId } = useWebsocket()
-    const { actionStyle, messageAndSubmitStyle, textInputStyle, submitStyle } = style
+    const { actionStyle, messageAndSubmitStyle, submitStyle, textAreaContainerStyle, textareaStyle } = style
     const username = user.username
 
     function handleMessageChange(e) {
@@ -79,7 +79,21 @@ export default function ChatMessageActions() {
     return (
         <form className={actionStyle} onSubmit={handleMessageSubmit}>
             <div className={messageAndSubmitStyle}>
-                <input className={textInputStyle} onChange={handleMessageChange} value={messageInput} type="text" placeholder="Message" />
+                <div className={textAreaContainerStyle}>
+                    <textarea className={textareaStyle}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault()
+                                if (messageInput.trim() === '') return
+                                e.target.form.requestSubmit()
+                            }
+                        }}
+                        onChange={(e) => {
+                            handleMessageChange(e)
+                            e.target.style.height = 'auto'
+                            e.target.style.height = `${e.target.scrollHeight}px`
+                        }} value={messageInput} placeholder="Message" rows='1' />
+                </div>
                 <button onClick={handleMessageSubmit} className={submitStyle}>
                     <img src={submitIcon} alt="Submit Icon" />
                 </button>
