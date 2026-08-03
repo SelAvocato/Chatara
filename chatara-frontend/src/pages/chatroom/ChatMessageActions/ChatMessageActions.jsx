@@ -7,6 +7,7 @@ import { useWebsocket } from '../../../hooks/useWebsocket'
 
 export default function ChatMessageActions() {
     const timeoutIdRef = useRef(null)
+    const messageTextareaRef = useRef(null)
     const [errorMessage, setErrorMessage] = useState(null)
     const [isDebounced, setIsDebounced] = useState(false)
     const [messageInput, setMessageInput] = useState('')
@@ -51,6 +52,7 @@ export default function ChatMessageActions() {
 
     async function handleMessageSubmit(e) {
         e.preventDefault()
+        messageTextareaRef.current.style.height = 'auto'
         if (messageInput.trim() === '') return
         const chatInfo = {
             type: 'chat',
@@ -80,7 +82,7 @@ export default function ChatMessageActions() {
         <form className={actionStyle} onSubmit={handleMessageSubmit}>
             <div className={messageAndSubmitStyle}>
                 <div className={textAreaContainerStyle}>
-                    <textarea className={textareaStyle}
+                    <textarea className={textareaStyle} ref={messageTextareaRef}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault()
