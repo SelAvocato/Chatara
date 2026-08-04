@@ -2,15 +2,14 @@ import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { useApi } from '../../hooks/useApi'
 import style from './Settings.module.css'
-import pfp from '/icons/pfp.svg'
 import ProfilePictureForm from '../ProfilePictureForm/ProfilePictureForm'
+import ProfilePicture from '../ProfilePicture/ProfilePicture'
 
 export default function Settings() {
     const { user, setUser } = useAuth()
     const api = useApi()
     const { settingsStyle, headerStyle, pfpContainerStyle, usernameContainerStyle, passwordContainerStyle } = style
 
-    const [isEditing, setIsEditing] = useState(false)
     const [isChangingPassword, setIsChangingPassword] = useState(false)
     const [isChangingUsername, setIsChangingUsername] = useState(false)
     const [isChangingPfp, setIsChangingPfp] = useState(false)
@@ -51,7 +50,7 @@ export default function Settings() {
         <div className={settingsStyle}>
             <div className={headerStyle}>
                 <div className={pfpContainerStyle}>
-                    <img src={pfp} alt="Profile Picture" />
+                    <ProfilePicture size={150} src={user?.pfp_url} />
                     {isChangingPfp
                         ? <ProfilePictureForm setIsChangingPfp={setIsChangingPfp} />
                         : <button onClick={() => setIsChangingPfp(true)}>Edit</button>

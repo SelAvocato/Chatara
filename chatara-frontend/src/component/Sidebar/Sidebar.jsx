@@ -3,8 +3,8 @@ import { useAuth } from '../../hooks/useAuth'
 import { useNavigate } from 'react-router'
 import style from './Sidebar.module.css'
 import messagesIcon from '/icons/messages-icon.svg'
-import defaultPfp from '/icons/pfp.svg'
 import Settings from '../Settings/Settings'
+import ProfilePicture from '../ProfilePicture/ProfilePicture'
 
 export default function Sidebar() {
     const { user, logout } = useAuth()
@@ -48,7 +48,7 @@ export default function Sidebar() {
             <div className={nameAndLogoutStyle}>
                 <div className={userContainerStyle}>
                     <div className={pfpContainerStyle}>
-                        <img src={defaultPfp} alt="Profile Picture" />
+                        <ProfilePicture size={50} src={user?.pfp_url} />
                     </div>
                     <p>{user?.username}</p>
                 </div>

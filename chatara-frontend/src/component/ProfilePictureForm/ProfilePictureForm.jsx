@@ -1,7 +1,7 @@
 import { UploadButton } from '../../../utils/uploadthing';
 import { useAuth } from '../../hooks/useAuth';
 import style from './ProfilePictureForm.module.css'
-export default function ProfilePictureForm({ setIsChangngPfp }) {
+export default function ProfilePictureForm({ setIsChangingPfp }) {
     const { setUser, accessToken } = useAuth();
     const { pfpUploadContainerStyle } = style
 
@@ -44,7 +44,7 @@ export default function ProfilePictureForm({ setIsChangngPfp }) {
                             setUser(prev => ({ ...prev, pfp_url: newAvatarUrl }));
                         }
                         alert('Profile picture updated successfully!');
-                        setIsChangngPfp(false)
+                        setIsChangingPfp(false)
                     }
                 }}
                 onUploadError={(error) => {
