@@ -68,7 +68,7 @@ router.post('/user', async (req, res) => {
     if (!reqRefreshToken) return res.status(401).json({ message: 'Missing refresh token' })
     try {
         const payload = jwt.verify(reqRefreshToken, process.env.REFRESH_TOKEN_SECRET)
-        const selectQuery = `SELECT id, username, hashed_refresh_token FROM user_tbl where id = ?`
+        const selectQuery = `SELECT id, username, hashed_refresh_token, pfp_url FROM user_tbl where id = ?`
         const [rows] = await pool.execute(selectQuery, [payload.sub])
         const user = rows[0]
         const { hashed_refresh_token, ...userWithoutHashedRefreshToken } = user
@@ -89,7 +89,7 @@ router.post('/refresh', async (req, res) => {
     try {
         const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
 
-        const selectQuery = `SELECT id, username, hashed_refresh_token from user_tbl where id = ?`
+        const selectQuery = `SELECT id, username, hashed_refresh_token, pfp_url from user_tbl where id = ?`
         const [rows] = await pool.execute(selectQuery, [payload.sub])
         const user = rows[0]
         const { hashed_refresh_token, ...userWithoutHashedRefreshToken } = user
