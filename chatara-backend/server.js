@@ -14,13 +14,34 @@ const originUrl = process.env.ORIGIN_URL
 app.use(cookieParser())
 app.use(cors({
     origin: originUrl,
-    credentials: true
+    credentials: true,
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "x-uploadthing-package",
+        "x-uploadthing-version",
+        "traceparent",
+        "b3",
+        "x-b3-traceid",
+        "x-b3-spanid"
+    ]
 }));
 app.use(express.json())
 app.use((req, res, next) => {
     console.log(`Time Stamp: ${new Date()}\nURL: ${req.url}`)
     next()
 })
+const { createRouteHandler } = require('uploadthing/express')
+const { uploadRouter } = require('./fileRouter.js')
+app.use(
+    '/api/uploadthing',
+    createRouteHandler({
+        router: uploadRouter,
+        config: {
+            token: process.env.UPLOADTHING_TOKEN
+        }
+    })
+)
 
 const httpServer = new http.createServer(app)
 const wss = new WebSocketServer({ server: httpServer })
