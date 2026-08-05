@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useChatroom } from '../../../hooks/useChatroom'
 import style from './ChatroomInfo.module.css'
 import chatroomImage from '/icons/pfp.svg'
+import ProfilePicture from '../../../component/ProfilePicture/ProfilePicture'
 
 export default function ChatroomInfo() {
     const { chatroomInfoStyle, chatroomInfoHeaderStyle, chatroomImageStyle, formStyle, inputRenameChatroomStyle, formActionsStyle, inputCancelRenameStyle,
         inputConfirmRenameStyle, chatroomNameStyle, chatroomInfoOptionsStyle, changeChatroomNameStyle, changeThemeStyle,
-        seeMembersStyle, membersContainerStyle, memberStyle, memberNameStyle, memberRoleStyle, leaveChatroomStyle, leaveChatroomButtonStyle,
+        seeMembersStyle, membersContainerStyle, memberContainerStyle, memberPfpContainerStyle, memberInfoStyle, memberNameStyle, memberRoleStyle, leaveChatroomStyle, leaveChatroomButtonStyle,
         leaveConfirmationStyle, leaveActionsStyle, leaveMessageStyle, confirmLeaveStyle, cancelLeaveStyle
     } = style
     const { chatroom, members, leaveChatroom, renameChatroom } = useChatroom()
@@ -55,13 +56,18 @@ export default function ChatroomInfo() {
                     <p>Change Theme</p>
                 </div>
                 <div>
-                    <p className={seeMembersStyle} onClick={() => setIsViewingMembers(!isViewingMembers)}>{isViewingMembers ? 'Hide Members' : 'See Members'} </p>
+                    <p className={seeMembersStyle} onClick={() => setIsViewingMembers(!isViewingMembers)}>{isViewingMembers ? 'Hide Members' : 'Show Members'} </p>
                     {isViewingMembers &&
                         <div className={membersContainerStyle}>
                             {members && members?.length !== 0 && members?.map(member =>
-                                <div className={memberStyle} key={member?.id}>
-                                    <p className={memberNameStyle}>{member?.username}</p>
-                                    <p className={memberRoleStyle}>{chatroom?.creator_id === member?.id ? 'Admin' : 'Member'}</p>
+                                <div className={memberContainerStyle}>
+                                    <div className={memberPfpContainerStyle}>
+                                        <ProfilePicture size={40} src={member.pfp_url} />
+                                    </div>
+                                    <div className={memberInfoStyle} key={member?.id}>
+                                        <p className={memberNameStyle}>{member?.username}</p>
+                                        <p className={memberRoleStyle}>{chatroom?.creator_id === member?.id ? 'Admin' : 'Member'}</p>
+                                    </div>
                                 </div>
                             )
                             }

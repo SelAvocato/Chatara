@@ -11,7 +11,7 @@ router.get('/:id', authenticate, async (req, res) => {
         const chatroomQuery = 'SELECT id, name, creator_id, theme FROM chatroom_tbl WHERE id = ?'
         const [chatroomRow] = await pool.execute(chatroomQuery, [chatroomId])
         const chatroom = chatroomRow[0]
-        const memberQuery = 'SELECT u.id, u.username FROM user_tbl u INNER JOIN participant_tbl p ON u.id = p.user_id WHERE p.chatroom_id = ?'
+        const memberQuery = 'SELECT u.id, u.username, u.pfp_url FROM user_tbl u INNER JOIN participant_tbl p ON u.id = p.user_id WHERE p.chatroom_id = ?'
         const [membersRow] = await pool.execute(memberQuery, [chatroomId])
         return res.status(200).json({ chatroom, members: membersRow })
     } catch (e) {

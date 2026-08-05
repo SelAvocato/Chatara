@@ -102,11 +102,25 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    gap: 5px;
+    gap: 10px;
     margin-left: 5px;
+    margin-top: 5px;
 }
 
-.memberStyle {
+.memberContainerStyle{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+}
+
+.memberPfpContainerStyle{
+    max-width: 40px;
+    max-height: 40px;
+}
+
+.memberInfoStyle {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -114,13 +128,13 @@
 }
 
 .memberNameStyle {
-    color: rgb(85, 85, 85);
     font-size: 17px;
+    color: #010124af;
 }
 
 .memberRoleStyle {
-    font-size: 15px;
-    margin-left: 5px;
+    font-size: 13px;
+    color: #06012083;
 }
 
 .leaveChatroomButtonStyle {
