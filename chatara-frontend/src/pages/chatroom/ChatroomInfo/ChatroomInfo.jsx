@@ -34,7 +34,7 @@ export default function ChatroomInfo() {
         <div className={chatroomInfoStyle}>
             <div className={chatroomInfoHeaderStyle}>
                 <div className={chatroomImageStyle}>
-                    <Logo size={70} src={chatroom.chatroom_img_url}/>
+                    <Logo size={70} src={chatroom.chatroom_img_url} />
                 </div>
                 {
                     isChangingChatroomName
@@ -63,11 +63,11 @@ export default function ChatroomInfo() {
                     {isViewingMembers &&
                         <div className={membersContainerStyle}>
                             {members && members?.length !== 0 && members?.map(member =>
-                                <div className={memberContainerStyle}>
+                                <div className={memberContainerStyle} key={member?.id}>
                                     <div className={memberPfpContainerStyle}>
                                         <Logo size={40} src={member.pfp_url} />
                                     </div>
-                                    <div className={memberInfoStyle} key={member?.id}>
+                                    <div className={memberInfoStyle}>
                                         <p className={memberNameStyle}>{member?.username}</p>
                                         <p className={memberRoleStyle}>{chatroom?.creator_id === member?.id ? 'Admin' : 'Member'}</p>
                                     </div>
