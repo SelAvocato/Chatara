@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useChatroom } from '../../../hooks/useChatroom'
 import style from './ChatroomInfo.module.css'
-import chatroomImage from '/icons/pfp.svg'
-import ProfilePicture from '../../../component/ProfilePicture/ProfilePicture'
+import Logo from '../../../component/Logo/Logo'
+import ChatroomImageForm from './ChatroomImageForm'
 
 export default function ChatroomInfo() {
     const { chatroomInfoStyle, chatroomInfoHeaderStyle, chatroomImageStyle, formStyle, inputRenameChatroomStyle, formActionsStyle, inputCancelRenameStyle,
@@ -34,7 +34,7 @@ export default function ChatroomInfo() {
         <div className={chatroomInfoStyle}>
             <div className={chatroomInfoHeaderStyle}>
                 <div className={chatroomImageStyle}>
-                    <img src={chatroomImage} alt='Chatroom Image' />
+                    <Logo size={70} src={chatroom.chatroom_img_url}/>
                 </div>
                 {
                     isChangingChatroomName
@@ -49,8 +49,11 @@ export default function ChatroomInfo() {
                 }
             </div>
             <div className={chatroomInfoOptionsStyle}>
+                <div>
+                    <ChatroomImageForm />
+                </div>
                 <div className={changeChatroomNameStyle} onClick={() => { setIsChangingChatroomName(true) }}>
-                    <p>Change Chatroom Name</p>
+                    <p>Change Name</p>
                 </div>
                 <div className={changeThemeStyle}>
                     <p>Change Theme</p>
@@ -62,7 +65,7 @@ export default function ChatroomInfo() {
                             {members && members?.length !== 0 && members?.map(member =>
                                 <div className={memberContainerStyle}>
                                     <div className={memberPfpContainerStyle}>
-                                        <ProfilePicture size={40} src={member.pfp_url} />
+                                        <Logo size={40} src={member.pfp_url} />
                                     </div>
                                     <div className={memberInfoStyle} key={member?.id}>
                                         <p className={memberNameStyle}>{member?.username}</p>

@@ -8,7 +8,7 @@ const ChatroomContext = createContext(null)
 export function ChatroomProvider({ children }) {
     const api = useApi()
 
-    //inside chatroom should have its id, name and theme and I can return it as just chatroom instead of returning chatroom id, name and theme
+    //inside chatroom should have its id, image, name and theme and I can return it as just chatroom instead of returning chatroom id, name and theme
     const [chatroom, setChatroom] = useState(null)
     const [members, setMembers] = useState(null)
     const [isChatroomInfoOpened, setIsChatroomInfoOpened] = useState(false)
@@ -46,8 +46,8 @@ export function ChatroomProvider({ children }) {
     }, [chatroom, api])
 
     const contextValue = useMemo(() => ({
-        savedChatroomId, getChatroomInfo, leaveChatroom, renameChatroom, chatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened
-    }), [savedChatroomId, getChatroomInfo, leaveChatroom, renameChatroom, chatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened])
+        savedChatroomId, getChatroomInfo, leaveChatroom, renameChatroom, chatroom, setChatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened
+    }), [savedChatroomId, getChatroomInfo, leaveChatroom, renameChatroom, chatroom, setChatroom, members, isChatroomInfoOpened, setIsChatroomInfoOpened])
 
     return <ChatroomContext value={contextValue}>
         {children}

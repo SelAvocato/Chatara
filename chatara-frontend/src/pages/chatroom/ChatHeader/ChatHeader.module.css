@@ -13,8 +13,9 @@
     gap: 1rem;
 }
 
-.chatHeaderProfileStyle img {
-    width: 50px;
+.chatroomImageContainerStyle {
+    max-width: 50px;
+    max-height: 50px;
 }
 
 .chatHeaderProfileStyle p {

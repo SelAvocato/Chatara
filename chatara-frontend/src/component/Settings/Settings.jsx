@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { useApi } from '../../hooks/useApi'
 import style from './Settings.module.css'
 import ProfilePictureForm from '../ProfilePictureForm/ProfilePictureForm'
-import ProfilePicture from '../ProfilePicture/ProfilePicture'
+import Logo from '../Logo/Logo'
 
 export default function Settings() {
     const { user, setUser } = useAuth()
@@ -50,7 +50,7 @@ export default function Settings() {
         <div className={settingsStyle}>
             <div className={headerStyle}>
                 <div className={pfpContainerStyle}>
-                    <ProfilePicture size={150} src={user?.pfp_url} />
+                    <Logo size={150} src={user?.pfp_url} />
                     {isChangingPfp
                         ? <ProfilePictureForm setIsChangingPfp={setIsChangingPfp} />
                         : <button onClick={() => setIsChangingPfp(true)}>Edit</button>

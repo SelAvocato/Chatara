@@ -20,6 +20,7 @@ app.use(cors({
         "Authorization",
         "x-uploadthing-package",
         "x-uploadthing-version",
+        "x-chatroom-id",
         "traceparent",
         "b3",
         "x-b3-traceid",
