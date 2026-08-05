@@ -35,7 +35,7 @@ export default function ChatroomImageForm() {
     };
 
     return (
-        <div style={{ textAlign: 'start' }}>
+        <>
             <p
                 disabled={isUploading}
                 onClick={() => hiddenFileInputRef.current?.click()}
@@ -53,6 +53,6 @@ export default function ChatroomImageForm() {
                 accept="image/*"
                 style={{ display: "none" }}
             />
-        </div>
+        </>
     );
 }
