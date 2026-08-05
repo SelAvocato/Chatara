@@ -1,12 +1,12 @@
-import { useRef } from "react";
-import { useUploadThing } from "../../../../utils/uploadthing";
-import { useAuth } from "../../../hooks/useAuth";
-import { useChatroom } from "../../../hooks/useChatroom";
+import { useRef } from "react"
+import { useUploadThing } from "../../../../utils/uploadthing"
+import { useAuth } from "../../../hooks/useAuth"
+import { useChatroom } from "../../../hooks/useChatroom"
 
 export default function ChatroomImageForm() {
-    const { accessToken } = useAuth();
+    const { accessToken } = useAuth()
     const { chatroom, setChatroom } = useChatroom()
-    const hiddenFileInputRef = useRef(null);
+    const hiddenFileInputRef = useRef(null)
 
     const { startUpload, isUploading } = useUploadThing("chatroomImageUploader", {
         headers: {
@@ -15,24 +15,24 @@ export default function ChatroomImageForm() {
         },
         onClientUploadComplete: (res) => {
             if (res && res.length > 0) {
-                const newRoomUrl = res[0].ufsUrl || res[0].url;
+                const newRoomUrl = res[0].ufsUrl || res[0].url
 
                 if (setChatroom) {
-                    setChatroom(prev => ({ ...prev, chatroom_img_url: newRoomUrl }));
+                    setChatroom(prev => ({ ...prev, chatroom_img_url: newRoomUrl }))
                 }
-                alert("Chatroom logo updated successfully!");
+                alert("Chatroom logo updated successfully!")
             }
         },
         onUploadError: (error) => {
-            alert(`Logo update failed: ${error.message}`);
+            alert(`Logo update failed: ${error.message}`)
         },
-    });
+    })
 
     const handleFileSelectionChange = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        await startUpload([file]);
-    };
+        const file = e.target.files?.[0]
+        if (!file) return
+        await startUpload([file])
+    }
 
     return (
         <>
@@ -54,5 +54,5 @@ export default function ChatroomImageForm() {
                 style={{ display: "none" }}
             />
         </>
-    );
+    )
 }

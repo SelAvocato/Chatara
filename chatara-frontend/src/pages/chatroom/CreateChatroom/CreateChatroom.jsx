@@ -121,27 +121,27 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
                                                                             ? <p>Loading...</p>
                                                                             : (() => {
                                                                                 const validUsers = filteredUsers ? filteredUsers.filter(filteredUser => {
-                                                                                    const isCurrentUser = filteredUser.username === user.username;
-                                                                                    const isAlreadySelected = selectedMembers.some(member => member.id === filteredUser.id);
-                                                                                    return !isCurrentUser && !isAlreadySelected;
-                                                                                }) : [];
+                                                                                    const isCurrentUser = filteredUser.username === user.username
+                                                                                    const isAlreadySelected = selectedMembers.some(member => member.id === filteredUser.id)
+                                                                                    return !isCurrentUser && !isAlreadySelected
+                                                                                }) : []
 
                                                                                 if (validUsers.length > 0) {
                                                                                     return validUsers.map(filteredUser => (
                                                                                         <div className={filteredUserContainerStyle} key={filteredUser.id}
                                                                                             onClick={() => {
-                                                                                                setSelectedMembers(prev => [...prev, { i, id: filteredUser.id }]);
-                                                                                                setMemberUsername(filteredUser.username);
+                                                                                                setSelectedMembers(prev => [...prev, { i, id: filteredUser.id }])
+                                                                                                setMemberUsername(filteredUser.username)
                                                                                             }}>
                                                                                             <div className={filteredUserImageContainer}>
                                                                                                 <img src={userProfile} alt={`${filteredUser.username}'s profile picture`} />
                                                                                             </div>
                                                                                             <p className={filteredUsername}>{filteredUser.username}</p>
                                                                                         </div>
-                                                                                    ));
+                                                                                    ))
                                                                                 }
 
-                                                                                return <p className={noUsersFoundStyle}>No users found</p>;
+                                                                                return <p className={noUsersFoundStyle}>No users found</p>
                                                                             })()
                                                                     }
                                                                 </div>

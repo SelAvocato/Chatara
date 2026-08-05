@@ -26,7 +26,7 @@ app.use(cors({
         "x-b3-traceid",
         "x-b3-spanid"
     ]
-}));
+}))
 app.use(express.json())
 app.use((req, res, next) => {
     console.log(`Time Stamp: ${new Date()}\nURL: ${req.url}`)

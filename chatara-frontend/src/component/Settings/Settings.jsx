@@ -12,7 +12,6 @@ export default function Settings() {
 
     const [isChangingPassword, setIsChangingPassword] = useState(false)
     const [isChangingUsername, setIsChangingUsername] = useState(false)
-    const [isChangingPfp, setIsChangingPfp] = useState(false)
     const [oldPassValue, setOldPassValue] = useState('')
     const [newPassValue, setNewPassValue] = useState('')
     const [newUsername, setNewUsername] = useState(user?.username)
@@ -51,10 +50,7 @@ export default function Settings() {
             <div className={headerStyle}>
                 <div className={pfpContainerStyle}>
                     <Logo size={150} src={user?.pfp_url} />
-                    {isChangingPfp
-                        ? <ProfilePictureForm setIsChangingPfp={setIsChangingPfp} />
-                        : <button onClick={() => setIsChangingPfp(true)}>Edit</button>
-                    }
+                    <ProfilePictureForm />
                 </div>
                 <div className={usernameContainerStyle}>
                     {isChangingUsername

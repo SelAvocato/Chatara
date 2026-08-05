@@ -1,8 +1,8 @@
-import { Navigate, Outlet } from "react-router";
-import Sidebar from "../component/Sidebar/Sidebar";
+import { Navigate, Outlet } from "react-router"
+import Sidebar from "../component/Sidebar/Sidebar"
 import style from './Layout.module.css'
-import { useRefresh } from "../hooks/useRefresh";
-import { useAuth } from "../hooks/useAuth";
+import { useRefresh } from "../hooks/useRefresh"
+import { useAuth } from "../hooks/useAuth"
 
 export default function Layout() {
     const { isLoading } = useRefresh(true)

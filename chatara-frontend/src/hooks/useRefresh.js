@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "./useAuth";
+import { useState, useEffect } from "react"
+import { useAuth } from "./useAuth"
 
 export function useRefresh(bool) {
     const [isLoading, setIsLoading] = useState(true)

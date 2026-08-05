@@ -1,6 +1,6 @@
-import { useMemo } from "react";
-import { apiClient } from "../services/api";
-import { useAuth } from "./useAuth";
+import { useMemo } from "react"
+import { apiClient } from "../services/api"
+import { useAuth } from "./useAuth"
 
 export function useApi() {
     const { accessToken, setAccessToken, setUser } = useAuth()
