@@ -21,11 +21,7 @@
 }
 
 .chatroomImageContainerStyle{
-    min-width: 40px;
-}
-
-.chatroomImageContainerStyle img{
-    width: 100%;
+    max-width: 40px;
 }
 
 .chatroomNameStyle {

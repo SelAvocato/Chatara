@@ -7,7 +7,7 @@ const { catchRouterError } = require('./utils/handleError')
 router.get('/', authenticate, async (req, res) => {
     const id = req.id
     if (!id) return res.status(400).json({ message: "Error: Missing Id" })
-    const query = `SELECT c.id, c.name FROM chatroom_tbl c INNER JOIN participant_tbl p ON c.id = p.chatroom_id LEFT JOIN message_tbl m ON m.chatroom_id = c.id WHERE p.user_id = ? GROUP BY c.id, c.name ORDER BY COALESCE(MAX(m.sent_at), c.created_at) DESC`;
+    const query = `SELECT c.id, c.name, c.chatroom_img_url FROM chatroom_tbl c INNER JOIN participant_tbl p ON c.id = p.chatroom_id LEFT JOIN message_tbl m ON m.chatroom_id = c.id WHERE p.user_id = ? GROUP BY c.id, c.name ORDER BY COALESCE(MAX(m.sent_at), c.created_at) DESC`;
     try {
         const [chatrooms] = await pool.execute(query, [id])
         if (chatrooms.length === 0) return res.json({ message: "You have no chatrooms" })
