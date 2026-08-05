@@ -1,9 +1,9 @@
 import { useAuth } from '../../../hooks/useAuth'
 import { useApi } from '../../../hooks/useApi'
 import style from './ChatBubble.module.css'
-import pfpImage from '/icons/pfp.svg'
 import confirmImage from './img/confirm.svg'
 import cancelImage from './img/cancel.svg'
+import ProfilePicture from '../../../component/ProfilePicture/ProfilePicture'
 import ChatBubbleActions from '../ChatBubbleActionsStyle/ChatBubbleActions'
 import { useEffect, useRef, useState, memo } from 'react'
 import { useWebsocketActions } from '../../../hooks/useWebsocketActions'
@@ -131,7 +131,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                 </div>}
             <div className={`${chatStyle} ${isSender ? sent : received} ${isReceivedRecent && recentlyReceived || isFirst && recentlyReceived}`} onMouseLeave={() => setIsShowingOptions(false)} ref={chatMessage.ref !== undefined ? chatMessage.ref : null}>
                 <div className={imageContainerStyle} hidden={isSender || isReceivedRecent || isFirst}>
-                    <img src={pfpImage} alt="Profile picture" />
+                    <ProfilePicture size={35} src={chatMessage.pfp_url} />
                 </div>
                 <div className={`${chatInfo}`}>
                     {showUsername && <p className={usernameStyle} >{chatMessage.sender_name}</p>}

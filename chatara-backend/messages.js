@@ -10,7 +10,7 @@ module.exports = function (wss) {
         const id = req.params.id
         if (!id) return res.status(400).json({ message: 'Missing chatroom Id' })
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name, u.pfp_url FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
             const [row] = await pool.execute(query, [id])
             if (row.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
             res.json({ row, status: 'ok' })
@@ -39,7 +39,7 @@ module.exports = function (wss) {
         const { message_id } = req.query
         if (!chatroomId || !message_id) return res.status(400).json({ message: 'Missing chatroom or message Id' })
 
-        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 15`
+        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name, u.pfp_url FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 15`
         try {
             const [messages] = await pool.execute(query, [chatroomId, message_id])
             res.status(200).json({ messages })
@@ -68,10 +68,10 @@ module.exports = function (wss) {
         if (!chatroomId || !senderId || !messageText || messageText.trim() === '') return res.status(400).json({ message: "Message must not be empty" })
 
         try {
-            const findMemberQuery = `SELECT u.username FROM participant_tbl p INNER JOIN user_tbl u ON u.id = p.user_id WHERE p.user_id = ? AND p.chatroom_id = ? LIMIT 1`
+            const findMemberQuery = `SELECT u.username, u.pfp_url FROM participant_tbl p INNER JOIN user_tbl u ON u.id = p.user_id WHERE p.user_id = ? AND p.chatroom_id = ? LIMIT 1`
             const [memberRows] = await pool.execute(findMemberQuery, [senderId, chatroomId])
             if (memberRows.length === 0) return res.status(403).json({ message: 'You are not a participant of this chatroom' })
-            const senderName = memberRows[0].username
+            const { username, pfp_url } = memberRows[0]
 
             const insertQuery = `INSERT INTO message_tbl(chatroom_id, sender_id, message_text, message_status) value (?, ?, ?, 'sent')`
             const values = [chatroomId, senderId, messageText]
@@ -81,11 +81,12 @@ module.exports = function (wss) {
                 type: "chat",
                 chatroom_id: chatroomId,
                 sender_id: senderId,
-                sender_name: senderName,
+                sender_name: username,
                 message_text: messageText,
                 message_id: result.insertId,
                 message_status: 'sent',
-                sent_at: new Date()
+                sent_at: new Date(),
+                pfp_url
             }
             websocketService.broadcastPayload(wss, payload, chatroomId)
 
