@@ -5,7 +5,7 @@ import style from "./ProfilePictureForm.module.css"
 
 export default function ProfilePictureForm() {
     const { setUser, accessToken } = useAuth()
-    const { pfpUploadContainerStyle } = style
+    const { pfpUploadContainerStyle, uploadButtonStyle } = style
     const hiddenFileInputRef = useRef(null)
 
     const { startUpload, isUploading } = useUploadThing("avatarUploader", {
@@ -37,20 +37,14 @@ export default function ProfilePictureForm() {
         <div className={pfpUploadContainerStyle}>
             <p
                 onClick={() => !isUploading && hiddenFileInputRef.current?.click()}
+                className={uploadButtonStyle}
                 style={{
-                    backgroundColor: '#D9D9D9',
-                    color: 'black',
-                    padding: '10px 20px',
-                    borderRadius: '5px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    textAlign: 'center',
-                    display: 'inline-block',
                     cursor: isUploading ? "not-allowed" : "pointer",
-                    opacity: isUploading ? 0.6 : 1
+                    opacity: isUploading ? 0.6 : 1,
+                    fontSize: '14px'
                 }}
             >
-                {isUploading ? "Uploading image..." : "Choose New Photo"}
+                {isUploading ? "Uploading image..." : "Change"}
             </p>
 
             <input
@@ -60,6 +54,6 @@ export default function ProfilePictureForm() {
                 accept="image/*"
                 style={{ display: "none" }}
             />
-        </div>
+        </div >
     )
 }

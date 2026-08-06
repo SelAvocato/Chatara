@@ -55,7 +55,7 @@ export default function Sidebar() {
             </div>
             {hasOpenedSettings &&
                 <div className={settingsModalStyle}>
-                    <Settings />
+                    <Settings setHasOpenedSettings={setHasOpenedSettings} />
                 </div>
             }
         </div>

@@ -1,0 +1,148 @@
+.closeButtonContainerStyle,
+.editBtnStyle,
+.profilePictureFormStyle,
+.changePasswordBtnStyle,
+.changeUsernameActionsStyle input,
+.changePasswordActionsStyle input {
+    cursor: pointer;
+}
+
+.settingsStyle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-color);
+    padding: 2rem 3rem;
+    border-radius: 5px;
+    box-shadow: 10px 10px 10px 15px #0000001f;
+    width: 300px;
+}
+
+.closeButtonContainerStyle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 5px;
+    max-width: 12px;
+    max-height: 12px;
+}
+
+.closeButtonContainerStyle svg {
+    width: 100%;
+    height: 100%;
+}
+
+.pfpContainerStyle {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.profilePictureFormStyle {
+    position: absolute;
+    bottom: -5px;
+    right: 3px;
+}
+
+.headerStyle {
+    margin-bottom: 2rem;
+}
+
+.usernameContainerStyle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    font-weight: var(--medium-text-font);
+    font-size: 18px;
+}
+
+.usernameInputStyle {
+    background-color: var(--background-color);
+    border: none;
+    outline: none;
+    font-size: 18px;
+    font-weight: var(--medium-text-font);
+    width: 100%;
+    text-align: center;
+}
+
+
+.editBtnStyle {
+    width: 20px;
+    height: 20px;
+}
+
+.editBtnStyle svg {
+    width: 100%;
+    height: 100%;
+}
+
+.passwordContainerStyle {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.changePassFormContainerStyle {
+    display: flex;
+    justify-content: center;
+}
+
+.changePassFormContainerStyle div {
+    margin-bottom: 0.5rem;
+}
+
+.changeUsernameActionsStyle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    gap: 5px;
+}
+
+.changePasswordActionsStyle {
+    display: flex;
+    flex-direction: flex-start;
+    align-items: center;
+    gap: 5px;
+}
+
+
+.changeUsernameActionsStyle input,
+.changePasswordActionsStyle input {
+    font-size: 14px;
+    font-weight: var(--medium-text-font);
+    padding: 3px 5px;
+    outline: none;
+    border: 1px solid gray;
+    border-radius: 3px;
+}
+
+.changeUsernameActionsStyle input:first-child,
+.changePasswordActionsStyle input:first-child {
+    background-color: var(--primary-color);
+}
+
+.changeUsernameActionsStyle input:last-child,
+.changePasswordActionsStyle input:last-child {
+    background-color: var(--slate-gray);
+}
+
+.passwordErrorMessageStyle {
+    font-weight: var(--medium-text-font);
+    color: red;
+}
+
+.changePasswordBtnStyle {
+    text-align: center;
+    width: 100%;
+    font-size: 14px;
+    font-weight: var(--medium-text-font);
+    color: red;
+}
