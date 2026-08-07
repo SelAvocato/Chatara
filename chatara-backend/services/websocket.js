@@ -7,6 +7,7 @@ websocketService = {
             try {
                 authenticateWs(socket)
                 const parsed = JSON.parse(data.toString())
+                const { username, pfp_url } = parsed
 
                 function broadcast(payload) {
                     for (const client of wss.clients) {
@@ -25,7 +26,8 @@ websocketService = {
                     case 'typing':
                         broadcast({
                             type: 'typing',
-                            username: parsed.username
+                            username,
+                            pfp_url
                         })
                         break
                     case 'stoppedTyping':

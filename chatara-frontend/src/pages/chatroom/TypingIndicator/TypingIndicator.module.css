@@ -1,6 +1,19 @@
+.typingIndicatorContainerStyle{
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.typerPfpContainerStyle{
+    max-width: 35px;
+    max-height: 35px;
+}
+
 .userTypingStyle {
     display: flex;
     flex-direction: column;
+    gap: 3px;
 }
 
 .typingAnimationStyle {

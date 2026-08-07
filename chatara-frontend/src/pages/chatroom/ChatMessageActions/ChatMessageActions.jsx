@@ -17,19 +17,20 @@ export default function ChatMessageActions() {
     const { wsRef, currentChatroomId } = useWebsocket()
     const { actionStyle, messageAndSubmitStyle, submitStyle, textAreaContainerStyle, textareaStyle } = style
     const username = user.username
+    const pfpUrl = user.pfp_url
 
     function handleMessageChange(e) {
         setMessageInput(e.target.value)
 
         if (e.target.value && !isDebounced) {
             setIsDebounced(true)
-            wsRef.current?.send(JSON.stringify({ type: 'typing', username: username }))
+            wsRef.current?.send(JSON.stringify({ type: 'typing', username, pfp_url: pfpUrl }))
         }
 
         clearTimeout(timeoutIdRef.current)
 
         timeoutIdRef.current = setTimeout(() => {
-            wsRef.current?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
+            wsRef.current?.send(JSON.stringify({ type: 'stoppedTyping', username }))
             setIsDebounced(false)
         }, 1000)
     }
@@ -38,7 +39,7 @@ export default function ChatMessageActions() {
         const currentWS = wsRef.current
         return () => {
             if (currentWS && currentWS.readyState === WebSocket.OPEN) {
-                currentWS?.send(JSON.stringify({ type: 'stoppedTyping', username: username }))
+                currentWS?.send(JSON.stringify({ type: 'stoppedTyping', username }))
             }
 
             setIsDebounced(false)

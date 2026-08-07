@@ -41,7 +41,7 @@ export function WebSocketProvider({ children }) {
         wsRef.current.onmessage = async (event) => {
             try {
                 const parsed = JSON.parse(event.data)
-                const { message_status } = parsed
+                const { username, pfp_url, message_status } = parsed
                 console.log('parsed data: ', parsed)
 
                 switch (parsed.type) {
@@ -51,7 +51,7 @@ export function WebSocketProvider({ children }) {
                         lastMessageRef.current = parsed
                         break
                     case 'typing':
-                        setUserTyping(parsed.username)
+                        setUserTyping({ username, pfp_url })
                         setIsTyping(true)
                         break
                     case 'stoppedTyping':

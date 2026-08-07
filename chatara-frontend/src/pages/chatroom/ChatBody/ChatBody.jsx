@@ -12,7 +12,8 @@ export default function ChatBody() {
     const [isRequestingMessages, setIsRequestingMessages] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
-    const { startChat, chatMessages, isTyping, userTyping, setFirstMessage, firstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages } = useWebsocket()
+    const { startChat, chatMessages, isTyping, setFirstMessage, firstMessage, firstMessageIndex, setFirstMessageIndex,
+        setChatMessages } = useWebsocket()
     const api = useApi()
     const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat } = style
     useEffect(() => {
@@ -117,7 +118,7 @@ export default function ChatBody() {
                             : <p className={startChatStyle}>{startChat}</p>
                     }
                     {
-                        isTyping && <TypingIndicator userTyping={userTyping} />
+                        isTyping && <TypingIndicator />
                     }
                     <div ref={bottomRef} />
                 </div>
