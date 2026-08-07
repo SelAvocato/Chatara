@@ -9,7 +9,7 @@ router.get('/filter', authenticate, async (req, res) => {
     const { username } = req.query
     if (!username || (username).trim() === '') return res.status(400).json({ message: 'Missing username' })
 
-    const query = `SELECT username, id FROM user_tbl WHERE username LIKE ? LIMIT 20`
+    const query = `SELECT username, id, pfp_url FROM user_tbl WHERE username LIKE ? LIMIT 20`
     try {
         const [users] = await pool.execute(query, [`%${username}%`])
         if (users.length === 0) return res.status(200).json({ users, message: 'No users found' })

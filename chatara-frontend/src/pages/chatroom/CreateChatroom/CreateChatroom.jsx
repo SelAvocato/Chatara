@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { useApi } from "../../../hooks/useApi"
 import { useAuth } from "../../../hooks/useAuth"
 import style from "./CreateChatroom.module.css"
-import userProfile from '/icons/pfp.svg'
+import Avatar from '../../../component/Avatar/Avatar'
 import { useWebsocket } from "../../../hooks/useWebsocket"
 
 export default function CreateChatroom({ setIsCreatingChatroom }) {
@@ -89,6 +89,7 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
         return () => controller.abort()
 
     }, [memberUsername, api])
+
     return (
         <div className={formContainer}>
             <div className={formStyle}>
@@ -103,16 +104,18 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
                                 return (
                                     <div className={userRowStyle} key={i} ref={focusLastMember}>
                                         <div className={userProfileContainerStyle}>
-                                            <img src={userProfile} alt="User Profile" />
+                                            <Avatar src={selectedMembers[i]?.pfp_url} />
                                         </div>
                                         <div className={usernameContainerStyle}>
                                             {
                                                 focusedUser === i
                                                     ? <>
-                                                        <input className={usernameStyle} name='username' type="text" placeholder='Participant Name' autoComplete='off' value={memberUsername} onChange={(e) => {
-                                                            setSelectedMembers(prev => prev.filter(member => member.i !== i))
-                                                            setMemberUsername(e.target.value)
-                                                        }} />
+                                                        <input className={usernameStyle} name='username' type="text" placeholder='Participant Name' autoComplete='off' value={memberUsername}
+                                                            onChange={(e) => {
+                                                                setSelectedMembers(prev => prev.filter(member => member.i !== i))
+                                                                setMemberUsername(e.target.value)
+                                                            }}
+                                                        />
                                                         {
                                                             !isInputEmpty && !isRowSelected
                                                                 ? <div className={filteredUsersContainerStyle}>
@@ -130,11 +133,11 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
                                                                                     return validUsers.map(filteredUser => (
                                                                                         <div className={filteredUserContainerStyle} key={filteredUser.id}
                                                                                             onClick={() => {
-                                                                                                setSelectedMembers(prev => [...prev, { i, id: filteredUser.id }])
+                                                                                                setSelectedMembers(prev => [...prev, { i, id: filteredUser.id, pfp_url: filteredUser.pfp_url }])
                                                                                                 setMemberUsername(filteredUser.username)
                                                                                             }}>
                                                                                             <div className={filteredUserImageContainer}>
-                                                                                                <img src={userProfile} alt={`${filteredUser.username}'s profile picture`} />
+                                                                                                <Avatar src={filteredUser?.pfp_url} />
                                                                                             </div>
                                                                                             <p className={filteredUsername}>{filteredUser.username}</p>
                                                                                         </div>
