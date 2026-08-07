@@ -24,7 +24,7 @@ export default function ChatroomImageForm() {
             }
         },
         onUploadError: (error) => {
-            alert(`Logo update failed: ${error.message}`)
+            alert(`Avatar update failed: ${error.message}`)
         },
     })
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useChatroom } from '../../../hooks/useChatroom'
 import style from './ChatroomInfo.module.css'
-import Logo from '../../../component/Logo/Logo'
+import Avatar from '../../../component/Avatar/Avatar'
 import ChatroomImageForm from './ChatroomImageForm'
 
 export default function ChatroomInfo() {
@@ -34,7 +34,7 @@ export default function ChatroomInfo() {
         <div className={chatroomInfoStyle}>
             <div className={chatroomInfoHeaderStyle}>
                 <div className={chatroomImageStyle}>
-                    <Logo size={70} src={chatroom.chatroom_img_url} />
+                    <Avatar src={chatroom.chatroom_img_url} />
                 </div>
                 {
                     isChangingChatroomName
@@ -65,7 +65,7 @@ export default function ChatroomInfo() {
                             {members && members?.length !== 0 && members?.map(member =>
                                 <div className={memberContainerStyle} key={member?.id}>
                                     <div className={memberPfpContainerStyle}>
-                                        <Logo size={40} src={member.pfp_url} />
+                                        <Avatar src={member.pfp_url} />
                                     </div>
                                     <div className={memberInfoStyle}>
                                         <p className={memberNameStyle}>{member?.username}</p>

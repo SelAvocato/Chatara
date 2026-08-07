@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { useApi } from '../../hooks/useApi'
 import style from './Settings.module.css'
 import ProfilePictureForm from '../ProfilePictureForm/ProfilePictureForm'
-import Logo from '../Logo/Logo'
+import Avatar from '../Avatar/Avatar'
 
 export default function Settings({ setHasOpenedSettings }) {
     const { user, setUser } = useAuth()
@@ -71,7 +71,7 @@ export default function Settings({ setHasOpenedSettings }) {
             </div>
             <div className={headerStyle}>
                 <div className={pfpContainerStyle}>
-                    <Logo size={150} src={user?.pfp_url} />
+                    <Avatar src={user?.pfp_url} />
                     <div className={profilePictureFormStyle}>
                         <ProfilePictureForm />
                     </div>

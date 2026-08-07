@@ -1,4 +1,4 @@
-import Logo from '../../../component/Logo/Logo'
+import Avatar from '../../../component/Avatar/Avatar'
 import { useWebsocket } from '../../../hooks/useWebsocket'
 import style from './TypingIndicator.module.css'
 
@@ -9,7 +9,7 @@ export default function TypingIndicator() {
     return (
         <div className={typingIndicatorContainerStyle}>
             <div className={typerPfpContainerStyle}>
-                <Logo size={35} src={pfp_url} />
+                <Avatar src={pfp_url} />
             </div>
             <div className={userTypingStyle}>
                 <p className={typingTextStyle}>{username} is typing</p>

@@ -1,7 +1,7 @@
 import style from './ChatHeader.module.css'
 import infoIcon from '/icons/info-icon.svg'
 import { useChatroom } from '../../../hooks/useChatroom'
-import Logo from '../../../component/Logo/Logo'
+import Avatar from '../../../component/Avatar/Avatar'
 
 export default function ChatHeader() {
     const { chatroom, isChatroomInfoOpened, setIsChatroomInfoOpened } = useChatroom()
@@ -11,7 +11,7 @@ export default function ChatHeader() {
         <div className={chatHeaderStyle}>
             <div className={chatHeaderProfileStyle}>
                 <div className={chatroomImageContainerStyle}>
-                    <Logo size={50} src={chatroom?.chatroom_img_url} />
+                    <Avatar src={chatroom?.chatroom_img_url} />
                 </div>
                 <p>{chatroom?.name || 'Chatroom'}</p>
             </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useWebsocket } from '../../../hooks/useWebsocket'
 import { useApi } from '../../../hooks/useApi'
-import Logo from '../../../component/Logo/Logo'
+import Avatar from '../../../component/Avatar/Avatar'
 import style from './ChatroomList.module.css'
 import { memo } from 'react'
 
@@ -55,7 +55,7 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
     return (
         <div className={chatRoomStyle} key={chatroom.id} onClick={() => onOpenChat(chatroom.id)}>
             <div className={chatroomImageContainerStyle}>
-                <Logo size={40} src={chatroom.chatroom_img_url} />
+                <Avatar src={chatroom.chatroom_img_url} />
             </div>
             <div>
                 <p className={chatroomNameStyle}>{chatroom.name}</p>

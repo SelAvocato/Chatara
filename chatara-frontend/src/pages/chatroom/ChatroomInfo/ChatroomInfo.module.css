@@ -23,8 +23,8 @@
 }
 
 .chatroomImageStyle {
-    max-width: 70px;
-    max-height: 70px;
+    width: 70px;
+    height: 70px;
 }
 
 .formStyle {
@@ -111,8 +111,8 @@
 }
 
 .memberPfpContainerStyle{
-    max-width: 40px;
-    max-height: 40px;
+    width: 40px;
+    height: 40px;
 }
 
 .memberInfoStyle {
