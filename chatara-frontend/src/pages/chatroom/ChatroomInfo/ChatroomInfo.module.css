@@ -25,6 +25,8 @@
 .chatroomImageStyle {
     width: 70px;
     height: 70px;
+    background-color: var(--avatar-bg-color);
+    border-radius: 50%;
 }
 
 .formStyle {

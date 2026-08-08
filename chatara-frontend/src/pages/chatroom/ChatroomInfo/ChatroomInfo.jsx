@@ -34,7 +34,7 @@ export default function ChatroomInfo() {
         <div className={chatroomInfoStyle}>
             <div className={chatroomInfoHeaderStyle}>
                 <div className={chatroomImageStyle}>
-                    <Avatar src={chatroom.chatroom_img_url} />
+                    <Avatar src={chatroom.chatroom_img_url || 'https://www.svgrepo.com/show/458220/group.svg'} />
                 </div>
                 {
                     isChangingChatroomName

@@ -20,8 +20,11 @@
     background-color: #d4cfcfc2;
 }
 
-.chatroomImageContainerStyle{
+.chatroomImageContainerStyle {
     width: 40px;
+    height: 40px;
+    background-color: var(--avatar-bg-color);
+    border-radius: 50%;
 }
 
 .chatroomNameStyle {

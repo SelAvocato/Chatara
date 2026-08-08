@@ -55,8 +55,25 @@
     color: #B00020;
 }
 
+.headerContainerStyle {
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    gap: 5px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.gcImageContainerStyle {
+    width: 50px;
+    height: 50px;
+    background-color: var(--avatar-bg-color);
+    border-radius: 50%;
+}
+
 .chatroomNameStyle {
     font-size: 19px;
+    font-weight: var(--medium-text-font);
     margin-bottom: 1rem;
     border-radius: 5px;
     outline: none;
@@ -64,6 +81,7 @@
     padding: 3px 5px;
     width: 100%;
     background-color: transparent;
+    text-align: center;
 }
 
 .memberContainerStyle {
@@ -191,6 +209,6 @@
     cursor: pointer;
 }
 
-.footerContainerStyle{
+.footerContainerStyle {
     margin-top: auto;
 }

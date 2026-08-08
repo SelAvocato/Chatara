@@ -55,7 +55,7 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
     return (
         <div className={chatRoomStyle} key={chatroom.id} onClick={() => onOpenChat(chatroom.id)}>
             <div className={chatroomImageContainerStyle}>
-                <Avatar src={chatroom.chatroom_img_url} />
+                <Avatar src={chatroom.chatroom_img_url || 'https://www.svgrepo.com/show/458220/group.svg'} />
             </div>
             <div>
                 <p className={chatroomNameStyle}>{chatroom.name}</p>

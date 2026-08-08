@@ -9,7 +9,7 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
     const api = useApi()
     const { user } = useAuth()
     const { wsRef } = useWebsocket()
-    const { formContainer, closeBtnStyle, formStyle, chatroomNameStyle, memberContainerStyle, userProfileContainerStyle, userRowStyle,
+    const { formContainer, closeBtnStyle, formStyle, headerContainerStyle, gcImageContainerStyle, chatroomNameStyle, memberContainerStyle, userProfileContainerStyle, userRowStyle,
         buttonsContainerStyle, usernameContainerStyle, usernameStyle, filteredUsersContainerStyle, filteredUserContainerStyle,
         filteredUserImageContainer, filteredUsername, noUsersFoundStyle, errorMessageStyle, footerContainerStyle } = style
     const focusLastMember = useRef(null)
@@ -95,7 +95,12 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
             <div className={formStyle}>
                 <button className={closeBtnStyle} onClick={() => setIsCreatingChatroom(false)}>x</button>
                 <form onSubmit={handleSubmit}>
-                    <input className={chatroomNameStyle} name='chatroomName' type="text" placeholder='Chatroom Name' autoComplete='off' />
+                    <div className={headerContainerStyle}>
+                        <div className={gcImageContainerStyle}>
+                            <Avatar src={'https://www.svgrepo.com/show/458220/group.svg'} />
+                        </div>
+                        <input className={chatroomNameStyle} name='chatroomName' type="text" placeholder='Chatroom Name' autoComplete='off' />
+                    </div>
                     <div className={memberContainerStyle}>
                         {
                             Array.from({ length: memberCount }).map((_member, i) => {
