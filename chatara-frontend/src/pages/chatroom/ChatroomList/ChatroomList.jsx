@@ -9,7 +9,8 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
     const [latestMessage, setLatestMessage] = useState(null)
     const [unreadMessagesCount, setUnreadMessagesCount] = useState(null)
 
-    const { chatRoomStyle, chatroomImageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle } = style
+    const { chatRoomStyle, chatroomImageContainerStyle, latestMessageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle, 
+        latestMessageInfoStyle, unreadMessageStyle } = style
     const { wsRef, latestMessageWs, openChat, currentChatroomId } = useWebsocket()
     const api = useApi()
 
@@ -57,10 +58,17 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
             <div className={chatroomImageContainerStyle}>
                 <Avatar src={chatroom.chatroom_img_url || 'https://www.svgrepo.com/show/458220/group.svg'} />
             </div>
-            <div>
+            <div className={latestMessageContainerStyle}>
                 <p className={chatroomNameStyle}>{chatroom.name}</p>
-                <p className={chatroomLatestMessageStyle}>{latestMessage && latestMessage.message_text}</p>
-                <p>{unreadMessagesCount}</p>
+                {latestMessage &&
+                    <div className={`${chatroomLatestMessageStyle} ${unreadMessagesCount > 0 && unreadMessageStyle}`}>
+                        <div className={latestMessageInfoStyle}>
+                            <p>{latestMessage.sender_name}:</p>
+                            <p>{latestMessage.message_text}</p>
+                        </div>
+                        <p>{unreadMessagesCount}</p>
+                    </div>
+                }
             </div>
         </div>
     )

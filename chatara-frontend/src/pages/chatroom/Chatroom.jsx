@@ -64,7 +64,6 @@ export default function Chatroom() {
         updateChatrooms()
     }, [latestMessageWs])
 
-    console.log(chatrooms)
     return (
         <div className={main}>
             <div className={chatroomsStyle}>

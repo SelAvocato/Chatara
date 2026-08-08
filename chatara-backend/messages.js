@@ -24,7 +24,9 @@ module.exports = function (wss) {
         if (!chatroomId) return res.status(400).json({ message: 'Missing chatroom Id' })
 
         const userId = req.id
-        const query = `SELECT m.message_text, m.id AS message_id, m.chatroom_id FROM message_tbl m INNER JOIN participant_tbl p ON m.chatroom_id = p.chatroom_id WHERE m.sender_id != ? AND p.user_id = ? AND m.chatroom_id = ? AND (m.message_status = 'sent' OR m.message_status = 'delivered')`
+        const query = `SELECT m.message_text, m.id AS message_id, m.chatroom_id, u.username AS sender_name FROM message_tbl m INNER JOIN participant_tbl p 
+        ON m.chatroom_id = p.chatroom_id INNER JOIN user_tbl u ON u.id = m.sender_id WHERE m.sender_id != ? AND p.user_id = ? AND m.chatroom_id = ? AND (m.message_status = 'sent' 
+        OR m.message_status = 'delivered') `
         try {
             const [messages] = await pool.execute(query, [userId, userId, chatroomId])
             if (messages.length === 0) return res.status(200).json({ messages: [] })
@@ -53,7 +55,7 @@ module.exports = function (wss) {
         if (!id) return res.status(400).json({ message: 'Error: Id must be provided' })
 
         try {
-            const query = `SELECT message_text from message_tbl WHERE chatroom_id = ? ORDER BY id DESC LIMIT 1`
+            const query = `SELECT m.message_text, u.username AS sender_name FROM message_tbl m INNER JOIN user_tbl u ON m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 1`
             const [rows] = await pool.execute(query, [id])
             const row = rows[0]
             res.status(200).json({ status: 'ok', data: row })

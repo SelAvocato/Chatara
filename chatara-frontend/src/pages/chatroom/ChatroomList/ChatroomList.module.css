@@ -21,21 +21,59 @@
 }
 
 .chatroomImageContainerStyle {
-    width: 40px;
-    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 40px;
+    max-height: 40px;
     background-color: var(--avatar-bg-color);
     border-radius: 50%;
 }
 
+.latestMessageContainerStyle {
+    width: 100%;
+}
+
 .chatroomNameStyle {
-    color: black;
+    color: rgb(20, 20, 20);
+    font-size: 16px;
     font-weight: 600;
+    max-width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .chatroomLatestMessageStyle {
-    font-weight: var(--medium-text-font);
-    max-width: 150px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 3px;
     max-height: 20px;
+    overflow: hidden;
+    font-size: 14px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.chatroomLatestMessageStyle p:last-child {
+    margin-left: auto;
+}
+
+.unreadMessageStyle {
+    font-weight: 600;
+    font-size: 16px;
+    color: rgb(0, 0, 0);
+}
+
+.latestMessageInfoStyle {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 3px;
+}
+
+.latestMessageInfoStyle p:last-child {
+    max-width: 90px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
