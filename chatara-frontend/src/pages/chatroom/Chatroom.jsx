@@ -14,8 +14,7 @@ export default function Chatroom() {
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
     const api = useApi()
     const { isChatroomInfoOpened } = useChatroom()
-    const { newChatroom } = useWebsocket()
-
+    const { newChatroom, latestMessageWs } = useWebsocket()
     const [message, setMessage] = useState('')
     const [chatrooms, setChatrooms] = useState(null)
     const [searchedChatroom, setSearchedChatroom] = useState('')
@@ -59,6 +58,13 @@ export default function Chatroom() {
         filterChatroom()
     }, [searchedChatroom, chatrooms])
 
+    useEffect(() => {
+        if (!latestMessageWs) return
+        const updateChatrooms = () => setChatrooms(prev => [...prev.filter(chatroom => chatroom.id === latestMessageWs.chatroom_id), ...prev.filter(chatroom => chatroom.id !== latestMessageWs.chatroom_id)])
+        updateChatrooms()
+    }, [latestMessageWs])
+
+    console.log(chatrooms)
     return (
         <div className={main}>
             <div className={chatroomsStyle}>
