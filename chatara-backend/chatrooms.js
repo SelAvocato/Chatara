@@ -18,7 +18,7 @@ router.get('/', authenticate, async (req, res) => {
 })
 
 router.post('/create', authenticate, async (req, res) => {
-    const { chatroomName, username } = req.body
+    const { chatroomName, username, newChatroomImage } = req.body
     if (!chatroomName || !username || username.length === 0) return res.status(400).json({ message: "Chatroom and Participant names must not be empty" })
     const userId = req.id
     if (!userId) return res.status(400).json({ message: 'Missing user Id' })
@@ -33,8 +33,8 @@ router.post('/create', authenticate, async (req, res) => {
             membersId.push(memberId)
         }
 
-        const chatroomQuery = `INSERT INTO chatroom_tbl(name, creator_id) value (?, ?)`
-        const [newChatroom] = await pool.execute(chatroomQuery, [chatroomName, userId])
+        const chatroomQuery = `INSERT INTO chatroom_tbl(name, creator_id, chatroom_img_url) value (?, ?, ?)`
+        const [newChatroom] = await pool.execute(chatroomQuery, [chatroomName, userId, newChatroomImage])
         const chatroomId = newChatroom.insertId
 
         const participantQuery = `INSERT INTO participant_tbl(chatroom_id, user_id) value (?, ?)`

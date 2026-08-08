@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useChatroom } from '../../../hooks/useChatroom'
 import style from './ChatroomInfo.module.css'
 import Avatar from '../../../component/Avatar/Avatar'
-import ChatroomImageForm from './ChatroomImageForm'
+import ChatroomImageForm from '../../../component/ChatroomImageForm/ChatroomImageForm'
 
 export default function ChatroomInfo() {
     const { chatroomInfoStyle, chatroomInfoHeaderStyle, chatroomImageStyle, formStyle, inputRenameChatroomStyle, formActionsStyle, inputCancelRenameStyle,

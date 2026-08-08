@@ -4,22 +4,24 @@ import { useAuth } from "../../../hooks/useAuth"
 import style from "./CreateChatroom.module.css"
 import Avatar from '../../../component/Avatar/Avatar'
 import { useWebsocket } from "../../../hooks/useWebsocket"
+import ChatroomImageForm from "../../../component/ChatroomImageForm/ChatroomImageForm"
 
 export default function CreateChatroom({ setIsCreatingChatroom }) {
     const api = useApi()
     const { user } = useAuth()
     const { wsRef } = useWebsocket()
-    const { formContainer, closeBtnStyle, formStyle, headerContainerStyle, gcImageContainerStyle, chatroomNameStyle, memberContainerStyle, userProfileContainerStyle, userRowStyle,
+    const { formContainer, closeBtnStyle, formStyle, headerContainerStyle, gcImageContainerStyle, chatroomImageFormStyle, chatroomNameStyle, memberContainerStyle, userProfileContainerStyle, userRowStyle,
         buttonsContainerStyle, usernameContainerStyle, usernameStyle, filteredUsersContainerStyle, filteredUserContainerStyle,
         filteredUserImageContainer, filteredUsername, noUsersFoundStyle, errorMessageStyle, footerContainerStyle } = style
     const focusLastMember = useRef(null)
-    const [isLoading, setIsLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
-    const [memberCount, setMemberCount] = useState(1)
-    const [memberUsername, setMemberUsername] = useState('')
     const [focusedUser, setFocusedUser] = useState(null)
     const [filteredUsers, setFilteredUsers] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
     const [selectedMembers, setSelectedMembers] = useState([])
+    const [memberCount, setMemberCount] = useState(1)
+    const [memberUsername, setMemberUsername] = useState('')
+    const [newChatroomImage, setNewChatroomImage] = useState(null)
     const isInputEmpty = memberUsername === ''
 
     useEffect(() => {
@@ -44,13 +46,14 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
         const entries = Object.fromEntries(formData.entries())
         const chatroomInfo = {
             chatroomName: entries.chatroomName,
-            username: usernames
+            username: usernames,
+            newChatroomImage
         }
         try {
             const data = await api.post('/chatrooms/create', chatroomInfo)
             if (data.status !== 'ok') return setErrorMessage(data.message)
             const { username, chatroomName } = chatroomInfo
-            wsRef?.current?.send(JSON.stringify({ username, name: chatroomName, id: data.chatroomId, type: 'createChatroom' }))
+            wsRef?.current?.send(JSON.stringify({ username, name: chatroomName, id: data.chatroomId, type: 'createChatroom', chatroom_img_url: newChatroomImage }))
             setIsCreatingChatroom(false)
         } catch (e) {
             console.error(e)
@@ -97,9 +100,12 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
                 <form onSubmit={handleSubmit}>
                     <div className={headerContainerStyle}>
                         <div className={gcImageContainerStyle}>
-                            <Avatar src={'https://www.svgrepo.com/show/458220/group.svg'} />
+                            <Avatar src={newChatroomImage || 'https://www.svgrepo.com/show/458220/group.svg'} />
+                            <div className={chatroomImageFormStyle}>
+                                <ChatroomImageForm setNewChatroomImage={setNewChatroomImage} />
+                            </div>
                         </div>
-                        <input className={chatroomNameStyle} name='chatroomName' type="text" placeholder='Chatroom Name' autoComplete='off' />
+                        <input className={chatroomNameStyle} name='chatroomName' type="text" placeholder='Chatroom Name' autoComplete='off' required />
                     </div>
                     <div className={memberContainerStyle}>
                         {
@@ -115,7 +121,7 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
                                             {
                                                 focusedUser === i
                                                     ? <>
-                                                        <input className={usernameStyle} name='username' type="text" placeholder='Participant Name' autoComplete='off' value={memberUsername}
+                                                        <input className={usernameStyle} name='username' type="text" required placeholder='Participant Name' autoComplete='off' value={memberUsername}
                                                             onChange={(e) => {
                                                                 setSelectedMembers(prev => prev.filter(member => member.i !== i))
                                                                 setMemberUsername(e.target.value)
@@ -157,7 +163,7 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
                                                         }
 
                                                     </>
-                                                    : <input className={usernameStyle} name='username' type="text" placeholder='Participant Name' autoComplete='off'
+                                                    : <input className={usernameStyle} name='username' required type="text" placeholder='Participant Name' autoComplete='off'
                                                         onFocus={(e) => {
                                                             setMemberUsername(e.target.value)
                                                             setFocusedUser(i)

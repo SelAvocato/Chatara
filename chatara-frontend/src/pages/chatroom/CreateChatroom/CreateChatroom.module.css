@@ -59,16 +59,31 @@
     display: flex;
     flex-direction: column;
     place-items: center;
-    gap: 5px;
+    gap: 10px;
     width: 100%;
     margin-bottom: 15px;
 }
 
 .gcImageContainerStyle {
-    width: 50px;
-    height: 50px;
+    position: relative;
+    width: 70px;
+    height: 70px;
     background-color: var(--avatar-bg-color);
     border-radius: 50%;
+}
+
+.chatroomImageFormStyle {
+    position: absolute;
+    bottom: -6px;
+    left: 45px;
+    font-size: 15px;
+    font-weight: var(--medium-text-font);
+    background-color: #ffffff63;
+    color: #01011f;
+    border-radius: 3px;
+    width: 115px;
+    text-align: center;
+    padding: 3px 5px;
 }
 
 .chatroomNameStyle {
