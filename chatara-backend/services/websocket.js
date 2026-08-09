@@ -64,6 +64,7 @@ websocketService = {
                     case 'createChatroom':
                         for (const client of wss.clients) {
                             if (client.readyState === WebSocket.OPEN && (parsed.username.includes(client.username) || socket.id === client.id)) {
+                                client.chatrooms = [...client.chatrooms, parsed.id]
                                 client.send(JSON.stringify(parsed))
                             }
                         }

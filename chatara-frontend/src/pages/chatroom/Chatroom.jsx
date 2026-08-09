@@ -28,7 +28,6 @@ export default function Chatroom() {
     const isFetchingChatrooms = useRef(false)
     const chatroomsListRef = useRef(null)
 
-    console.log(hasOpenChat)
     useEffect(() => {
         async function getChatrooms() {
             try {
