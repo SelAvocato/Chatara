@@ -12,7 +12,9 @@ export function ChatroomProvider({ children }) {
     const [chatroom, setChatroom] = useState(null)
     const [members, setMembers] = useState(null)
     const [isChatroomInfoOpened, setIsChatroomInfoOpened] = useState(false)
-    const savedChatroomId = JSON.parse(localStorage.getItem('recentChatroomId')) || null
+    const getChatroomId = localStorage.getItem('recentChatroomId')
+    const savedChatroomId = getChatroomId === 'undefined' ? localStorage.setItem('recentChatroomId', JSON.parse(null)) : JSON.parse(getChatroomId)
+
 
     const getChatroomInfo = useCallback(async (chatroomId) => {
         try {

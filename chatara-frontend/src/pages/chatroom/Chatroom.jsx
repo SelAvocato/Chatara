@@ -20,7 +20,8 @@ export default function Chatroom() {
     const [searchedChatroom, setSearchedChatroom] = useState('')
     const [filteredChatrooms, setFilteredChatrooms] = useState(null)
     const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
-    const [hasOpenChat, setHasOpenChat] = useState(localStorage.getItem('recentChatroomId') !== null)
+    const [hasOpenChat, setHasOpenChat] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) !== null || undefined)
+    const [eldestChatroomTimeStamp, setEldestChatroomTimestamp] = useState(null)
 
     useEffect(() => {
         async function getChatrooms() {
