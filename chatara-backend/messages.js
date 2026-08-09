@@ -117,7 +117,7 @@ module.exports = function (wss) {
         const { message_id } = req.query
 
         if (!chatroomId || !message_id) return res.status(400).json({ message: 'Missing chatroom or message Id' })
-        const query = `UPDATE message_tbl SET message_status = 'seen' WHERE chatroom_id = ? AND id = ? AND message_status = 'delivered'`
+        const query = `UPDATE message_tbl SET message_status = 'seen' WHERE chatroom_id = ? AND id = ? AND (message_status = 'delivered' OR message_status = 'sent')`
         try {
             await pool.execute(query, [chatroomId, message_id])
             res.status(200).json({ status: 'ok' })

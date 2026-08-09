@@ -25,13 +25,18 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
                     setLatestMessage(data?.data || null)
                     return
                 }
-                for (let x = 0; x < data.messages.length; x++) {
-                    if (data.messages[x].message_status !== 'sent') continue
-                    const currentMessage = data.messages[x]
-                    const { message_id, chatroom_id } = currentMessage
-                    wsRef?.current?.send(JSON.stringify({ message_id, chatroom_id, message_status: 'delivered', type: 'delivered' }))
-                }
-                setLatestMessage(data?.messages?.at(-1))
+                // for (let x = 0; x < data.messages.length; x++) {
+                //     if (data.messages[x].message_status !== 'sent') continue
+                //     const currentMessage = data.messages[x]
+                //     const { message_id, chatroom_id } = currentMessage
+                //     wsRef?.current?.send(JSON.stringify({ message_id, chatroom_id, message_status: 'delivered', type: 'delivered' }))
+                // }
+
+                const recentMessage = data?.messages?.at(-1)
+                const { message_id, chatroom_id } = recentMessage
+                wsRef?.current?.send(JSON.stringify({ message_id, chatroom_id, message_status: 'delivered', type: 'delivered' }))
+
+                setLatestMessage(recentMessage)
                 setUnreadMessagesCount(data?.messages?.length)
                 await api.put(`/messages/delivered/${chatroom.id}`)
             } catch (e) {
@@ -43,21 +48,24 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
 
     useEffect(() => {
         if (latestMessageWs?.chatroom_id !== chatroom.id) return
-        console.log(latestMessageWs)
-        const changeLatestMessage = () => {
+        async function changeLatestMessage() {
             setLatestMessage(latestMessageWs)
             if (latestMessageWs.sender_id !== user.id && latestMessageWs.type === 'notification') {
                 setUnreadMessagesCount(prev => prev + 1)
             }
+            const { message_id, chatroom_id } = latestMessageWs
+            await api.put(`/messages/delivered/${chatroom_id}`)
+            wsRef?.current?.send(JSON.stringify({ message_id, chatroom_id, message_status: 'delivered', type: 'delivered' }))
         }
         changeLatestMessage()
-    }, [latestMessageWs, chatroom.id, user, wsRef])
+    }, [latestMessageWs, chatroom.id, user, wsRef, api])
 
     async function onOpenChat(chatroomId) {
         if (chatroomId === currentChatroomId) return
         if (hasOpenChat === false) {
             setHasOpenChat(true)
         }
+        setUnreadMessagesCount(null)
         await openChat(chatroomId)
     }
 
