@@ -4,15 +4,17 @@ import { useApi } from '../../../hooks/useApi'
 import Avatar from '../../../component/Avatar/Avatar'
 import style from './ChatroomList.module.css'
 import { memo } from 'react'
+import { useAuth } from '../../../hooks/useAuth'
 
 const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasOpenChat }) {
-    const [latestMessage, setLatestMessage] = useState(null)
-    const [unreadMessagesCount, setUnreadMessagesCount] = useState(null)
-
-    const { chatRoomStyle, chatroomImageContainerStyle, latestMessageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle, 
+    const { chatRoomStyle, chatroomImageContainerStyle, latestMessageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle,
         latestMessageInfoStyle, unreadMessageStyle } = style
     const { wsRef, latestMessageWs, openChat, currentChatroomId } = useWebsocket()
     const api = useApi()
+    const { user } = useAuth()
+
+    const [latestMessage, setLatestMessage] = useState(null)
+    const [unreadMessagesCount, setUnreadMessagesCount] = useState(null)
 
     useEffect(() => {
         async function fetchLatestMessage() {
@@ -41,9 +43,15 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
 
     useEffect(() => {
         if (latestMessageWs?.chatroom_id !== chatroom.id) return
-        const changeLatestMessage = () => setLatestMessage(latestMessageWs)
+        console.log(latestMessageWs)
+        const changeLatestMessage = () => {
+            setLatestMessage(latestMessageWs)
+            if (latestMessageWs.sender_id !== user.id && latestMessageWs.type === 'notification') {
+                setUnreadMessagesCount(prev => prev + 1)
+            }
+        }
         changeLatestMessage()
-    }, [latestMessageWs, chatroom.id])
+    }, [latestMessageWs, chatroom.id, user, wsRef])
 
     async function onOpenChat(chatroomId) {
         if (chatroomId === currentChatroomId) return

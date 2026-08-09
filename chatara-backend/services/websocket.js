@@ -88,8 +88,9 @@ websocketService = {
 
     broadcastPayload: (wss, payload, chatroomId) => {
         for (const client of wss.clients) {
-            if (client.readyState === WebSocket.OPEN && client.currentRoom === chatroomId) {
+            if (client.currentRoom === chatroomId && client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify(payload))
+                continue
             }
 
             if (client.readyState === WebSocket.OPEN && client.chatrooms.includes(chatroomId)) {
