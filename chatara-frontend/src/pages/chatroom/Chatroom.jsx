@@ -9,6 +9,7 @@ import ChatroomList from "./ChatroomList/ChatroomList"
 import ChatroomInfo from "./ChatroomInfo/ChatroomInfo"
 import { useChatroom } from "../../hooks/useChatroom"
 import { useWebsocket } from "../../hooks/useWebsocket"
+import { useRef } from "react"
 
 export default function Chatroom() {
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
@@ -22,16 +23,25 @@ export default function Chatroom() {
     const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
     const [hasOpenChat, setHasOpenChat] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) !== null || undefined)
     const [eldestChatroomTimeStamp, setEldestChatroomTimestamp] = useState(null)
+    const [isRequestingChatrooms, setIsRequestingChatrooms] = useState(false)
+    const chatroomListBottomRef = useRef(null)
+    const isFetchingChatrooms = useRef(false)
+    const chatroomsListRef = useRef(null)
 
     useEffect(() => {
         async function getChatrooms() {
             try {
-                const data = await api.get(`/chatrooms`)
+                const data = await api.get(`/chatrooms?timestamp=`)
                 if (data.status !== 'ok') {
-                    setMessage(data.message)
+                    setMessage(data?.message)
                     return
                 }
-                setChatrooms(data.chatrooms)
+                setChatrooms(data?.chatrooms)
+
+                const eldestChatroom = data.chatrooms.at(-1)
+                const createdAtToDate = new Date(eldestChatroom?.created_at)
+                const sentAtToDate = new Date(eldestChatroom?.sent_at)
+                setEldestChatroomTimestamp(createdAtToDate > sentAtToDate ? eldestChatroom?.created_at : eldestChatroom?.sent_at)
             } catch (e) {
                 console.error(e)
                 setMessage(e)
@@ -40,6 +50,52 @@ export default function Chatroom() {
 
         getChatrooms()
     }, [api])
+
+    useEffect(() => {
+        const chatroomListBottom = chatroomListBottomRef.current
+        const observer = new IntersectionObserver(([entry]) => {
+            setIsRequestingChatrooms(entry.isIntersecting)
+        }, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 1
+        })
+
+        if (chatroomListBottom) {
+            observer.observe(chatroomListBottom)
+        }
+
+        return () => observer.unobserve(chatroomListBottom)
+    }, [chatroomListBottomRef])
+
+    useEffect(() => {
+        if (!isRequestingChatrooms || isFetchingChatrooms.current || !eldestChatroomTimeStamp) return
+        const controller = new AbortController()
+
+        async function getMoreChatrooms() {
+            isFetchingChatrooms.current = true
+            try {
+                const data = await api.get(`/chatrooms?timestamp=${eldestChatroomTimeStamp}`, {
+                    signal: controller.signal
+                })
+                const oldChatrooms = data.chatrooms
+                if (oldChatrooms.length === 0) return
+                const eldestChatroom = oldChatrooms.at(-1)
+                const createdAtToDate = new Date(eldestChatroom?.created_at)
+                const sentAtToDate = new Date(eldestChatroom?.sent_at)
+                setEldestChatroomTimestamp(createdAtToDate > sentAtToDate ? eldestChatroom?.created_at : eldestChatroom?.sent_at)
+                setChatrooms(prev => [...prev, ...oldChatrooms])
+            } catch (e) {
+                if (e.name === 'AbortError') return
+                console.error(e)
+            } finally {
+                isFetchingChatrooms.current = false
+            }
+        }
+        getMoreChatrooms()
+
+        return () => controller.abort()
+    }, [isRequestingChatrooms, api, eldestChatroomTimeStamp])
 
     useEffect(() => {
         if (!newChatroom) return
@@ -74,9 +130,9 @@ export default function Chatroom() {
                         <img onClick={() => setIsCreatingChatroom(true)} src={addCircle} alt="Add Circle" />
                     </div>
                 </div>
-                <div className={chatroomsListStyle}>
+                <div className={chatroomsListStyle} ref={chatroomsListRef}>
                     <SearchChatroom searchedChatroom={searchedChatroom} setSearchedChatroom={setSearchedChatroom} />
-                    <div style={{ marginTop: '3rem', height: '100%', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ marginTop: '3rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {
                             searchedChatroom !== '' && filteredChatrooms
                                 ? filteredChatrooms.length === 0
@@ -87,11 +143,12 @@ export default function Chatroom() {
 
                                 : chatrooms && chatrooms.length > 0
                                     ? chatrooms.map(chatroom =>
-                                        <ChatroomList key={chatroom.id} chatroom={chatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
+                                        <ChatroomList key={chatroom?.id} chatroom={chatroom} hasOpenChat={hasOpenChat} setHasOpenChat={setHasOpenChat} />
                                     )
                                     : message
                         }
                     </div>
+                    <div style={{ height: '1px' }} ref={chatroomListBottomRef}></div>
                 </div>
 
                 {isCreatingChatroom && < CreateChatroom setIsCreatingChatroom={setIsCreatingChatroom} />}

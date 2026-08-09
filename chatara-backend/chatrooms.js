@@ -7,11 +7,31 @@ const { catchRouterError } = require('./utils/handleError')
 router.get('/', authenticate, async (req, res) => {
     const id = req.id
     if (!id) return res.status(400).json({ message: "Error: Missing Id" })
-    const query = `SELECT c.id, c.name, c.chatroom_img_url FROM chatroom_tbl c INNER JOIN participant_tbl p ON c.id = p.chatroom_id LEFT JOIN message_tbl m ON m.chatroom_id = c.id WHERE p.user_id = ? GROUP BY c.id, c.name ORDER BY COALESCE(MAX(m.sent_at), c.created_at) DESC LIMIT 8`;
+
+    const { timestamp } = req.query
+
+    const baseQuery = `
+        SELECT c.id, c.name, c.chatroom_img_url, c.created_at, activity.last_activity as sent_at
+        FROM chatroom_tbl c
+        INNER JOIN participant_tbl p ON c.id = p.chatroom_id
+        INNER JOIN (
+            SELECT c2.id as chatroom_id, COALESCE(MAX(m.sent_at), c2.created_at) as last_activity
+            FROM chatroom_tbl c2
+            LEFT JOIN message_tbl m ON m.chatroom_id = c2.id
+            GROUP BY c2.id
+        ) activity ON activity.chatroom_id = c.id
+        WHERE p.user_id = ?
+        ${timestamp ? 'AND activity.last_activity < ?' : ''}
+        ORDER BY activity.last_activity DESC
+        LIMIT 8
+    `;
+
+    const params = timestamp ? [id, timestamp] : [id];
+
     try {
-        const [chatrooms] = await pool.execute(query, [id])
-        if (chatrooms.length === 0) return res.json({ message: "You have no chatrooms" })
-        res.json({ chatrooms, status: 'ok' })
+        const [chatrooms] = await pool.execute(baseQuery, params)
+        if (chatrooms.length === 0) return res.status(200).json({ chatrooms: [], message: "You have no chatrooms" })
+        res.status(200).json({ chatrooms, status: 'ok' })
     } catch (e) {
         catchRouterError(e, res)
     }
