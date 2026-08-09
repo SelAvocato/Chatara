@@ -9,7 +9,6 @@ function generateAccessToken(user) {
 }
 
 function generateRefreshToken(user) {
-    console.log('generated new refresh token')
     return jwt.sign(
         { sub: user.id },
         process.env.REFRESH_TOKEN_SECRET,

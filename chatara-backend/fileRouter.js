@@ -44,14 +44,12 @@ const uploadRouter = {
 
                         if (oldFileKey) {
                             await utapi.deleteFiles(oldFileKey)
-                            console.log(`Cloud Cleared: Erased file key ${oldFileKey}`)
                         }
                     }
                 }
 
                 const query = `UPDATE user_tbl SET pfp_url = ? WHERE id = ?`
                 await pool.execute(query, [secureUrl, userId])
-                console.log(`Successfully updated database profile picture string for User ${userId}`)
             } catch (err) {
                 console.error('MySQL statement failure / Deletion loop crash:', err)
             }
@@ -96,7 +94,6 @@ const uploadRouter = {
             const secureUrl = file.ufsUrl || file.url
 
             if (metadata.isNewRoom) {
-                console.log(`Cloud Saved: Temp chatroom asset uploaded to cloud: ${secureUrl}`)
                 return
             }
             const chatroomId = metadata.chatroomId
@@ -113,14 +110,12 @@ const uploadRouter = {
                         const oldFileKey = urlSegments[urlSegments.length - 1]
                         if (oldFileKey) {
                             await utapi.deleteFiles(oldFileKey)
-                            console.log(`Cloud Cleared: Erased old chatroom image key ${oldFileKey}`)
                         }
                     }
                 }
 
                 const updateQuery = `UPDATE chatroom_tbl SET chatroom_img_url = ? WHERE id = ?`
                 await pool.execute(updateQuery, [secureUrl, chatroomId])
-                console.log(`Successfully updated image for Chatroom ${chatroomId}`)
             } catch (err) {
                 console.error('MySQL chatroom upload completion failure:', err)
             }

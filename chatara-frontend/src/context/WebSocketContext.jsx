@@ -42,7 +42,7 @@ export function WebSocketProvider({ children }) {
             try {
                 const parsed = JSON.parse(event.data)
                 const { username, pfp_url, message_status } = parsed
-                console.log('parsed data: ', parsed)
+                // console.log('parsed data: ', parsed)
 
                 switch (parsed.type) {
                     case 'chat':

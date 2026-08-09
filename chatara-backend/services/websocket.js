@@ -21,7 +21,6 @@ websocketService = {
                     case 'join':
                         socket.currentRoom = parsed.chatroomId
                         socket.id = parsed.userId
-                        console.log(socket.id, ' joined ', socket.currentRoom)
                         break
                     case 'typing':
                         broadcast({
