@@ -9,10 +9,34 @@ websocketService = {
                 const parsed = JSON.parse(data.toString())
                 const { username, pfp_url } = parsed
 
-                function broadcast(payload) {
+                function broadcastTypingIndicator(payload) {
                     for (const client of wss.clients) {
                         if (client.currentRoom === socket.currentRoom && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
                             client.send(JSON.stringify(payload))
+                        }
+                    }
+                }
+
+                function broadcastMessageStatus() {
+                    for (const client of wss.clients) {
+                        if (client.currentRoom === parsed.chatroom_id && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify(parsed))
+                        }
+                    }
+                }
+
+                function broadcastChatroomInfo() {
+                    for (const client of wss.clients) {
+                        if (client.chatrooms.includes(parsed.id) && client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify(parsed))
+                        }
+                    }
+                }
+
+                function broadcastMessageActions() {
+                    for (const client of wss.clients) {
+                        if (client.currentRoom === socket.currentRoom && client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify(parsed))
                         }
                     }
                 }
@@ -23,44 +47,30 @@ websocketService = {
                         socket.id = parsed.userId
                         break
                     case 'typing':
-                        broadcast({
+                        broadcastTypingIndicator({
                             type: 'typing',
                             username,
                             pfp_url
                         })
                         break
                     case 'stoppedTyping':
-                        broadcast({
+                        broadcastTypingIndicator({
                             type: 'stoppedTyping',
                             username: parsed.username
                         })
                         break
                     case 'editMessage':
-                        for (const client of wss.clients) {
-                            if (client.currentRoom === socket.currentRoom && client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify(parsed))
-                            }
-                        }
+                        broadcastMessageActions()
                         break
                     case 'deleteMessage':
-                        for (const client of wss.clients) {
-                            if (client.currentRoom === socket.currentRoom && client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify(parsed))
-                            }
-                        }
+                        broadcastMessageActions()
                         break
                     case 'delivered':
-                        for (const client of wss.clients) {
-                            if (client.currentRoom === parsed.chatroom_id && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify(parsed))
-                            }
-                        }
+                        broadcastMessageStatus()
+                        break
                     case 'seen':
-                        for (const client of wss.clients) {
-                            if (client.currentRoom === parsed.chatroom_id && client.id !== socket.id && client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify(parsed))
-                            }
-                        }
+                        broadcastMessageStatus()
+                        break
                     case 'createChatroom':
                         for (const client of wss.clients) {
                             if (client.readyState === WebSocket.OPEN && (parsed.username.includes(client.username) || socket.id === client.id)) {
@@ -70,18 +80,10 @@ websocketService = {
                         }
                         break
                     case 'changeChatroomImage':
-                        for (const client of wss.clients) {
-                            if (client.chatrooms.includes(parsed.id) && client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify(parsed))
-                            }
-                        }
+                        broadcastChatroomInfo()
                         break
                     case 'renameChatroom':
-                        for (const client of wss.clients) {
-                            if (client.chatrooms.includes(parsed.id) && client.readyState === WebSocket.OPEN) {
-                                client.send(JSON.stringify(parsed))
-                            }
-                        }
+                        broadcastChatroomInfo()
                         break
                     default:
                         break
