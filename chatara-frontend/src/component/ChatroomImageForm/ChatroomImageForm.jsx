@@ -1,10 +1,12 @@
 import { useRef } from 'react'
 import { useUploadThing } from '../../../utils/uploadthing'
 import { useAuth } from '../../hooks/useAuth'
+import { useWebsocket } from '../../hooks/useWebsocket'
 import { useChatroom } from '../../hooks/useChatroom'
 
 export default function ChatroomImageForm({ setNewChatroomImage }) {
     const { accessToken } = useAuth()
+    const { wsRef } = useWebsocket()
     const { chatroom, setChatroom } = useChatroom()
     const hiddenFileInputRef = useRef(null)
     const isCreationMode = Boolean(setNewChatroomImage)
@@ -28,6 +30,7 @@ export default function ChatroomImageForm({ setNewChatroomImage }) {
                 } else {
                     if (setChatroom) {
                         setChatroom(prev => ({ ...prev, chatroom_img_url: newRoomUrl }))
+                        wsRef?.current?.send(JSON.stringify({ type: 'changeChatroomImage', id: chatroom.id, chatroom_img_url: newRoomUrl }))
                     }
                     alert('Chatroom avatar updated successfully!')
                 }

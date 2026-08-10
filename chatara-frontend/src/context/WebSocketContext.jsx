@@ -10,6 +10,10 @@ const WebSocketContext = createContext(null)
 const WebsocketActionsContext = createContext(null)
 
 export function WebSocketProvider({ children }) {
+    const api = useApi()
+    const handleTokenExpiration = useHandleTokenExpiration()
+    const { user, accessToken, setUser, setAccessToken } = useAuth()
+    const { savedChatroomId, getChatroomInfo } = useChatroom()
     const wsRef = useRef(null)
     const lastMessageRef = useRef(null)
     const isReconnectingRef = useRef(false)
@@ -22,10 +26,7 @@ export function WebSocketProvider({ children }) {
     const [newChatroom, setNewChatroom] = useState(null)
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
-    const { user, accessToken, setUser, setAccessToken } = useAuth()
-    const { savedChatroomId, getChatroomInfo } = useChatroom()
-    const api = useApi()
-    const handleTokenExpiration = useHandleTokenExpiration()
+    const [editedChatroomImage, setEditedChatroomImage] = useState(null)
 
     const baseUrl = import.meta.env.VITE_API_BASE_URL
 
@@ -121,6 +122,9 @@ export function WebSocketProvider({ children }) {
                     case 'createChatroom':
                         setNewChatroom(parsed)
                         break
+                    case 'changeChatroomImage':
+                        setEditedChatroomImage(parsed)
+                        break
                     default:
                         break
                 }
@@ -197,9 +201,11 @@ export function WebSocketProvider({ children }) {
 
     const contextValue = useMemo(() => ({
         wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
-        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom
+        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom,
+        editedChatroomImage
     }), [openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
-        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom
+        editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom,
+        editedChatroomImage
     ])
 
     const chatBubbleContextValue = useMemo(() => ({

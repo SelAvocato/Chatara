@@ -69,6 +69,13 @@ websocketService = {
                             }
                         }
                         break
+                    case 'changeChatroomImage':
+                        for (const client of wss.clients) {
+                            if (client.chatrooms.includes(parsed.id) && client.readyState === WebSocket.OPEN) {
+                                client.send(JSON.stringify(parsed))
+                            }
+                        }
+                        break
                     default:
                         break
                 }

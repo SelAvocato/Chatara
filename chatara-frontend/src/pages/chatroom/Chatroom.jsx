@@ -14,8 +14,8 @@ import { useRef } from "react"
 export default function Chatroom() {
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
     const api = useApi()
-    const { isChatroomInfoOpened } = useChatroom()
-    const { newChatroom, latestMessageWs } = useWebsocket()
+    const { chatroom, setChatroom, isChatroomInfoOpened } = useChatroom()
+    const { newChatroom, latestMessageWs, editedChatroomImage } = useWebsocket()
     const [message, setMessage] = useState('')
     const [chatrooms, setChatrooms] = useState(null)
     const [searchedChatroom, setSearchedChatroom] = useState('')
@@ -120,6 +120,21 @@ export default function Chatroom() {
         const updateChatrooms = () => setChatrooms(prev => [...prev.filter(chatroom => chatroom.id === latestMessageWs.chatroom_id), ...prev.filter(chatroom => chatroom.id !== latestMessageWs.chatroom_id)])
         updateChatrooms()
     }, [latestMessageWs])
+
+    useEffect(() => {
+        if (!editedChatroomImage) return
+        const modifyUpdatedChatroom = () => {
+            setChatrooms(prev => prev.map(chatroom =>
+                chatroom.id === editedChatroomImage.id
+                    ? { ...chatroom, chatroom_img_url: editedChatroomImage.chatroom_img_url }
+                    : chatroom
+            ))
+            if (chatroom?.id === editedChatroomImage?.id) {
+                setChatroom(prev => ({ ...prev, chatroom_img_url: editedChatroomImage.chatroom_img_url }))
+            }
+        }
+        modifyUpdatedChatroom()
+    }, [editedChatroomImage, chatroom?.id, setChatroom])
 
     return (
         <div className={main}>
