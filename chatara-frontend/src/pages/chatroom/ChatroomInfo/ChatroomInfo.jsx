@@ -20,6 +20,15 @@ export default function ChatroomInfo() {
     const [newChatroomName, setNewChatroomName] = useState(chatroom?.name)
 
     useEffect(() => {
+        return () => {
+            setNewChatroomName(chatroom?.name)
+            setIsChangingChatroomName(false)
+            setIsLeavingChatroom(false)
+            setIsViewingMembers(false)
+        }
+    }, [chatroom])
+
+    useEffect(() => {
         chatroomNameRef?.current?.focus()
     }, [isChangingChatroomName])
 
