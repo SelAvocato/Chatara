@@ -15,7 +15,7 @@ export default function Chatroom() {
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
     const api = useApi()
     const { chatroom, setChatroom, isChatroomInfoOpened } = useChatroom()
-    const { newChatroom, latestMessageWs, editedChatroomImage } = useWebsocket()
+    const { newChatroom, latestMessageWs, editedChatroomImage, newChatroomName } = useWebsocket()
     const [message, setMessage] = useState('')
     const [chatrooms, setChatrooms] = useState(null)
     const [searchedChatroom, setSearchedChatroom] = useState('')
@@ -123,7 +123,7 @@ export default function Chatroom() {
 
     useEffect(() => {
         if (!editedChatroomImage) return
-        const modifyUpdatedChatroom = () => {
+        function modifyUpdatedChatroom() {
             setChatrooms(prev => prev.map(chatroom =>
                 chatroom.id === editedChatroomImage.id
                     ? { ...chatroom, chatroom_img_url: editedChatroomImage.chatroom_img_url }
@@ -135,6 +135,21 @@ export default function Chatroom() {
         }
         modifyUpdatedChatroom()
     }, [editedChatroomImage, chatroom?.id, setChatroom])
+
+    useEffect(() => {
+        if (!newChatroomName) return
+        function displayRenamedChatroom() {
+            setChatrooms(prev => prev.map(chatroom =>
+                chatroom.id === newChatroomName.id
+                    ? { ...chatroom, name: newChatroomName?.name }
+                    : chatroom
+            ))
+            if (chatroom?.id === newChatroomName?.id) {
+                setChatroom(prev => ({ ...prev, name: newChatroomName?.name }))
+            }
+        }
+        displayRenamedChatroom()
+    }, [newChatroomName, chatroom?.id, setChatroom])
 
     return (
         <div className={main}>

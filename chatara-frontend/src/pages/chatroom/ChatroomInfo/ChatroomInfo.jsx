@@ -3,6 +3,7 @@ import { useChatroom } from '../../../hooks/useChatroom'
 import style from './ChatroomInfo.module.css'
 import Avatar from '../../../component/Avatar/Avatar'
 import ChatroomImageForm from '../../../component/ChatroomImageForm/ChatroomImageForm'
+import { useWebsocket } from '../../../hooks/useWebsocket'
 
 export default function ChatroomInfo() {
     const { chatroomInfoStyle, chatroomInfoHeaderStyle, chatroomImageStyle, formStyle, inputRenameChatroomStyle, formActionsStyle, inputCancelRenameStyle,
@@ -11,6 +12,7 @@ export default function ChatroomInfo() {
         leaveConfirmationStyle, leaveActionsStyle, leaveMessageStyle, confirmLeaveStyle, cancelLeaveStyle
     } = style
     const { chatroom, members, leaveChatroom, renameChatroom } = useChatroom()
+    const { wsRef } = useWebsocket()
     const chatroomNameRef = useRef(null)
     const [isChangingChatroomName, setIsChangingChatroomName] = useState(false)
     const [isViewingMembers, setIsViewingMembers] = useState(false)
@@ -23,10 +25,10 @@ export default function ChatroomInfo() {
 
     async function handleChatroomRename(e) {
         e.preventDefault()
-        if (!newChatroomName || newChatroomName === chatroom?.name) return
-        const stringChatroom = newChatroomName.toString()
-        if (stringChatroom.trim() === '') return
-        renameChatroom(stringChatroom)
+        const trimmedChatroomName = newChatroomName.trim()
+        if (!newChatroomName || trimmedChatroomName === '' || trimmedChatroomName === chatroom?.name) return
+        renameChatroom(trimmedChatroomName)
+        wsRef?.current?.send(JSON.stringify({ type: 'renameChatroom', id: chatroom?.id, name: trimmedChatroomName }))
         setIsChangingChatroomName(false)
     }
 

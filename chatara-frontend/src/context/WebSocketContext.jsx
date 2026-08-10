@@ -27,6 +27,7 @@ export function WebSocketProvider({ children }) {
     const [startChat, setStartChat] = useState('')
     const [chatMessages, setChatMessages] = useState([])
     const [editedChatroomImage, setEditedChatroomImage] = useState(null)
+    const [newChatroomName, setNewChatroomName] = useState(null)
 
     const baseUrl = import.meta.env.VITE_API_BASE_URL
 
@@ -125,6 +126,9 @@ export function WebSocketProvider({ children }) {
                     case 'changeChatroomImage':
                         setEditedChatroomImage(parsed)
                         break
+                    case 'renameChatroom':
+                        setNewChatroomName(parsed)
+                        break
                     default:
                         break
                 }
@@ -202,10 +206,10 @@ export function WebSocketProvider({ children }) {
     const contextValue = useMemo(() => ({
         wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
         editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom,
-        editedChatroomImage
+        editedChatroomImage, newChatroomName
     }), [openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
         editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom,
-        editedChatroomImage
+        editedChatroomImage, newChatroomName
     ])
 
     const chatBubbleContextValue = useMemo(() => ({

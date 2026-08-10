@@ -50,7 +50,7 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
         if (latestMessageWs?.chatroom_id !== chatroom.id) return
         async function changeLatestMessage() {
             setLatestMessage(latestMessageWs)
-            if (latestMessageWs.sender_id !== user.id && latestMessageWs.type === 'notification') {
+            if (latestMessageWs?.sender_id !== user.id && latestMessageWs.type === 'notification') {
                 setUnreadMessagesCount(prev => prev + 1)
             }
             const { message_id, chatroom_id } = latestMessageWs
