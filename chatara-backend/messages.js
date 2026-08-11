@@ -8,12 +8,40 @@ const { catchRouterError } = require('./utils/handleError')
 module.exports = function (wss) {
     router.get('/:id', authenticate, async (req, res) => {
         const id = req.params.id
-        if (!id) return res.status(400).json({ message: 'Missing chatroom Id' })
+        if (!id) return res.status(400).json({ message: 'Missing message id' })
+
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name, u.pfp_url FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
-            const [row] = await pool.execute(query, [id])
-            if (row.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
-            res.json({ row, status: 'ok' })
+            const findMemberQuery = 'SELECT username FROM user_tbl WHERE id = ?'
+            const [members] = await pool.execute(findMemberQuery, [req.id])
+            if (members.length === 0) return res.status(404).json({ message: 'User not found' })
+
+            const getMessageQuery = 'SELECT m.message_text, u.username FROM message_tbl m INNER JOIN user_tbl u ON m.sender_id = u.id WHERE m.id = ?'
+            const [messages] = await pool.execute(getMessageQuery, [id])
+            if (messages.length === 0) return res.status(404).json({ message: 'Message not found' })
+            res.status(200).json({ chatMessage: messages[0] })
+        } catch (e) {
+            catchRouterError(e, res)
+        }
+    })
+
+    router.get('/chatroom/:chatroomId', authenticate, async (req, res) => {
+        const chatroomId = req.params.chatroomId
+        if (!chatroomId) return res.status(400).json({ message: 'Missing chatroom Id' })
+        try {
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.replied_message_id, m.message_status, u.id AS user_id, u.username AS sender_name, u.pfp_url FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
+            const [rows] = await pool.execute(query, [chatroomId])
+            if (rows.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
+
+            let repliedMessagesArr = []
+            const replyInfoQuery = 'SELECT m.id as message_id, m.message_text, u.username FROM message_tbl m INNER JOIN user_tbl u ON m.sender_id = u.id WHERE m.id = ?'
+            for (let x = 0; x < rows.length; x++) {
+                const currentMessage = rows[x]
+                if (currentMessage.replied_message_id === null) continue
+                const [repliedMessages] = await pool.execute(replyInfoQuery, [currentMessage.replied_message_id])
+                if (repliedMessages.length === 0) continue
+                repliedMessagesArr.push(repliedMessages[0])
+            }
+            res.json({ rows, repliedMessages: repliedMessagesArr, status: 'ok' })
         } catch (e) {
             catchRouterError(e, res)
         }
@@ -65,7 +93,7 @@ module.exports = function (wss) {
     })
 
     router.post('/send', authenticate, async (req, res) => {
-        const { chatroomId, messageText } = req.body
+        const { chatroomId, messageText, repliedMessageId } = req.body
         const senderId = req.id
         if (!chatroomId || !senderId || !messageText || messageText.trim() === '') return res.status(400).json({ message: "Message must not be empty" })
 
@@ -75,8 +103,8 @@ module.exports = function (wss) {
             if (memberRows.length === 0) return res.status(403).json({ message: 'You are not a participant of this chatroom' })
             const { username, pfp_url } = memberRows[0]
 
-            const insertQuery = `INSERT INTO message_tbl(chatroom_id, sender_id, message_text, message_status) value (?, ?, ?, 'sent')`
-            const values = [chatroomId, senderId, messageText]
+            const insertQuery = `INSERT INTO message_tbl(chatroom_id, sender_id, message_text, replied_message_id, message_status) value (?, ?, ?, ?, 'sent')`
+            const values = [chatroomId, senderId, messageText, repliedMessageId || null]
             const [result] = await pool.execute(insertQuery, values)
 
             const payload = {
@@ -86,6 +114,7 @@ module.exports = function (wss) {
                 sender_name: username,
                 message_text: messageText,
                 message_id: result.insertId,
+                replied_message_id: repliedMessageId,
                 message_status: 'sent',
                 sent_at: new Date(),
                 pfp_url

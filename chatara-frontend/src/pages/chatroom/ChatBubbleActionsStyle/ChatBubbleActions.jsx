@@ -2,11 +2,14 @@ import { useState } from 'react'
 import style from './ChatBubbleActions.module.css'
 import optionImage from './img/chatbubble-options.svg'
 import replyImage from './img/chatbubble-reply.svg'
+import { useReply } from '../../../hooks/useReply'
 
 export default function ChatBubbleActions({ chatMessage, onEdit, onDeleteForEveryone, isSender, isShowingOptions, setIsShowingOptions }) {
     const { optionImageContainerStyle, replyContainerStyle, replyImageContainerStyle, optionContainerStyle, optionDropdownStyle, above, below, receiver, deleted } = style
+    const { setIsReplying, setReplyingMessageInfo } = useReply()
     const [messageIsBelow, setMessageIsBelow] = useState(false)
 
+    const { message_id, sender_name, message_text } = chatMessage
     const isDeleted = chatMessage?.is_deleted === 1
     const hidden = isDeleted || !isSender
 
@@ -22,7 +25,11 @@ export default function ChatBubbleActions({ chatMessage, onEdit, onDeleteForEver
     return (
         <>
             <div className={replyContainerStyle}>
-                <div className={replyImageContainerStyle}>
+                <div className={replyImageContainerStyle}
+                    onClick={() => {
+                        setIsReplying(true)
+                        setReplyingMessageInfo({ message_id, sender_name, message_text })
+                    }}>
                     <img src={replyImage} alt="reply image" />
                 </div>
             </div>

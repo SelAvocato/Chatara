@@ -10,17 +10,20 @@ import { useWebsocketActions } from '../../../hooks/useWebsocketActions'
 import { getTimeStamp } from '../../../../utils/dateFormatter'
 import { checkIfFirstMessageGroup, checkIfTimestampable, checkIfPartOfRecentMessageGroup, checkIfLastOfMessageGroup, checkIfSingleMessage } from './ChatBubbleHelpers'
 import MessageStatus from '../MessageStatus/MessageStatus'
+import { useReply } from '../../../hooks/useReply'
 
 const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
-    const { user } = useAuth()
-    const api = useApi()
-    const { wsRef, editMessage, deleteMessage } = useWebsocketActions()
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
         partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle,
         confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
+    const { user } = useAuth()
+    const api = useApi()
+    const { wsRef, editMessage, deleteMessage } = useWebsocketActions()
+    const { getRepliedMessageInfo } = useReply()
 
     const chatBubbleRef = useRef(null)
     const inputRef = useRef(null)
+    const [repliedMessageInfo, setRepliedMessageInfo] = useState(null)
     const [isShowingOptions, setIsShowingOptions] = useState(false)
     const [isEditingMessage, setIsEditingMessage] = useState(false)
     const [isSeen, setIsSeen] = useState(false)
@@ -30,6 +33,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
     const isEdited = chatMessage.is_edited === 1
     const isDeleted = chatMessage.is_deleted === 1
 
+    const repliedMessageId = chatMessage?.replied_message_id
     const currentChatMessageSentAtMs = new Date(chatMessage.sent_at)
     const currentChatMessageSenderId = chatMessage?.sender_id
     const currentChatroomId = chatMessage?.chatroom_id
@@ -43,12 +47,19 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
     const isReceivedRecent = checkIfPartOfRecentMessageGroup(prevChatMessage, nextChatMessage, prevChatMessageSenderId, currentChatMessageSenderId, nextChatMessageSenderId, currentChatMessageSentAtMs, prevChatMessageSentAtMs, nextChatMessageSentAtMs)
     const isLast = checkIfLastOfMessageGroup(prevChatMessage, prevChatMessageSenderId, currentChatMessageSenderId, currentChatMessageSentAtMs, prevChatMessageSentAtMs)
     const isSingleMessage = checkIfSingleMessage(prevChatMessageSenderId, currentChatMessageSenderId, nextChatMessageSenderId, currentChatMessageSentAtMs, nextChatMessageSentAtMs, prevChatMessageSentAtMs)
+    const isReply = repliedMessageId !== null
 
     const hasTimestamp = checkIfTimestampable(prevChatMessage, currentChatMessageSentAtMs, prevChatMessageSentAtMs)
-    const showUsername = !isSender && (isFirst || isSingleMessage)
+    const showUsername = !isSender && !isReply && (isFirst || isSingleMessage)
     const isLastMessage = nextChatMessage === undefined
-    const showMessageStatus = isSender && (chatMessage.message_status === 'sending...' || isLastMessage)
-    const hasSeenMessage = chatMessage.message_status === 'seen' || currentChatMessageSenderId === user.id
+    const showMessageStatus = isSender && (chatMessage?.message_status === 'sending...' || isLastMessage)
+    const hasSeenMessage = chatMessage?.message_status === 'seen' || currentChatMessageSenderId === user.id
+
+    useEffect(() => {
+        if (!isReply) return
+        const messageInfo = getRepliedMessageInfo(repliedMessageId)
+        setRepliedMessageInfo(messageInfo)
+    }, [isReply, getRepliedMessageInfo, repliedMessageId])
 
     useEffect(() => {
         if (hasSeenMessage) return
@@ -136,6 +147,12 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                 <div className={`${chatInfo}`}>
                     {showUsername && <p className={usernameStyle} >{chatMessage.sender_name}</p>}
                     {isEdited && <p>Edited</p>}
+                    {isReply &&
+                        <div>
+                            <p>{chatMessage.sender_name} replied to {repliedMessageInfo?.username}</p>
+                            <p>{repliedMessageInfo?.message_text}</p>
+                        </div>
+                    }
                     <div className={chatBubbleContainerStyle}>
                         <div className={`${chatBubble} ${isFirst && firstRecentChat} ${isReceivedRecent && partOfRecentMessageGroupStyle} ${isLast && lastRecentChatStyle} ${isDeleted && deletedMessageBubbleStyle}`} ref={chatBubbleRef}>
                             {isEditingMessage

@@ -29,6 +29,10 @@
     scrollbar-gutter: stable;
 }
 
+.chat.replyingStyle{
+    margin-bottom: -20px;
+}
+
 .chat::-webkit-scrollbar {
     scrollbar-width: thin;
 }

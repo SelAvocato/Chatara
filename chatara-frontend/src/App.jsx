@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { WebSocketProvider } from './context/WebSocketContext.jsx'
 import { ChatroomProvider } from './context/ChatroomContext.jsx'
+import { ReplyProvider } from './context/ReplyContext.jsx'
 import Login from './pages/auth/login/Login.jsx'
 import Signup from './pages/auth/signup/Signup.jsx'
 import Layout from './layout/Layout.jsx'
@@ -18,7 +19,9 @@ export default function App() {
 							<Route path='/' element={
 								<ChatroomProvider>
 									<WebSocketProvider>
-										<Chatroom />
+										<ReplyProvider>
+											<Chatroom />
+										</ReplyProvider>
 									</WebSocketProvider>
 								</ChatroomProvider>
 							}

@@ -5,17 +5,20 @@ import { useWebsocket } from '../../../hooks/useWebsocket'
 import style from './ChatBody.module.css'
 import ChatBubble from '../ChatBubble/ChatBubble.jsx'
 import { useApi } from '../../../hooks/useApi.js'
+import { useReply } from '../../../hooks/useReply.js'
 
 export default function ChatBody() {
+    const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat, replyingStyle } = style
+    const { startChat, chatMessages, isTyping, setFirstMessage, firstMessage, firstMessageIndex, setFirstMessageIndex,
+        setChatMessages } = useWebsocket()
+    const api = useApi()
+    const { isReplying } = useReply()
+
     const bottomRef = useRef(null)
     const [currentDate, setCurrentDate] = useState(() => Date.now())
     const [isRequestingMessages, setIsRequestingMessages] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
-    const { startChat, chatMessages, isTyping, setFirstMessage, firstMessage, firstMessageIndex, setFirstMessageIndex,
-        setChatMessages } = useWebsocket()
-    const api = useApi()
-    const { startChatStyle, chatBodyStyle, chatMessagesStyle, chat } = style
     useEffect(() => {
         const observer = new IntersectionObserver(([entry]) => {
             setIsRequestingMessages(entry.isIntersecting)
@@ -107,7 +110,7 @@ export default function ChatBody() {
 
     return (
         <div className={chatBodyStyle}>
-            <div className={chat}>
+            <div className={`${chat} ${isReplying && replyingStyle}`}>
                 <div className={chatMessagesStyle} ref={containerScrollRef}>
                     {isLoading && <p>Loading...</p>}
                     {
