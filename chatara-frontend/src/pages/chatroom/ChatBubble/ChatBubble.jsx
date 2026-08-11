@@ -140,7 +140,7 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                     {isEdited && <p>Edited</p>}
                     {isReply &&
                         <div>
-                            <p>{chatMessage.sender_name} replied to {chatMessage?.replied_sender_name}</p>
+                            <p>{chatMessage?.sender_name} replied to {chatMessage?.replied_sender_name}</p>
                             <p>{chatMessage?.replied_message_text}</p>
                         </div>
                     }

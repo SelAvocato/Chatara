@@ -62,15 +62,10 @@ export default function ChatMessageActions() {
             type: 'chat',
             chatroomId: currentChatroomId,
             messageText: messageInput,
-            repliedMessageId: replyingMessageInfo?.message_id
+            repliedMessageId: replyingMessageInfo?.message_id,
+            repliedMessageText: replyingMessageInfo?.message_text,
+            repliedSenderName: replyingMessageInfo?.sender_name
         }
-
-        // setChatMessages(prev => [...prev, {
-        //     chatroom_id: currentChatroomId,
-        //     sender_id: user.id,
-        //     senderName: username,
-        //     message_text: messageInput,
-        // }])
 
         try {
             const data = await api.post('/messages/send', (chatInfo))

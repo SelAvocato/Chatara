@@ -87,7 +87,7 @@ module.exports = function (wss) {
     })
 
     router.post('/send', authenticate, async (req, res) => {
-        const { chatroomId, messageText, repliedMessageId } = req.body
+        const { chatroomId, messageText, repliedMessageId, repliedMessageText, repliedSenderName } = req.body
         const senderId = req.id
         if (!chatroomId || !senderId || !messageText || messageText.trim() === '') return res.status(400).json({ message: "Message must not be empty" })
 
@@ -108,7 +108,9 @@ module.exports = function (wss) {
                 sender_name: username,
                 message_text: messageText,
                 message_id: result.insertId,
-                replied_message_id: repliedMessageId,
+                replied_message_id: repliedMessageId || null,
+                replied_message_text: repliedMessageText || null,
+                replied_sender_name: repliedSenderName || null,
                 message_status: 'sent',
                 sent_at: new Date(),
                 pfp_url
