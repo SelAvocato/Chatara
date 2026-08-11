@@ -10,7 +10,6 @@ import { useWebsocketActions } from '../../../hooks/useWebsocketActions'
 import { getTimeStamp } from '../../../../utils/dateFormatter'
 import { checkIfFirstMessageGroup, checkIfTimestampable, checkIfPartOfRecentMessageGroup, checkIfLastOfMessageGroup, checkIfSingleMessage } from './ChatBubbleHelpers'
 import MessageStatus from '../MessageStatus/MessageStatus'
-import { useReply } from '../../../hooks/useReply'
 
 const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
     const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
@@ -19,11 +18,9 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
     const { user } = useAuth()
     const api = useApi()
     const { wsRef, editMessage, deleteMessage } = useWebsocketActions()
-    const { getRepliedMessageInfo } = useReply()
 
     const chatBubbleRef = useRef(null)
     const inputRef = useRef(null)
-    const [repliedMessageInfo, setRepliedMessageInfo] = useState(null)
     const [isShowingOptions, setIsShowingOptions] = useState(false)
     const [isEditingMessage, setIsEditingMessage] = useState(false)
     const [isSeen, setIsSeen] = useState(false)
@@ -54,12 +51,6 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
     const isLastMessage = nextChatMessage === undefined
     const showMessageStatus = isSender && (chatMessage?.message_status === 'sending...' || isLastMessage)
     const hasSeenMessage = chatMessage?.message_status === 'seen' || currentChatMessageSenderId === user.id
-
-    useEffect(() => {
-        if (!isReply) return
-        const messageInfo = getRepliedMessageInfo(repliedMessageId)
-        setRepliedMessageInfo(messageInfo)
-    }, [isReply, getRepliedMessageInfo, repliedMessageId])
 
     useEffect(() => {
         if (hasSeenMessage) return
@@ -149,8 +140,8 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                     {isEdited && <p>Edited</p>}
                     {isReply &&
                         <div>
-                            <p>{chatMessage.sender_name} replied to {repliedMessageInfo?.username}</p>
-                            <p>{repliedMessageInfo?.message_text}</p>
+                            <p>{chatMessage.sender_name} replied to {chatMessage?.replied_sender_name}</p>
+                            <p>{chatMessage?.replied_message_text}</p>
                         </div>
                     }
                     <div className={chatBubbleContainerStyle}>

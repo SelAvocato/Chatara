@@ -28,7 +28,6 @@ export function WebSocketProvider({ children }) {
     const [chatMessages, setChatMessages] = useState([])
     const [editedChatroomImage, setEditedChatroomImage] = useState(null)
     const [newChatroomName, setNewChatroomName] = useState(null)
-    const [repliedMessages, setRepliedMessages] = useState(null)
 
     const baseUrl = import.meta.env.VITE_API_BASE_URL
 
@@ -173,7 +172,6 @@ export function WebSocketProvider({ children }) {
                     ? { ...msg, ref: setFirstMessage }
                     : msg
             ))
-            setRepliedMessages(data?.repliedMessages)
             lastMessageRef.current = data?.row?.at(-1)
         } catch (e) {
             console.error(e)
@@ -208,10 +206,10 @@ export function WebSocketProvider({ children }) {
     const contextValue = useMemo(() => ({
         wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
         editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom,
-        editedChatroomImage, newChatroomName, repliedMessages
+        editedChatroomImage, newChatroomName
     }), [openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
         editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom,
-        editedChatroomImage, newChatroomName, repliedMessages
+        editedChatroomImage, newChatroomName
     ])
 
     const chatBubbleContextValue = useMemo(() => ({

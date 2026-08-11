@@ -28,20 +28,14 @@ module.exports = function (wss) {
         const chatroomId = req.params.chatroomId
         if (!chatroomId) return res.status(400).json({ message: 'Missing chatroom Id' })
         try {
-            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.replied_message_id, m.message_status, u.id AS user_id, u.username AS sender_name, u.pfp_url FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
+            const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, 
+            m.replied_message_id, m.message_status, u.id AS user_id, u.username AS sender_name, u.pfp_url, rm.message_text AS replied_message_text, 
+            ru.username AS replied_sender_name FROM message_tbl m INNER JOIN user_tbl u ON m.sender_id = u.id LEFT JOIN message_tbl rm 
+            ON m.replied_message_id = rm.id LEFT JOIN user_tbl ru ON rm.sender_id = ru.id WHERE m.chatroom_id = ? ORDER BY m.id DESC LIMIT 15`
             const [rows] = await pool.execute(query, [chatroomId])
             if (rows.length === 0) return res.json({ status: 'empty', message: "Start chatting" })
 
-            let repliedMessagesArr = []
-            const replyInfoQuery = 'SELECT m.id as message_id, m.message_text, u.username FROM message_tbl m INNER JOIN user_tbl u ON m.sender_id = u.id WHERE m.id = ?'
-            for (let x = 0; x < rows.length; x++) {
-                const currentMessage = rows[x]
-                if (currentMessage.replied_message_id === null) continue
-                const [repliedMessages] = await pool.execute(replyInfoQuery, [currentMessage.replied_message_id])
-                if (repliedMessages.length === 0) continue
-                repliedMessagesArr.push(repliedMessages[0])
-            }
-            res.json({ rows, repliedMessages: repliedMessagesArr, status: 'ok' })
+            res.json({ rows, status: 'ok' })
         } catch (e) {
             catchRouterError(e, res)
         }
