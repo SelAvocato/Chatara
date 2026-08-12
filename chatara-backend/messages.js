@@ -63,7 +63,10 @@ module.exports = function (wss) {
         const { message_id } = req.query
         if (!chatroomId || !message_id) return res.status(400).json({ message: 'Missing chatroom or message Id' })
 
-        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, m.message_status, u.id AS user_id, u.username AS sender_name, u.pfp_url FROM message_tbl m INNER JOIN user_tbl u on m.sender_id = u.id WHERE chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 15`
+        const query = `SELECT m.id AS message_id, m.chatroom_id, m.sender_id, m.message_text, m.sent_at, m.is_edited, m.is_deleted, 
+            m.replied_message_id, m.message_status, u.id AS user_id, u.username AS sender_name, u.pfp_url, rm.message_text AS replied_message_text, 
+            ru.username AS replied_sender_name FROM message_tbl m INNER JOIN user_tbl u ON m.sender_id = u.id LEFT JOIN message_tbl rm 
+            ON m.replied_message_id = rm.id LEFT JOIN user_tbl ru ON rm.sender_id = ru.id WHERE m.chatroom_id = ? AND m.id < ? ORDER BY message_id DESC LIMIT 15`
         try {
             const [messages] = await pool.execute(query, [chatroomId, message_id])
             res.status(200).json({ messages })
