@@ -80,10 +80,15 @@
 .repliedMessageContainerStyle p:first-child {
     font-size: 13px;
     font-weight: 500;
+    margin-bottom: 3px;
 }
 
 .chatStyle.sent .repliedMessageContainerStyle p:first-child {
     margin-right: 10px;
+}
+
+.chatStyle.received .repliedMessageContainerStyle p:first-child{
+    margin-left: 10px;
 }
 
 .repliedMessageContainerStyle p:last-child {
