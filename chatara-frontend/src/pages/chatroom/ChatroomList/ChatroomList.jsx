@@ -7,7 +7,7 @@ import { memo } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
 
 const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasOpenChat }) {
-    const { chatRoomStyle, chatroomImageContainerStyle, latestMessageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle,
+    const { chatRoomStyle, currentlyOpen, chatroomImageContainerStyle, latestMessageContainerStyle, chatroomNameStyle, chatroomLatestMessageStyle,
         latestMessageInfoStyle, unreadMessageStyle } = style
     const { wsRef, latestMessageWs, openChat, currentChatroomId } = useWebsocket()
     const api = useApi()
@@ -70,7 +70,7 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
     }
 
     return (
-        <div className={chatRoomStyle} key={chatroom.id} onClick={() => onOpenChat(chatroom.id)}>
+        <div className={`${chatRoomStyle} ${currentChatroomId === chatroom.id && currentlyOpen}`} key={chatroom.id} onClick={() => onOpenChat(chatroom.id)}>
             <div className={chatroomImageContainerStyle}>
                 <Avatar src={chatroom.chatroom_img_url || 'https://www.svgrepo.com/show/458220/group.svg'} />
             </div>

@@ -9,11 +9,18 @@
     color: var(--text-color);
     width: 95%;
     text-align: center;
-    transition: 0.25s ease;
 }
 
 .chatRoomStyle div {
     text-align: left;
+}
+
+.chatRoomStyle.currentlyOpen{
+    background-color: #919090c2;
+}
+
+.chatRoomStyle.currentlyOpen:hover{
+    background-color: #999797c2;
 }
 
 .chatRoomStyle:hover {
