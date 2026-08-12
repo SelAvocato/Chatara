@@ -12,9 +12,9 @@ import { checkIfFirstMessageGroup, checkIfTimestampable, checkIfPartOfRecentMess
 import MessageStatus from '../MessageStatus/MessageStatus'
 
 const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, nextChatMessage, currentDate }) {
-    const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, sent, received, firstRecentChat, recentlyReceived,
-        partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle, cancelImageContainerStyle,
-        confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
+    const { chatStyle, timestampStyle, chatBubble, chatInfo, imageContainerStyle, usernameStyle, repliedMessageContainerStyle, sent, received,
+        firstRecentChat, recentlyReceived, partOfRecentMessageGroupStyle, lastRecentChatStyle, chatBubbleContainerStyle, messageBubbleActionsStyle,
+        cancelImageContainerStyle, confirmImageContainerStyle, deletedMessageBubbleStyle, showActions } = style
     const { user } = useAuth()
     const api = useApi()
     const { wsRef, editMessage, deleteMessage } = useWebsocketActions()
@@ -125,6 +125,10 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
         }
     }
 
+    const senderRepliedToSelf = isReply && chatMessage?.sender_id !== user?.id && chatMessage?.replied_sender_name === chatMessage?.sender_name
+    const senderRepliedToYou = isReply && chatMessage?.sender_id !== user?.id && chatMessage?.replied_sender_name === user?.username
+    const youRepliedToYourself = isReply && chatMessage?.sender_id === user?.id && chatMessage?.replied_sender_name === user?.username
+    const youReplied = isReply && chatMessage?.sender_id === user?.id && chatMessage?.replied_sender_name !== user?.username
     return (
         <>
             {hasTimestamp &&
@@ -139,8 +143,14 @@ const ChatBubble = memo(function ChatBubble({ chatMessage, prevChatMessage, next
                     {showUsername && <p className={usernameStyle} >{chatMessage.sender_name}</p>}
                     {isEdited && <p>Edited</p>}
                     {isReply &&
-                        <div>
-                            <p>{chatMessage?.sender_name} replied to {chatMessage?.replied_sender_name}</p>
+                        <div className={repliedMessageContainerStyle}>
+                            <p>{
+                                senderRepliedToSelf ? `${chatMessage?.sender_name} replied to themself`
+                                    : senderRepliedToYou ? `${chatMessage?.sender_name} replied to you`
+                                        : youRepliedToYourself ? `You replied to yourself`
+                                            : youReplied ? `You replied to ${chatMessage?.replied_sender_name}`
+                                                : `${chatMessage?.sender_name} replied to ${chatMessage?.replied_sender_name}`
+                            } </p>
                             <p>{chatMessage?.replied_message_text}</p>
                         </div>
                     }
