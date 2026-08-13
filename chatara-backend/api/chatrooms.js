@@ -1,8 +1,8 @@
-const pool = require('./db')
+const pool = require('../db')
 const express = require('express')
-const { authenticate } = require('./middleware/authenticate')
+const { authenticate } = require('../middleware/authenticate')
 const router = express.Router()
-const { catchRouterError } = require('./utils/handleError')
+const { catchRouterError } = require('../utils/handleError')
 
 router.get('/', authenticate, async (req, res) => {
     const id = req.id

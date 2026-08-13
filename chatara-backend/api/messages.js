@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const pool = require('./db.js')
-const websocketService = require('./services/websocket.js')
-const { authenticate } = require('./middleware/authenticate.js')
-const { catchRouterError } = require('./utils/handleError')
+const pool = require('../db.js')
+const websocketService = require('../services/websocket.js')
+const { authenticate } = require('../middleware/authenticate.js')
+const { catchRouterError } = require('../utils/handleError.js')
 
 module.exports = function (wss) {
     router.get('/:id', authenticate, async (req, res) => {

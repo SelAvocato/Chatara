@@ -1,6 +1,6 @@
 const { createUploadthing } = require('uploadthing/express')
 const { UTApi } = require('uploadthing/server')
-const pool = require('./db.js')
+const pool = require('../db.js')
 const jwt = require('jsonwebtoken')
 
 const f = createUploadthing()

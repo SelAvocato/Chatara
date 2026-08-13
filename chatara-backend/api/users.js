@@ -1,9 +1,9 @@
 const express = require('express')
-const { authenticate } = require('./middleware/authenticate')
-const pool = require('./db')
+const { authenticate } = require('../middleware/authenticate')
+const pool = require('../db')
 const router = express.Router()
 const bcrypt = require('bcrypt')
-const { catchRouterError } = require('./utils/handleError')
+const { catchRouterError } = require('../utils/handleError')
 
 router.get('/filter', authenticate, async (req, res) => {
     const { username } = req.query

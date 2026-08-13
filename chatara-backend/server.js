@@ -33,7 +33,7 @@ app.use((req, res, next) => {
     next()
 })
 const { createRouteHandler } = require('uploadthing/express')
-const { uploadRouter } = require('./fileRouter.js')
+const { uploadRouter } = require('./api/fileRouter.js')
 app.use(
     '/api/uploadthing',
     createRouteHandler({
@@ -47,12 +47,12 @@ app.use(
 const httpServer = new http.createServer(app)
 const wss = new WebSocketServer({ server: httpServer })
 
-const usersRouter = require('./users.js')
+const usersRouter = require('./api/users.js')
 const authRouter = require('./services/auth.js')
-const chatroomsRouter = require('./chatrooms.js')
-const chatroomRouter = require('./chatroom.js')
+const chatroomsRouter = require('./api/chatrooms.js')
+const chatroomRouter = require('./api/chatroom.js')
 const { authenticate } = require('./middleware/authenticate.js')
-const messagesRouter = require('./messages.js')(wss)
+const messagesRouter = require('./api/messages.js')(wss)
 
 app.use('/auth', authRouter)
 app.use('/chatrooms', chatroomsRouter)
