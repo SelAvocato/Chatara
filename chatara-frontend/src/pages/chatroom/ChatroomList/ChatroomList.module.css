@@ -16,11 +16,11 @@
 }
 
 .chatRoomStyle.currentlyOpen{
-    background-color: #919090c2;
+    background-color: #aaaaaa85;
 }
 
 .chatRoomStyle.currentlyOpen:hover{
-    background-color: #999797c2;
+    background-color: #aaaaaa85;
 }
 
 .chatRoomStyle:hover {

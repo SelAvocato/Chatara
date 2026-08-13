@@ -66,7 +66,7 @@ wss.on('connection', async (socket, req) => {
     if (!token) return socket.close()
     socket.accessToken = token
     socket.currentRoom = null
-    socket.chatrooms = []
+    socket.chatrooms = new Set()
 
     try {
         const { authenticateWs } = require('./middleware/authenticate.js')
@@ -74,7 +74,7 @@ wss.on('connection', async (socket, req) => {
 
         const query = `SELECT chatroom_id FROM participant_tbl WHERE user_id = ? `
         const [chatrooms] = await pool.execute(query, [socket.id])
-        socket.chatrooms = chatrooms.map(c => c.chatroom_id)
+        socket.chatrooms = new Set(chatrooms.map(chatroom => chatroom.chatroom_id))
     } catch (e) {
         console.error(e)
         return socket.send(JSON.stringify({ type: 'error', message: 'Something went wrong' }))

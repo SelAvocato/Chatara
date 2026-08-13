@@ -27,7 +27,7 @@ websocketService = {
 
                 function broadcastChatroomInfo() {
                     for (const client of wss.clients) {
-                        if (client.chatrooms.includes(parsed.id) && client.readyState === WebSocket.OPEN) {
+                        if (client.chatrooms.has(parsed.id) && client.readyState === WebSocket.OPEN) {
                             client.send(JSON.stringify(parsed))
                         }
                     }
@@ -74,7 +74,7 @@ websocketService = {
                     case 'createChatroom':
                         for (const client of wss.clients) {
                             if (client.readyState === WebSocket.OPEN && (parsed.username.includes(client.username) || socket.id === client.id)) {
-                                client.chatrooms = [...client.chatrooms, parsed.id]
+                                client.chatrooms.add(parsed.id)
                                 client.send(JSON.stringify(parsed))
                             }
                         }
@@ -109,7 +109,7 @@ websocketService = {
                 continue
             }
 
-            if (client.readyState === WebSocket.OPEN && client.chatrooms.includes(chatroomId)) {
+            if (client.readyState === WebSocket.OPEN && client.chatrooms.has(chatroomId)) {
                 const { type, ...payloadWithoutType } = payload
                 const newPayload = { ...payloadWithoutType, type: 'notification' }
                 client.send(JSON.stringify(newPayload))
