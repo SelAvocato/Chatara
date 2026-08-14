@@ -4,6 +4,7 @@ import { useApi } from '../../hooks/useApi'
 import style from './Settings.module.css'
 import ProfilePictureForm from '../ProfilePictureForm/ProfilePictureForm'
 import Avatar from '../Avatar/Avatar'
+import PasswordInput from '../PasswordInput/PasswordInput'
 
 export default function Settings({ setHasOpenedSettings }) {
     const { user, setUser } = useAuth()
@@ -18,6 +19,7 @@ export default function Settings({ setHasOpenedSettings }) {
     const [oldPassValue, setOldPassValue] = useState('')
     const [newPassValue, setNewPassValue] = useState('')
     const [newUsername, setNewUsername] = useState(user?.username)
+    const [isValid, setIsValid] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
 
     async function handleUsernameChange(e) {
@@ -128,10 +130,15 @@ export default function Settings({ setHasOpenedSettings }) {
                             </div>
                             <div>
                                 <label htmlFor="newPassInput">New password:</label>
-                                <input id='newPassInput' type="password" onChange={(e) => setNewPassValue(e.target.value)} value={newPassValue} required autoComplete='off' />
+                                <PasswordInput passwordText={newPassValue} setPasswordText={setNewPassValue}
+                                    setErrorMessage={setErrorMessage} setIsValid={setIsValid}
+                                />
                             </div>
                             <div className={changePasswordActionsStyle}>
-                                <input type="submit" value={'Confirm'} />
+                                <input type="submit"
+                                    style={!isValid ? { backgroundColor: '#45457ba1', cursor: 'not-allowed' } : { cursor: 'pointer' }}
+                                    value={'Confirm'}
+                                />
                                 <input type='button' value={'Cancel'} onClick={() => {
                                     setIsChangingPassword(false)
                                     setNewPassValue('')

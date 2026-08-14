@@ -47,7 +47,9 @@ router.put('/password', authenticate, async (req, res) => {
     const userId = req.id
     if (!userId) return res.status(401).json({ message: 'Unauthorize' })
     const { oldPassword, newPassword } = req.body
-    if (!oldPassword || !newPassword || oldPassword.trim() === '' || newPassword.trim() === '') return res.status(400).json({ message: 'Old password and new password must not be empty' })
+    if (!oldPassword || oldPassword.trim() === '' || oldPassword.length < 8 || /[^A-Za-z0-9]/.test(oldPassword) === true ||
+        !newPassword || newPassword.trim() === '' || newPassword.length < 8 || /[^A-Za-z0-9]/.test(newPassword) === true
+    ) return res.status(400).json({ message: 'Invalid old or new password' })
 
     try {
         const confirmOldPassQuery = 'SELECT hashed_password FROM user_tbl WHERE id = ?'
