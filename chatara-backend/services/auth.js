@@ -16,6 +16,7 @@ const refreshTokenOptions = {
 
 router.post('/login', async (req, res) => {
     const { username, password } = req.body
+    console.log(username, password)
     if (!username || !password) return res.status(400).json({ message: "Invalid username or password" })
     try {
         const query = `SELECT * FROM user_tbl WHERE username = ? LIMIT 1 `

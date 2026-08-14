@@ -1,38 +1,35 @@
 import { useState } from "react"
 import style from "./Login.module.css"
-import { Link, useNavigate, Navigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useAuth } from "../../../hooks/useAuth"
+import PasswordInput from "../../../component/PasswordInput/PasswordInput"
 
 export default function Login() {
-    const [statusMessage, setStatusMessage] = useState(null)
-    const [isInvalid, setIsInvalid] = useState(false)
-    const { loginPage, form, actions, submitBtn, cancelBtn, error } = style
+    const { loginPage, form, actions, submitBtn, cancelBtn, error, invalid } = style
+    const { login } = useAuth()
+    const [isValid, setIsValid] = useState(false)
+    const [statusMessage, setStatusMessage] = useState('')
+    const [errorMessage, setErrorMessage] = useState('')
+    const [usernameText, setUsernameText] = useState('')
+    const [passwordText, setPasswordText] = useState('')
     let navigate = useNavigate()
-    const { user, login } = useAuth()
-    if (user) return <Navigate to='/' replace />
 
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const formData = new FormData(e.currentTarget)
-        const entries = Object.fromEntries(formData.entries())
-
         try {
-            const res = await login(entries)
+            const res = await login({ username: usernameText, password: passwordText })
             if (res) {
                 setStatusMessage(res)
-                return setIsInvalid(true)
+                setErrorMessage('Invalid username or password')
+                return
             }
-            const message = 'Logged in successfully'
-            setStatusMessage(message)
-            setIsInvalid(false)
+            setStatusMessage('Logged in successfully')
             navigate("/")
         } catch (e) {
-            setIsInvalid(true)
-            setStatusMessage(e.message || 'Something went wrong')
-            return console.error(e.message || "Something went wrong")
+            setErrorMessage(e.message || 'Something went wrong')
+            return
         }
-
     }
 
     return (
@@ -50,23 +47,34 @@ export default function Login() {
                 <form onSubmit={handleSubmit} className={form}>
                     <div>
                         <label htmlFor="username">Username:</label>
-                        <input type="text" name="username" id="username" autoComplete="username" required />
+                        <input type="text" name="username" id="username" autoComplete="username" required
+                            value={usernameText}
+                            onChange={(e) => setUsernameText(e.target.value)}
+                        />
                     </div>
                     <div>
                         <label htmlFor="password">Password:</label>
-                        <input type="password" autoComplete="current-password" id="password" name="password" required />
+                        <PasswordInput passwordText={passwordText} setPasswordText={setPasswordText}
+                            setErrorMessage={setErrorMessage} setIsValid={setIsValid} />
                     </div>
-                    <p style={isInvalid ? { display: "flex" } : { display: "none" }} className={error}>Invalid username or password</p>
+                    <p style={errorMessage ? { display: "flex" } : { display: "none" }}
+                        className={error}>{errorMessage}</p>
                     <div className={actions}>
-                        <input className={submitBtn} type="submit" value={"Log in"} />
-                        <input className={cancelBtn} type="reset" value={"Cancel"} />
+                        <input className={`${submitBtn} ${!isValid && invalid}`} type="submit" disabled={!isValid}
+                            value={"Log in"}
+                        />
+                        <input className={cancelBtn} type="reset" value={"Cancel"} onClick={() => setErrorMessage('')} />
                     </div>
                 </form>
-                <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "14px", color: "black" }}>Don't have an account?
-                    <span style={{ color: "blue", cursor: "pointer" }}><Link to='/signup' style={{ textDecoration: 'none' }}> Signup</Link></span>
+                <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "14px", color: "black" }}>
+                    Don't have an account?
+                    <span style={{ color: "blue", cursor: "pointer" }}>
+                        <Link to='/signup' style={{ textDecoration: 'none' }}>
+                            Signup
+                        </Link>
+                    </span>
                 </p>
             </div>
-
         </div >
     )
 }
