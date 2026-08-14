@@ -2,12 +2,10 @@ import { useState } from "react"
 import style from "./Login.module.css"
 import { Link, useNavigate } from 'react-router'
 import { useAuth } from "../../../hooks/useAuth"
-import PasswordInput from "../../../component/PasswordInput/PasswordInput"
 
 export default function Login() {
-    const { loginPage, form, actions, submitBtn, cancelBtn, error, invalid } = style
+    const { loginPage, form, actions, submitBtn, cancelBtn, error } = style
     const { login } = useAuth()
-    const [isValid, setIsValid] = useState(false)
     const [statusMessage, setStatusMessage] = useState('')
     const [errorMessage, setErrorMessage] = useState('')
     const [usernameText, setUsernameText] = useState('')
@@ -20,10 +18,10 @@ export default function Login() {
         try {
             const res = await login({ username: usernameText, password: passwordText })
             if (res) {
-                setStatusMessage(res)
                 setErrorMessage('Invalid username or password')
                 return
             }
+            setStatusMessage(res)
             setStatusMessage('Logged in successfully')
             navigate("/")
         } catch (e) {
@@ -54,15 +52,14 @@ export default function Login() {
                     </div>
                     <div>
                         <label htmlFor="password">Password:</label>
-                        <PasswordInput passwordText={passwordText} setPasswordText={setPasswordText}
-                            setErrorMessage={setErrorMessage} setIsValid={setIsValid} />
+                        <input type="password" autoComplete="current-password" id="password" required
+                            value={passwordText}
+                            onChange={(e) => setPasswordText(e.target.value)} />
                     </div>
                     <p style={errorMessage ? { display: "flex" } : { display: "none" }}
                         className={error}>{errorMessage}</p>
                     <div className={actions}>
-                        <input className={`${submitBtn} ${!isValid && invalid}`} type="submit" disabled={!isValid}
-                            value={"Log in"}
-                        />
+                        <input className={submitBtn} type="submit" value={"Log in"} />
                         <input className={cancelBtn} type="reset" value={"Cancel"} onClick={() => setErrorMessage('')} />
                     </div>
                 </form>

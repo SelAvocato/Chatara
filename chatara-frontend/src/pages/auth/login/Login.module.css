@@ -49,11 +49,6 @@
     color: rgb(37, 36, 53);
 }
 
-.submitBtn.invalid {
-    background-color: #45457ba1;
-    cursor: not-allowed;
-}
-
 .cancelBtn {
     background-color: rgba(128, 128, 128, 0.274);
     color: rgb(92, 52, 52);
