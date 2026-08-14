@@ -16,8 +16,8 @@ const refreshTokenOptions = {
 
 router.post('/login', async (req, res) => {
     const { username, password } = req.body
-    console.log(username, password)
-    if (!username || !password) return res.status(400).json({ message: "Invalid username or password" })
+    if (!username || typeof username !== 'string' || username.trim() === '' ||
+        !password || typeof password !== 'string' || password.trim() === '' || password.length < 8 || /[^A-Za-z0-9]/.test(password) === true) return res.status(400).json({ message: "Invalid username or password" })
     try {
         const query = `SELECT * FROM user_tbl WHERE username = ? LIMIT 1 `
         const [rows] = await pool.execute(query, [username])
@@ -47,7 +47,8 @@ router.post('/login', async (req, res) => {
 
 router.post('/signup', async (req, res) => {
     const { username, password } = req.body
-    if (!username || !password) return res.status(400).json({ message: 'Invalid username or password' })
+    if (!username || typeof username !== 'string' || username.trim() === '' ||
+        !password || typeof password !== 'string' || password.trim() === '' || password.length < 8 || /[^A-Za-z0-9]/.test(password) === true) return res.status(400).json({ message: "Invalid username or password" })
 
     try {
         const hashedPassword = await bcrypt.hash(password, 12)
