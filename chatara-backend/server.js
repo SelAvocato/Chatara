@@ -65,6 +65,7 @@ wss.on('connection', async (socket, req) => {
     const token = parsedUrl.searchParams.get('token')
     if (!token) return socket.close()
     socket.accessToken = token
+    socket.isAlive = true
     socket.currentRoom = null
     socket.chatrooms = new Set()
 
@@ -81,6 +82,7 @@ wss.on('connection', async (socket, req) => {
     }
 
     websocketService.connectSocket(wss, socket)
+    websocketService.heartbeat(wss)
     console.log('user connected')
 })
 

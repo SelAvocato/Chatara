@@ -93,6 +93,10 @@ websocketService = {
             }
         })
 
+        socket.on('pong', () => {
+            socket.isAlive = true
+        })
+
         socket.on('close', () => {
             console.log('user disconnected')
         })
@@ -101,6 +105,18 @@ websocketService = {
             console.log('Error for user Id ', socket?.id, ' : ', e)
         })
     },
+
+    heartbeat: (wss) => setInterval(() => {
+        for (const client of wss.clients) {
+            if (client.isAlive === false) {
+                console.log('user connection terminated')
+                client.terminate()
+                continue
+            }
+            client.isAlive = false
+            client.ping()
+        }
+    }, 4000),
 
     broadcastPayload: (wss, payload, chatroomId) => {
         for (const client of wss.clients) {
