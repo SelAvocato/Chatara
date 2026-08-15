@@ -4,7 +4,7 @@ const { parse } = require('url')
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const port = 3000
+const PORT = process.env.PORT || 3000
 const http = require('http')
 const { WebSocketServer, WebSocket } = require('ws')
 const websocketService = require('./services/websocket.js')
@@ -86,6 +86,6 @@ wss.on('connection', async (socket, req) => {
     console.log('user connected')
 })
 
-httpServer.listen(port, (req, res) => {
-    console.log('listening to port', port)
+httpServer.listen(PORT, () => {
+    console.log('listening to port', PORT)
 })
