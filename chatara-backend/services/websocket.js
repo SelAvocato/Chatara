@@ -116,7 +116,7 @@ websocketService = {
             client.isAlive = false
             client.ping()
         }
-    }, 4000),
+    }, 30000),
 
     broadcastPayload: (wss, payload, chatroomId) => {
         for (const client of wss.clients) {
