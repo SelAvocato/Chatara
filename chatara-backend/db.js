@@ -6,6 +6,7 @@ const password = process.env.DB_PASSWORD
 const database = process.env.DB_NAME
 const waitForConnections = process.env.DB_WAIT_FOR_CONNECTION
 const connectionLimit = Number(process.env.DB_CONNECTION_LIMIT)
+const PORT = process.env.PORT
 
 const pool = mysql.createPool({
     host: host,
@@ -13,7 +14,11 @@ const pool = mysql.createPool({
     password: password,
     database: database,
     waitForConnections: waitForConnections,
-    connectionLimit: connectionLimit
+    connectionLimit: connectionLimit,
+    port: PORT,
+    ssl: {
+        rejectUnauthorized: false
+    }
 })
 
 module.exports = pool
