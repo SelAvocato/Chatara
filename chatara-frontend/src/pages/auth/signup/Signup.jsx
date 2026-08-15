@@ -18,7 +18,7 @@ export default function Signup() {
     async function handleSubmit(e) {
         e.preventDefault()
         try {
-            const res = await signup({ username: usernameText, password: passwordText })
+            const res = await signup(usernameText, passwordText)
             if (res.status !== 'ok') {
                 setErrorMessage(res.message)
                 return
