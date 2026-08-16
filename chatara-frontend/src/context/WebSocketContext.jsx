@@ -30,11 +30,14 @@ export function WebSocketProvider({ children }) {
     const [newChatroomName, setNewChatroomName] = useState(null)
 
     const baseUrl = import.meta.env.VITE_API_BASE_URL
+    const socketUrl = baseUrl 
+    ? baseUrl.replace(/^http/, 'ws')
+    : 'ws://localhost:3000' 
 
     useEffect(() => {
         if (!accessToken) return
 
-        wsRef.current = new WebSocket(`ws://localhost:3000?token=${accessToken}`)
+        wsRef.current = new WebSocket(`${socketUrl}?token=${accessToken}`)
 
         wsRef.current.onopen = () => {
             console.log('connected')
@@ -147,7 +150,7 @@ export function WebSocketProvider({ children }) {
         }
 
         return () => wsRef.current.close()
-    }, [accessToken, handleTokenExpiration, setUser, setAccessToken, baseUrl])
+    }, [accessToken, handleTokenExpiration, setUser, setAccessToken, baseUrl, socketUrl])
 
     const openChat = useCallback(async (chatroomId) => {
         getChatroomInfo(chatroomId)

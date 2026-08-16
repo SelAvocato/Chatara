@@ -61,9 +61,19 @@ app.use('/messages', messagesRouter)
 app.use('/users', usersRouter)
 
 wss.on('connection', async (socket, req) => {
-    const parsedUrl = new URL(req.url, 'http://localhost')
-    const token = parsedUrl.searchParams.get('token')
-    if (!token) return socket.close()
+    const origin = req.headers.origin;
+    if (process.env.NODE_ENV === 'production' && origin !== process.env.ORIGIN_URL) {
+        console.log(`Unauthorized origin rejected: ${origin}`);
+        return socket.close(4001, 'Unauthorized Origin');
+    }
+    const baseHost = req.headers.host ? `http://${req.headers.host}` : 'http://localhost';
+    const parsedUrl = new URL(req.url, baseHost);
+    const token = parsedUrl.searchParams.get('token');
+    if (!token) return socket.close();
+
+    // const parsedUrl = new URL(req.url, 'http://localhost')
+    // const token = parsedUrl.searchParams.get('token')
+    // if (!token) return socket.close()
     socket.accessToken = token
     socket.isAlive = true
     socket.currentRoom = null
