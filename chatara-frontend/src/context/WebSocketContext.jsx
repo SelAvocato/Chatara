@@ -22,6 +22,7 @@ export function WebSocketProvider({ children }) {
     const [isTyping, setIsTyping] = useState(false)
     const [latestMessageWs, setLatestMessageWs] = useState(null)
     const [userTyping, setUserTyping] = useState(null)
+    const [hasOpenChat, setHasOpenChat] = useState(localStorage.getItem('recentChatroomId') !== null && localStorage.getItem('recentChatroomId') !== undefined)
     const [currentChatroomId, setCurrentChatroomId] = useState(JSON.parse(localStorage.getItem('recentChatroomId')) || null)
     const [newChatroom, setNewChatroom] = useState(null)
     const [startChat, setStartChat] = useState('')
@@ -30,9 +31,9 @@ export function WebSocketProvider({ children }) {
     const [newChatroomName, setNewChatroomName] = useState(null)
 
     const baseUrl = import.meta.env.VITE_API_BASE_URL
-    const socketUrl = baseUrl 
-    ? baseUrl.replace(/^http/, 'ws')
-    : 'ws://localhost:3000' 
+    const socketUrl = baseUrl
+        ? baseUrl.replace(/^http/, 'ws')
+        : 'ws://localhost:3000'
 
     useEffect(() => {
         if (!accessToken) return
@@ -47,7 +48,6 @@ export function WebSocketProvider({ children }) {
             try {
                 const parsed = JSON.parse(event.data)
                 const { username, pfp_url, message_status } = parsed
-                // console.log('parsed data: ', parsed)
 
                 switch (parsed.type) {
                     case 'chat':
@@ -104,7 +104,7 @@ export function WebSocketProvider({ children }) {
                         if (isReconnectingRef.current) return
                         try {
                             isReconnectingRef.current = true
-                            console.log('Expired access token. Reconnecting...')
+                            console.error('Expired access token. Reconnecting...')
                             const res = await fetch(`${baseUrl}/auth/refresh`, {
                                 method: 'POST',
                                 credentials: 'include'
@@ -137,12 +137,12 @@ export function WebSocketProvider({ children }) {
                 }
             }
             catch (e) {
-                console.log('Error: ', e.message)
+                console.error('Error: ', e.message)
             }
         }
 
         wsRef.current.onerror = () => {
-            console.log('Something went wrong')
+            console.error('Something went wrong')
         }
 
         wsRef.current.onclose = () => {
@@ -158,6 +158,10 @@ export function WebSocketProvider({ children }) {
         setCurrentChatroomId(chatroomId)
         try {
             const data = await api.get(`/messages/chatroom/${chatroomId}`)
+            if (data?.status === 'forbidden') {
+                localStorage.removeItem('recentChatroomId')
+                throw new Error('forbidden')
+            }
             wsRef.current?.send(JSON.stringify({
                 type: "join",
                 chatroomId: chatroomId,
@@ -179,6 +183,7 @@ export function WebSocketProvider({ children }) {
         } catch (e) {
             console.error(e)
             setStartChat('Something went wrong')
+            throw e
         }
     }, [api, getChatroomInfo, user.id])
 
@@ -201,7 +206,12 @@ export function WebSocketProvider({ children }) {
     useEffect(() => {
         async function refresh() {
             if (!savedChatroomId) return
-            await openChat(savedChatroomId)
+            try {
+                await openChat(savedChatroomId)
+            } catch (e) {
+                console.error(e)
+                setHasOpenChat(false)
+            }
         }
         refresh()
     }, [savedChatroomId, openChat])
@@ -209,10 +219,10 @@ export function WebSocketProvider({ children }) {
     const contextValue = useMemo(() => ({
         wsRef, openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
         editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom,
-        editedChatroomImage, newChatroomName
+        editedChatroomImage, newChatroomName, hasOpenChat, setHasOpenChat
     }), [openChat, currentChatroomId, startChat, chatMessages, latestMessageWs, isTyping, userTyping,
         editMessage, deleteMessage, firstMessage, setFirstMessage, firstMessageIndex, setFirstMessageIndex, setChatMessages, newChatroom,
-        editedChatroomImage, newChatroomName
+        editedChatroomImage, newChatroomName, hasOpenChat, setHasOpenChat
     ])
 
     const chatBubbleContextValue = useMemo(() => ({

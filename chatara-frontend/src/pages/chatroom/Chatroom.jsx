@@ -15,30 +15,17 @@ export default function Chatroom() {
     const { main, chatroomsStyle, chatroomsListStyle, imgContainerStyle, chatroomsHeaderStyle } = style
     const api = useApi()
     const { chatroom, setChatroom, isChatroomInfoOpened } = useChatroom()
-    const { newChatroom, latestMessageWs, editedChatroomImage, newChatroomName } = useWebsocket()
+    const { newChatroom, latestMessageWs, editedChatroomImage, newChatroomName, hasOpenChat, setHasOpenChat } = useWebsocket()
     const [message, setMessage] = useState('')
-    const [chatrooms, setChatrooms] = useState(null)
+    const [chatrooms, setChatrooms] = useState([])
     const [searchedChatroom, setSearchedChatroom] = useState('')
     const [filteredChatrooms, setFilteredChatrooms] = useState(null)
     const [isCreatingChatroom, setIsCreatingChatroom] = useState(false)
-    const [hasOpenChat, setHasOpenChat] = useState(localStorage.getItem('recentChatroomId') !== null && localStorage.getItem('recentChatroomId') !== undefined)
     const [eldestChatroomTimeStamp, setEldestChatroomTimestamp] = useState(null)
     const [isRequestingChatrooms, setIsRequestingChatrooms] = useState(false)
     const chatroomListBottomRef = useRef(null)
     const isFetchingChatrooms = useRef(false)
     const chatroomsListRef = useRef(null)
-
-    useEffect(() => {
-        return () => {
-            setFilteredChatrooms(null)
-            setHasOpenChat(false)
-            setIsCreatingChatroom(false)
-            setMessage('')
-            setSearchedChatroom('')
-            localStorage.setItem('recentChatroomId', null)
-        }
-    }, [])
-
     useEffect(() => {
         async function getChatrooms() {
             try {
@@ -111,7 +98,10 @@ export default function Chatroom() {
     useEffect(() => {
         if (!newChatroom) return
         function prependNewChatroom() {
-            setChatrooms(prev => [newChatroom, ...prev])
+            setChatrooms(prev => prev?.length > 0
+                ? [newChatroom, ...prev]
+                : [newChatroom]
+            )
         }
         prependNewChatroom()
     }, [newChatroom])

@@ -25,12 +25,6 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
                     setLatestMessage(data?.data || null)
                     return
                 }
-                // for (let x = 0; x < data.messages.length; x++) {
-                //     if (data.messages[x].message_status !== 'sent') continue
-                //     const currentMessage = data.messages[x]
-                //     const { message_id, chatroom_id } = currentMessage
-                //     wsRef?.current?.send(JSON.stringify({ message_id, chatroom_id, message_status: 'delivered', type: 'delivered' }))
-                // }
 
                 const recentMessage = data?.messages?.at(-1)
                 const { message_id, chatroom_id } = recentMessage
@@ -66,7 +60,12 @@ const ChatroomList = memo(function ChatroomList({ chatroom, hasOpenChat, setHasO
             setHasOpenChat(true)
         }
         setUnreadMessagesCount(null)
-        await openChat(chatroomId)
+        try {
+            await openChat(chatroomId)
+        } catch {
+            console.log('ran')
+            setHasOpenChat(false)
+        }
     }
 
     return (
