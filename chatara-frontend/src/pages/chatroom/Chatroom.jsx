@@ -29,6 +29,17 @@ export default function Chatroom() {
     const chatroomsListRef = useRef(null)
 
     useEffect(() => {
+        return () => {
+            setFilteredChatrooms(null)
+            setHasOpenChat(false)
+            setIsCreatingChatroom(false)
+            setMessage('')
+            setSearchedChatroom('')
+            localStorage.setItem('recentChatroomId', null)
+        }
+    }, [])
+
+    useEffect(() => {
         async function getChatrooms() {
             try {
                 const data = await api.get(`/chatrooms?timestamp=`)
