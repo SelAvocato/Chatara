@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
 
     async function login(entries) {
         const data = await request('/auth/login', { body: JSON.stringify(entries) })
-        if (data.status !== 'ok') return data.message
+        if (data.status !== 'ok') throw new Error(data.message)
 
         setUser(data.user)
         setAccessToken(data.accessToken)
@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
     async function signup(username, password) {
         const newUser = { username, password }
         const data = await request('/auth/signup', { body: JSON.stringify(newUser) })
+        if (data.status !== 'ok') throw new Error(data.message)
         return data
     }
 

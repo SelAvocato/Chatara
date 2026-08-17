@@ -18,15 +18,10 @@ export default function Signup() {
     async function handleSubmit(e) {
         e.preventDefault()
         try {
-            const res = await signup(usernameText, passwordText)
-            if (res.status !== 'ok') {
-                setErrorMessage(res.message)
-                return
-            }
+            await signup(usernameText, passwordText)
             navigate('/login')
-
         } catch (e) {
-            setErrorMessage(e.message)
+            setErrorMessage(e.message === 'Failed to fetch' ? 'Server is currently offline' : e.message)
         }
     }
     return (

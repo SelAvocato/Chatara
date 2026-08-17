@@ -16,16 +16,11 @@ export default function Login() {
         e.preventDefault()
 
         try {
-            const res = await login({ username: usernameText, password: passwordText })
-            if (res) {
-                setErrorMessage('Invalid username or password')
-                return
-            }
-            setStatusMessage(res)
+            await login({ username: usernameText, password: passwordText })
             setStatusMessage('Logged in successfully')
             navigate("/")
         } catch (e) {
-            setErrorMessage(e.message || 'Something went wrong')
+            setErrorMessage(e.message === 'Failed to fetch' ? 'Server is currently offline' : e.message)
             return
         }
     }
@@ -65,7 +60,7 @@ export default function Login() {
                 </form>
                 <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "14px", color: "black" }}>
                     Don't have an account?
-                    <span style={{ color: "blue", cursor: "pointer" }}>
+                    <span style={{ color: "blue", cursor: "pointer", marginLeft: '3px' }}>
                         <Link to='/signup' style={{ textDecoration: 'none' }}>
                             Signup
                         </Link>
