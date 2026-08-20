@@ -35,14 +35,23 @@ export function ChatroomProvider({ children }) {
         refresh()
     }, [getChatroomInfo, savedChatroomId])
 
-    const leaveChatroom = useCallback(async () => {
+    const leaveChatroom = useCallback(async (setErrorMessage) => {
         if (!chatroom) return
-        await api.post(`/chatroom/leave/${chatroom?.id}`)
+        try {
+            await api.post(`/chatroom/leave/${chatroom?.id}`)
+        } catch (e) {
+            setErrorMessage(e.message)
+        }
     }, [chatroom, api])
 
-    const renameChatroom = useCallback(async (newChatroomName) => {
+    const renameChatroom = useCallback(async (newChatroomName, setErrorMessage) => {
         if (!chatroom) return
-        await api.put(`/chatroom/rename/${chatroom?.id}`, { newChatroomName })
+        try {
+            await api.put(`/chatroom/rename/${chatroom?.id}`, { newChatroomName })
+        } catch (e) {
+            setErrorMessage(e.message)
+            return 'error'
+        }
     }, [chatroom, api])
 
     const contextValue = useMemo(() => ({

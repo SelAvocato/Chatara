@@ -30,10 +30,6 @@ export default function Chatroom() {
         async function getChatrooms() {
             try {
                 const data = await api.get(`/chatrooms?timestamp=`)
-                if (data.status !== 'ok') {
-                    setMessage(data?.message)
-                    return
-                }
                 setChatrooms(data?.chatrooms)
 
                 const eldestChatroom = data.chatrooms.at(-1)
@@ -42,7 +38,7 @@ export default function Chatroom() {
                 setEldestChatroomTimestamp(createdAtToDate > sentAtToDate ? eldestChatroom?.created_at : eldestChatroom?.sent_at)
             } catch (e) {
                 console.error(e)
-                setMessage(e)
+                setMessage(e.message)
             }
         }
 
@@ -85,7 +81,7 @@ export default function Chatroom() {
                 setChatrooms(prev => [...prev, ...oldChatrooms])
             } catch (e) {
                 if (e.name === 'AbortError') return
-                console.error(e)
+                setMessage(e.message)
             } finally {
                 isFetchingChatrooms.current = false
             }

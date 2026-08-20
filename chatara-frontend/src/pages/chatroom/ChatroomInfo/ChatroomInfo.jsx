@@ -18,6 +18,7 @@ export default function ChatroomInfo() {
     const [isViewingMembers, setIsViewingMembers] = useState(false)
     const [isLeavingChatroom, setIsLeavingChatroom] = useState(false)
     const [newChatroomName, setNewChatroomName] = useState(chatroom?.name)
+    const [errorMessage, setErrorMessage] = useState('')
 
     useEffect(() => {
         return () => {
@@ -36,7 +37,8 @@ export default function ChatroomInfo() {
         e.preventDefault()
         const trimmedChatroomName = newChatroomName.trim()
         if (!newChatroomName || trimmedChatroomName === '' || trimmedChatroomName === chatroom?.name) return
-        renameChatroom(trimmedChatroomName)
+        const res = await renameChatroom(trimmedChatroomName, setErrorMessage)
+        if (res === 'error') return
         wsRef?.current?.send(JSON.stringify({ type: 'renameChatroom', id: chatroom?.id, name: trimmedChatroomName }))
         setIsChangingChatroomName(false)
     }
@@ -55,6 +57,7 @@ export default function ChatroomInfo() {
                                 <input className={inputCancelRenameStyle} type='button' value={'Cancel'} onClick={() => setIsChangingChatroomName(false)} />
                                 <input className={inputConfirmRenameStyle} type='submit' value={'Rename'} />
                             </div>
+                            {errorMessage && isChangingChatroomName && <p style={{ color: 'red' }}>{errorMessage}</p>}
                         </form>
                         : <p className={chatroomNameStyle}>{chatroom?.name}</p>
                 }
@@ -63,7 +66,11 @@ export default function ChatroomInfo() {
                 <div>
                     <ChatroomImageForm />
                 </div>
-                <div className={changeChatroomNameStyle} onClick={() => { setIsChangingChatroomName(true) }}>
+                <div className={changeChatroomNameStyle}
+                    onClick={() => {
+                        setIsChangingChatroomName(true)
+                        setIsLeavingChatroom(false)
+                    }}>
                     <p>Change Name</p>
                 </div>
                 <div className={changeThemeStyle}>
@@ -89,14 +96,19 @@ export default function ChatroomInfo() {
                 </div>
 
                 <div className={leaveChatroomStyle}>
-                    <p className={leaveChatroomButtonStyle} onClick={() => setIsLeavingChatroom(true)}>Leave Chatroom</p>
+                    <p className={leaveChatroomButtonStyle}
+                        onClick={() => {
+                            setIsLeavingChatroom(true)
+                            setIsChangingChatroomName(false)
+                        }}>Leave Chatroom</p>
                     {isLeavingChatroom &&
                         <div className={leaveConfirmationStyle}>
                             <p className={leaveMessageStyle}>Are you sure you want to leave the chatroom?</p>
                             <div className={leaveActionsStyle}>
-                                <button className={confirmLeaveStyle} onClick={leaveChatroom}>Leave</button>
+                                <button className={confirmLeaveStyle} onClick={() => leaveChatroom(setErrorMessage)}>Leave</button>
                                 <button className={cancelLeaveStyle} onClick={() => setIsLeavingChatroom(false)}>Cancel</button>
                             </div>
+                            {errorMessage && isLeavingChatroom && <p style={{ color: 'red' }}>{errorMessage}</p>}
                         </div>
                     }
                 </div>

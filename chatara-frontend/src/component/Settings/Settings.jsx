@@ -27,16 +27,11 @@ export default function Settings({ setHasOpenedSettings }) {
         const trimmedUsername = newUsername.trim()
         if (user?.username === trimmedUsername || trimmedUsername === '') return
         try {
-            const data = await api.put(`/users/username`, { newUsername })
-            if (data.errorMessage) {
-                setErrorMessage(data.errorMessage)
-                return
-            }
+            await api.put(`/users/username`, { newUsername })
             setUser(prev => ({ ...prev, username: trimmedUsername }))
             setIsChangingUsername(false)
         } catch (e) {
-            console.error(e)
-            setErrorMessage(e)
+            setErrorMessage(e.message)
         }
     }
 
@@ -44,18 +39,13 @@ export default function Settings({ setHasOpenedSettings }) {
         e.preventDefault()
         if (newPassValue.trim() === '' || oldPassValue.trim() === '') return
         try {
-            const data = await api.put(`/users/password`, { oldPassword: oldPassValue, newPassword: newPassValue })
-            if (data.errorMessage) {
-                setErrorMessage(data.errorMessage)
-                return
-            }
+            await api.put(`/users/password`, { oldPassword: oldPassValue, newPassword: newPassValue })
             setIsChangingPassword(false)
             setOldPassValue('')
             setNewPassValue('')
             alert('Password successfully changed')
         } catch (e) {
-            console.error(e)
-            setErrorMessage(e)
+            setErrorMessage(e.message)
         }
     }
 

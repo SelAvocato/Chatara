@@ -51,13 +51,11 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
         }
         try {
             const data = await api.post('/chatrooms/create', chatroomInfo)
-            if (data.status !== 'ok') return setErrorMessage(data.message)
             const { username, chatroomName } = chatroomInfo
             wsRef?.current?.send(JSON.stringify({ username, name: chatroomName, id: data.chatroomId, type: 'createChatroom', chatroom_img_url: newChatroomImage }))
             setIsCreatingChatroom(false)
         } catch (e) {
-            console.error(e)
-            return setErrorMessage(`Error: ${e || 'Something went wrong'}`)
+            setErrorMessage(e.message)
         }
     }
 
@@ -82,7 +80,7 @@ export default function CreateChatroom({ setIsCreatingChatroom }) {
                 setFilteredUsers(data.users)
             } catch (e) {
                 if (e.name === 'AbortError') return
-                console.error(e)
+                setErrorMessage(e.message)
             } finally {
                 setIsLoading(false)
             }
